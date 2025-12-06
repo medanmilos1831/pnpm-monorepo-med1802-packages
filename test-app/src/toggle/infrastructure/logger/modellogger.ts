@@ -2,15 +2,14 @@ import { EventName, type IEvent, type onChangePayload } from "../../types";
 import type { createMessageBroker } from "@med1802/scoped-observer-message-broker";
 
 const createModelLogger = (
-  id: string,
   active: boolean,
   messageBroker: ReturnType<typeof createMessageBroker>
 ) => {
   const subscribe = messageBroker.subscribe;
   subscribe({
     eventName: EventName.ON_LOG_ACTION,
-    callback: (event: IEvent<onChangePayload>) => {
-      const { open, message } = event.payload;
+    callback: (event: IEvent<onChangePayload & { id: string }>) => {
+      const { id, open, message } = event.payload;
       if (active) {
         console.table([
           {

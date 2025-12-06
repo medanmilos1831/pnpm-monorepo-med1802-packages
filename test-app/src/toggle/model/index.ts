@@ -8,21 +8,8 @@ import {
 
 const model = (params: toggleConfigType, config: storeConfig) => {
   const context = createModelContext(params, config);
-  const {
-    getMessage,
-    middleware,
-    getInitialState,
-    setInitialState,
-    publish,
-    subscribe,
-  } = context;
+  const { getMessage, middleware, getState, publish, subscribe } = context;
   function publishHandler(payload: { open: boolean; message?: any }) {
-    const { open, message } = payload;
-    publish({
-      eventName: EventName.ON_SET_MESSAGE,
-      payload,
-    });
-    setInitialState(open);
     publish({
       eventName: EventName.ON_CHANGE,
       payload,
@@ -30,13 +17,12 @@ const model = (params: toggleConfigType, config: storeConfig) => {
     if (config.log) {
       publish({
         eventName: EventName.ON_LOG_ACTION,
-        payload,
+        payload: {
+          ...payload,
+          id: params.id,
+        },
       });
     }
-    return {
-      eventName: EventName.ON_CHANGE,
-      payload,
-    };
   }
   return {
     open: (message?: any) => {
@@ -65,7 +51,7 @@ const model = (params: toggleConfigType, config: storeConfig) => {
       });
     },
     getMessage: getMessage,
-    getValue: getInitialState,
+    getValue: getState,
   };
 };
 

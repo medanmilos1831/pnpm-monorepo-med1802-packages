@@ -1,14 +1,14 @@
-import { EventName } from "@med1802/react-toggle-observer/dist/types";
 import type { createMessageBroker } from "@med1802/scoped-observer-message-broker";
 
 import { createMiddlewareContext } from "./middlewareContext";
 import type { middlewareParamsType, middlewareStoreConfigType } from "./types";
 import type { createMessageContainer } from "../messageContainer";
+import { EventName } from "../../types";
 
 const createMiddleware = (
   middlewares: middlewareStoreConfigType,
-  messageBroker: ReturnType<typeof createMessageBroker>,
-  messageContainer: ReturnType<typeof createMessageContainer>
+  messageBroker: ReturnType<typeof createMessageBroker>
+  // messageContainer: ReturnType<typeof createMessageContainer>
 ) => {
   return ({ use, value }: middlewareParamsType) => {
     const unsubscribe = messageBroker.interceptor({
@@ -19,7 +19,11 @@ const createMiddleware = (
           value
         )(middlewares[use]);
         if (typeof result === "object") {
-          messageContainer.setMessage(result.payload.message);
+          messageBroker.publish({
+            eventName: EventName.ON_SET_MESSAGE,
+            payload: result.payload.message,
+          });
+          // messageContainer.setMessage(result.payload.message);
         }
         if (result.status === false) {
           return false;
