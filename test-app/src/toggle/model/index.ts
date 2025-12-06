@@ -27,7 +27,6 @@ const model = (params: toggleConfigType, config: storeConfig) => {
       payload,
     });
     return {
-      id: params.id,
       eventName: EventName.ON_CHANGE,
       payload,
     };

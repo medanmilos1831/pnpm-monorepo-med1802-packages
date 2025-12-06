@@ -2,13 +2,11 @@ import type { IEvent } from "../../types";
 
 const createModelLogger = (id: string, active: boolean) => {
   return {
-    logAction: <
-      T extends (...args: any[]) => Omit<IEvent, "scope"> & { id: string }
-    >(
+    logAction: <T extends (...args: any[]) => Omit<IEvent, "scope">>(
       callback: T
     ): T => {
       return ((...args: any[]) => {
-        const { id, payload } = callback(...args);
+        const { payload } = callback(...args);
         const { open, message } = payload;
         if (active) {
           console.table([
