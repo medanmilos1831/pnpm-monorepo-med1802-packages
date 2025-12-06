@@ -2,12 +2,14 @@ import type { middlewareStoreConfigType } from "./infrastructure/middleware/type
 
 export enum EventName {
   ON_CHANGE = "onChange",
+  ON_SET_MESSAGE = "onSetMessage",
+  ON_LOG_ACTION = "onLogAction",
 }
 export type onChangePayload = { open: boolean; message?: any };
-export interface IEvent {
+export interface IEvent<P = any> {
   scope?: string;
   eventName: string;
-  payload: onChangePayload;
+  payload: P;
 }
 
 export type toggleConfigType = {

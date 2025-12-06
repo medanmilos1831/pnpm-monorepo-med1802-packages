@@ -7,21 +7,21 @@ import { type storeConfig, type toggleConfigType } from "../types";
 
 const createModelContext = (params: toggleConfigType, config: storeConfig) => {
   let initialState = params.initialState;
+  // INFRASTRUCTURE
   const scopedObserver = createScopedObserver();
   const messageBroker = createMessageBroker(scopedObserver);
-  const logger = createModelLogger(params.id, config.log);
-  const messageContainer = createMessageContainer();
+  createModelLogger(params.id, config.log, messageBroker);
+  const messageContainer = createMessageContainer(messageBroker);
   const middleware = config.middlewares
     ? createMiddleware(config.middlewares, messageBroker, messageContainer)
     : undefined;
+  // END :: INFRASTRUCTURE
   // Message Container
-  const setMessage = messageContainer.setMessage;
   const getMessage = messageContainer.getMessage;
   // Message Broker
   const publish = messageBroker.publish;
   const subscribe = messageBroker.subscribe;
-  // Logger
-  const logAction = logger.logAction;
+
   // Initial State
   function setInitialState(state: boolean) {
     initialState = state;
@@ -35,11 +35,9 @@ const createModelContext = (params: toggleConfigType, config: storeConfig) => {
     middleware,
     setInitialState,
     getInitialState,
-    setMessage,
     getMessage,
     publish,
     subscribe,
-    logAction,
   };
 };
 

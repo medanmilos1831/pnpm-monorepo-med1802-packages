@@ -9,23 +9,30 @@ import {
 const model = (params: toggleConfigType, config: storeConfig) => {
   const context = createModelContext(params, config);
   const {
-    setMessage,
     getMessage,
     middleware,
     getInitialState,
     setInitialState,
     publish,
     subscribe,
-    logAction,
   } = context;
   function publishHandler(payload: { open: boolean; message?: any }) {
     const { open, message } = payload;
-    setMessage(message);
+    publish({
+      eventName: EventName.ON_SET_MESSAGE,
+      payload,
+    });
     setInitialState(open);
     publish({
       eventName: EventName.ON_CHANGE,
       payload,
     });
+    if (config.log) {
+      publish({
+        eventName: EventName.ON_LOG_ACTION,
+        payload,
+      });
+    }
     return {
       eventName: EventName.ON_CHANGE,
       payload,
@@ -33,15 +40,13 @@ const model = (params: toggleConfigType, config: storeConfig) => {
   }
   return {
     open: (message?: any) => {
-      const decoratedPublishHandler = logAction(publishHandler);
-      decoratedPublishHandler({
+      publishHandler({
         open: true,
         message,
       });
     },
     close: (message?: any) => {
-      const decoratedPublishHandler = logAction(publishHandler);
-      decoratedPublishHandler({
+      publishHandler({
         open: false,
         message,
       });
