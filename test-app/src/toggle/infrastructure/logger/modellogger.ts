@@ -1,4 +1,4 @@
-import { type IEvent, type onChangePayload } from "../../types";
+import { type onChangePayload } from "../../types";
 
 const createModelLogger = (active: boolean, id: string) => {
   return {
