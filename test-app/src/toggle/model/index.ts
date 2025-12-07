@@ -2,40 +2,52 @@ import { createModelContext } from "./context";
 import {
   EventName,
   type IEvent,
+  type onChangePayload,
   type storeConfig,
   type toggleConfigType,
 } from "../types";
 
 const model = (params: toggleConfigType, config: storeConfig) => {
-  const context = createModelContext(params, config);
-  const { getMessage, middleware, getState, publish, subscribe } = context;
-  function publishHandler(payload: { open: boolean; message?: any }) {
+  const context = createModelContext(config, params.id);
+  const {
+    getMessage,
+    middleware,
+    getValue,
+    publish,
+    subscribe,
+    setState,
+    logAction,
+  } = context;
+  function publishHandler(payload: onChangePayload) {
+    setState((state) => ({
+      ...state,
+      ...payload,
+    }));
     publish({
       eventName: EventName.ON_CHANGE,
       payload,
     });
-    if (config.log) {
-      publish({
-        eventName: EventName.ON_LOG_ACTION,
-        payload: {
-          ...payload,
-          id: params.id,
-        },
-      });
-    }
   }
   return {
     open: (message?: any) => {
-      publishHandler({
+      const payload = {
         open: true,
         message,
-      });
+      };
+      const decoratedPublish = logAction(publishHandler, payload);
+      decoratedPublish(payload);
     },
     close: (message?: any) => {
-      publishHandler({
+      const payload = {
         open: false,
         message,
-      });
+      };
+      const decoratedPublish = logAction(publishHandler, payload);
+      decoratedPublish(payload);
+      // publishHandler({
+      //   open: false,
+      //   message,
+      // });
     },
     middleware,
     onChangeSync: (callback: () => void) => {
@@ -51,7 +63,7 @@ const model = (params: toggleConfigType, config: storeConfig) => {
       });
     },
     getMessage: getMessage,
-    getValue: getState,
+    getValue,
   };
 };
 

@@ -2,42 +2,31 @@ import { createScopedObserver } from "@med1802/scoped-observer";
 import { createMessageBroker } from "@med1802/scoped-observer-message-broker";
 import { createModelLogger } from "../infrastructure/logger/modellogger";
 import { createMiddleware } from "../infrastructure/middleware";
-import { type storeConfig, type toggleConfigType } from "../types";
-import { createModelState } from "../infrastructure/modelState";
+import { type storeConfig } from "../types";
+import { createModelStore } from "../infrastructure/modelStore";
 
-const createModelContext = (params: toggleConfigType, config: storeConfig) => {
-  // let initialState = params.initialState;
+const createModelContext = (config: storeConfig, id: string) => {
   // INFRASTRUCTURE
   const scopedObserver = createScopedObserver();
   const messageBroker = createMessageBroker(scopedObserver);
-  createModelLogger(config.log, messageBroker);
-  const modelState = createModelState(messageBroker);
+  const { logAction } = createModelLogger(config.log, id);
+  const modelState = createModelStore();
   const middleware = config.middlewares
     ? createMiddleware(config.middlewares, messageBroker)
     : undefined;
+  const getValue = modelState.getState("open");
+  const getMessage = modelState.getState("message");
+  const setState = modelState.setState;
   // END :: INFRASTRUCTURE
-  // Message Container
-  const getMessage = modelState.getMessage;
-  const getState = modelState.getState;
-  // Message Broker
-  const publish = messageBroker.publish;
-  const subscribe = messageBroker.subscribe;
-
-  // Initial State
-  // function setInitialState(state: boolean) {
-  //   initialState = state;
-  // }
-  // function getInitialState() {
-  //   return initialState;
-  // }
-
   return {
     scopedObserver,
     middleware,
-    getState,
+    setState,
+    getValue,
     getMessage,
-    publish,
-    subscribe,
+    logAction,
+    publish: messageBroker.publish,
+    subscribe: messageBroker.subscribe,
   };
 };
 

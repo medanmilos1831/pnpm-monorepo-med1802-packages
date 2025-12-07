@@ -1,81 +1,42 @@
-import { EventName, type IEvent, type onChangePayload } from "../../types";
-import type { createMessageBroker } from "@med1802/scoped-observer-message-broker";
+import { type IEvent, type onChangePayload } from "../../types";
 
-const createModelLogger = (
-  active: boolean,
-  messageBroker: ReturnType<typeof createMessageBroker>
-) => {
-  const subscribe = messageBroker.subscribe;
-  subscribe({
-    eventName: EventName.ON_LOG_ACTION,
-    callback: (event: IEvent<onChangePayload & { id: string }>) => {
-      const { id, open, message } = event.payload;
-      if (active) {
-        console.table([
-          {
-            id,
-            open,
-          },
-        ]);
-        if (message !== undefined) {
-          console.group(
-            `%c📨 Message`,
-            "color: #4CAF50; font-weight: bold; font-size: 12px;"
-          );
-          if (typeof message === "object" && message !== null) {
-            console.log(
-              "%cObject:",
-              "color: #2196F3; font-weight: bold",
-              message
-            );
-          } else {
-            console.log(
-              "%cValue:",
-              "color: #2196F3; font-weight: bold",
-              message
-            );
-          }
-          console.groupEnd();
-        }
-      }
-      // console.log(event);
-    },
-  });
+const createModelLogger = (active: boolean, id: string) => {
   return {
-    logAction: <T extends (...args: any[]) => Omit<IEvent, "scope">>(
-      callback: T
+    logAction: <T extends (...args: any[]) => void>(
+      callback: T,
+      params: onChangePayload
     ): T => {
       return ((...args: any[]) => {
-        // const { payload } = callback(...args);
-        // const { open, message } = payload;
-        // if (active) {
-        //   console.table([
-        //     {
-        //       id,
-        //       open,
-        //     },
-        //   ]);
-        //   if (message !== undefined) {
-        //     console.group(
-        //       `%c📨 Message`,
-        //       "color: #4CAF50; font-weight: bold; font-size: 12px;"
-        //     );
-        //     if (typeof message === "object" && message !== null) {
-        //       console.log(
-        //         "%cObject:",
-        //         "color: #2196F3; font-weight: bold",
-        //         message
-        //       );
-        //     } else {
-        //       console.log(
-        //         "%cValue:",
-        //         "color: #2196F3; font-weight: bold",
-        //         message
-        //       );
-        //     }
-        //     console.groupEnd();
-        //   }
-        // }
+        const { open, message } = params;
+        if (active) {
+          console.table([
+            {
+              id,
+              open,
+            },
+          ]);
+          if (message !== undefined) {
+            console.group(
+              `%c📨 Message`,
+              "color: #4CAF50; font-weight: bold; font-size: 12px;"
+            );
+            if (typeof message === "object" && message !== null) {
+              console.log(
+                "%cObject:",
+                "color: #2196F3; font-weight: bold",
+                message
+              );
+            } else {
+              console.log(
+                "%cValue:",
+                "color: #2196F3; font-weight: bold",
+                message
+              );
+            }
+            console.groupEnd();
+          }
+        }
+        callback(...args);
       }) as T;
     },
   };
