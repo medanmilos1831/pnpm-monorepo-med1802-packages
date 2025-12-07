@@ -4,14 +4,15 @@ import { createMiddlewareContext } from "./middlewareContext";
 import type { middlewareParamsType, middlewareStoreConfigType } from "./types";
 
 import { EventName } from "../../types";
+import type { createModelStore } from "../modelStore";
 
 const createMiddleware = (
   middlewares: middlewareStoreConfigType,
-  messageBroker: ReturnType<typeof createMessageBroker>
+  messageBroker: ReturnType<typeof createMessageBroker>,
+  modelState: ReturnType<typeof createModelStore>
 ) => {
   return ({ use, value }: middlewareParamsType) => {
     const unsubscribe = messageBroker.interceptor({
-      scope: "modelState",
       eventName: EventName.ON_CHANGE,
       onPublish: (event) => {
         const result = createMiddlewareContext(
@@ -19,11 +20,10 @@ const createMiddleware = (
           value
         )(middlewares[use]);
         if (typeof result === "object") {
-          messageBroker.publish({
-            scope: "modelState",
-            eventName: EventName.ON_SET_MESSAGE,
-            payload: result.payload.message,
-          });
+          modelState.setState((state) => ({
+            ...state,
+            message: result.payload.message,
+          }));
         }
         if (result.status === false) {
           return false;

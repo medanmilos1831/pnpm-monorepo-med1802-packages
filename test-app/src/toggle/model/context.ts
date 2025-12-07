@@ -1,32 +1,31 @@
-import { createScopedObserver } from "@med1802/scoped-observer";
-import { createMessageBroker } from "@med1802/scoped-observer-message-broker";
-import { createModelLogger } from "../infrastructure/logger/modellogger";
-import { createMiddleware } from "../infrastructure/middleware";
-import { type storeConfig } from "../types";
-import { createModelStore } from "../infrastructure/modelStore";
+import { EventName, type onChangePayload } from "../types";
+import { createInfrastructure } from "./createInfrastructure";
 
-const createModelContext = (config: storeConfig, id: string) => {
-  // INFRASTRUCTURE
-  const scopedObserver = createScopedObserver();
-  const messageBroker = createMessageBroker(scopedObserver);
-  const { logAction } = createModelLogger(config.log, id);
-  const modelState = createModelStore();
-  const middleware = config.middlewares
-    ? createMiddleware(config.middlewares, messageBroker)
-    : undefined;
+const createModelContext = (
+  infrastructure: ReturnType<typeof createInfrastructure>
+) => {
+  const { modelState, messageBroker, logger, middleware } = infrastructure;
   const getValue = modelState.getState("open");
   const getMessage = modelState.getState("message");
   const setState = modelState.setState;
-  // END :: INFRASTRUCTURE
+  function publishHandler(payload: onChangePayload) {
+    setState((state) => ({
+      ...state,
+      ...payload,
+    }));
+
+    const decoratedPublish = logger.logAction(messageBroker.publish, payload);
+    decoratedPublish({
+      eventName: EventName.ON_CHANGE,
+      payload,
+    });
+  }
   return {
-    scopedObserver,
-    middleware,
-    setState,
-    getValue,
     getMessage,
-    logAction,
-    publish: messageBroker.publish,
+    middleware,
+    getValue,
     subscribe: messageBroker.subscribe,
+    publishHandler,
   };
 };
 
