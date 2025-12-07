@@ -9,8 +9,7 @@ import { createInfrastructure } from "./createInfrastructure";
 
 const model = (params: toggleConfigType, config: storeConfig) => {
   const context = createModelContext(createInfrastructure(config, params.id));
-  const { getMessage, middleware, getValue, subscribe, publishHandler } =
-    context;
+  const { getMessage, middleware, isOpen, subscribe, publishHandler } = context;
   return {
     open: (message?: any) => {
       publishHandler({
@@ -38,7 +37,7 @@ const model = (params: toggleConfigType, config: storeConfig) => {
       });
     },
     getMessage: getMessage,
-    getValue,
+    getValue: isOpen,
   };
 };
 

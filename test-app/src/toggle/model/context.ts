@@ -5,8 +5,8 @@ const createModelContext = (
   infrastructure: ReturnType<typeof createInfrastructure>
 ) => {
   const { modelState, messageBroker, logger, middleware } = infrastructure;
-  const getValue = modelState.getState("open");
-  const getMessage = modelState.getState("message");
+  const isOpen = modelState.getStateByProp("open") as () => boolean;
+  const getMessage = modelState.getStateByProp("message");
   const setState = modelState.setState;
   function publishHandler(payload: onChangePayload) {
     setState((state) => ({
@@ -23,7 +23,7 @@ const createModelContext = (
   return {
     getMessage,
     middleware,
-    getValue,
+    isOpen,
     subscribe: messageBroker.subscribe,
     publishHandler,
   };

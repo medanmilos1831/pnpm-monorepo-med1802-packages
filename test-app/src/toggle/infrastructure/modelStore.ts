@@ -1,5 +1,5 @@
 const createModelStore = () => {
-  let state = {
+  let state: { open: boolean; message: any } = {
     open: false,
     message: undefined as any,
   };
@@ -8,7 +8,7 @@ const createModelStore = () => {
   }
 
   return {
-    getState: (key: keyof typeof state) => () => state[key],
+    getStateByProp: (key: keyof typeof state) => () => state[key],
     setState,
   };
 };
