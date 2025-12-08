@@ -5,42 +5,39 @@ import {
   type storeConfig,
   type toggleConfigType,
 } from "../types";
+import { createInfrastructure } from "./createInfrastructure";
 
 const model = (params: toggleConfigType, config: storeConfig) => {
-  const context = createModelContext(params, config);
-  const {
-    messageBroker,
-    logger,
-    messageContainer,
-    middleware,
-    getInitialState,
-    publishHandler,
-  } = context;
+  const context = createModelContext(createInfrastructure(config, params.id));
+  const { getMessage, middleware, isOpen, subscribe, publishHandler } = context;
   return {
-    open: logger.logAction((message?: any) => {
-      return publishHandler(true, message);
-    }),
-    close: logger.logAction((message?: any) => {
-      return publishHandler(false, message);
-    }),
+    open: (message?: any) => {
+      publishHandler({
+        open: true,
+        message,
+      });
+    },
+    close: (message?: any) => {
+      publishHandler({
+        open: false,
+        message,
+      });
+    },
     middleware,
-
     onChangeSync: (callback: () => void) => {
-      return messageBroker.subscribe({
+      return subscribe({
         eventName: EventName.ON_CHANGE,
         callback,
       });
     },
     onChange: (callback: (event: IEvent) => void) => {
-      return messageBroker.subscribe({
+      return subscribe({
         eventName: EventName.ON_CHANGE,
         callback,
       });
     },
-    getMessage: () => {
-      return messageContainer.getMessage();
-    },
-    getValue: getInitialState,
+    getMessage: getMessage,
+    getValue: isOpen,
   };
 };
 

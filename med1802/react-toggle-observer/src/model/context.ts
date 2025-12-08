@@ -1,47 +1,30 @@
-import { EventName, type storeConfig, type toggleConfigType } from "../types";
-import { createModelInfrastructure } from "./infrastructure";
+import { EventName, type onChangePayload } from "../types";
+import { createInfrastructure } from "./createInfrastructure";
 
-const createModelContext = (params: toggleConfigType, config: storeConfig) => {
-  const infrastructure = createModelInfrastructure(params, config);
-  const {
-    scopedObserver,
-    messageBroker,
-    logger,
-    messageContainer,
-    middleware,
-  } = infrastructure;
-  let initialState = params.initialState;
-  function setInitialState(state: boolean) {
-    initialState = state;
-  }
-  function getInitialState() {
-    return initialState;
-  }
-  function publishHandler(open: boolean, message?: any) {
-    messageContainer.setMessage(message);
-    setInitialState(open);
-    const payload = {
-      open,
-      message,
-    };
-    messageBroker.publish({
+const createModelContext = (
+  infrastructure: ReturnType<typeof createInfrastructure>
+) => {
+  const { modelState, messageBroker, logger, middleware } = infrastructure;
+  const isOpen = modelState.getStateByProp("open") as () => boolean;
+  const getMessage = modelState.getStateByProp("message");
+  const setState = modelState.setState;
+  function publishHandler(payload: onChangePayload) {
+    setState((state) => ({
+      ...state,
+      ...payload,
+    }));
+
+    const decoratedPublish = logger.logAction(messageBroker.publish, payload);
+    decoratedPublish({
       eventName: EventName.ON_CHANGE,
       payload,
     });
-    return {
-      id: params.id,
-      eventName: EventName.ON_CHANGE,
-      payload,
-    };
   }
   return {
-    scopedObserver,
-    messageBroker,
-    logger,
-    messageContainer,
+    getMessage,
     middleware,
-    setInitialState,
-    getInitialState,
+    isOpen,
+    subscribe: messageBroker.subscribe,
     publishHandler,
   };
 };

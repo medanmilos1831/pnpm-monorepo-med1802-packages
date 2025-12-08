@@ -1,5 +1,5 @@
-import type { storeConfig } from "../types";
-import { createStoreContext } from "./context";
+import { createStoreLogger } from "../infrastructure/logger/storeLogger";
+import type { storeConfig, StoreModel } from "../types";
 
 function createStore<T, A extends { id: string; initialState: any }>(
   config: storeConfig,
@@ -9,27 +9,28 @@ function createStore<T, A extends { id: string; initialState: any }>(
     defineModel(params: A, config: storeConfig): T;
   }
 ) {
-  const context = createStoreContext<T>(config);
+  const store = new Map<string, StoreModel<T>>();
+  const { logStore } = createStoreLogger(store, config.log);
   return {
-    createModel: context.storeLogger.logStore((params: A) => {
-      if (context.store.has(params.id)) return;
-      context.store.set(params.id, {
+    createModel: logStore((params: A) => {
+      if (store.has(params.id)) return;
+      store.set(params.id, {
         model: defineModel(params, config),
       });
     }),
     getModel: (id: string) => {
-      if (!context.store.has(id)) {
+      if (!store.has(id)) {
         throw new Error(`Toggle ${id} not found`);
       }
-      const model = context.store.get(id)!.model;
+      const model = store.get(id)!.model;
       return model;
     },
     hasModel: (id: string) => {
-      return context.store.has(id);
+      return store.has(id);
     },
     deleteModel: (id: string) => {
-      context.storeLogger.logStore(() => {
-        context.store.delete(id);
+      logStore(() => {
+        store.delete(id);
       });
     },
   };

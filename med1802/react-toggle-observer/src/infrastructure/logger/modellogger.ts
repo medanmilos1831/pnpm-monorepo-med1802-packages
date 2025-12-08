@@ -1,18 +1,13 @@
-import type { onChangePayload } from "../../types";
+import { type onChangePayload } from "../../types";
 
-const createModelLogger = (id: string, active: boolean) => {
+const createModelLogger = (active: boolean, id: string) => {
   return {
-    logAction: <
-      T extends (...args: any[]) => {
-        payload: onChangePayload;
-        eventName: string;
-      }
-    >(
-      callback: T
+    logAction: <T extends (...args: any[]) => void>(
+      callback: T,
+      params: onChangePayload
     ): T => {
-      return ((...args: Parameters<T>) => {
-        const result = callback(...args);
-        const { message, open } = result.payload;
+      return ((...args: any[]) => {
+        const { open, message } = params;
         if (active) {
           console.table([
             {
@@ -41,6 +36,7 @@ const createModelLogger = (id: string, active: boolean) => {
             console.groupEnd();
           }
         }
+        callback(...args);
       }) as T;
     },
   };

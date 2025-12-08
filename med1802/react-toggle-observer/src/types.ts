@@ -1,13 +1,13 @@
 import type { middlewareStoreConfigType } from "./infrastructure/middleware/types";
 
-enum EventName {
+export enum EventName {
   ON_CHANGE = "onChange",
 }
 export type onChangePayload = { open: boolean; message?: any };
-interface IEvent {
+export interface IEvent<P = any> {
   scope?: string;
   eventName: string;
-  payload: onChangePayload;
+  payload: P;
 }
 
 export type toggleConfigType = {
@@ -36,6 +36,9 @@ export type StoreModel<T> = {
   model: T;
 };
 export type StoreType<T> = Map<string, StoreModel<T>>;
-
-export type { IEvent };
-export { EventName };
+export interface IStore<T> {
+  createModel: (params: toggleConfigType) => void;
+  getModel: (id: string) => T;
+  hasModel: (id: string) => boolean;
+  deleteModel: (id: string) => void;
+}

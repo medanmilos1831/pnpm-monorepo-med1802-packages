@@ -2,13 +2,14 @@ import type { createMessageBroker } from "@med1802/scoped-observer-message-broke
 
 import { createMiddlewareContext } from "./middlewareContext";
 import type { middlewareParamsType, middlewareStoreConfigType } from "./types";
-import type { createMessageContainer } from "../messageContainer";
+
 import { EventName } from "../../types";
+import type { createModelStore } from "../modelStore";
 
 const createMiddleware = (
   middlewares: middlewareStoreConfigType,
   messageBroker: ReturnType<typeof createMessageBroker>,
-  messageContainer: ReturnType<typeof createMessageContainer>
+  modelState: ReturnType<typeof createModelStore>
 ) => {
   return ({ use, value }: middlewareParamsType) => {
     const unsubscribe = messageBroker.interceptor({
@@ -19,7 +20,10 @@ const createMiddleware = (
           value
         )(middlewares[use]);
         if (typeof result === "object") {
-          messageContainer.setMessage(result.payload.message);
+          modelState.setState((state) => ({
+            ...state,
+            message: result.payload.message,
+          }));
         }
         if (result.status === false) {
           return false;
