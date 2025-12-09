@@ -1,62 +1,51 @@
-import { Button, Modal } from "antd";
-import { createReactToggleObserver } from "../toggle/react-toogle-observer";
-import { useState } from "react";
+import { framework } from "../framework";
 
-const toggleObservers = createReactToggleObserver({
+interface IState {
+  open: boolean;
+  message: any;
+}
+interface IStore<S extends IState> {
+  setState: () => void;
+  getStateByProp: (prop: keyof S) => () => any;
+}
+
+const app = framework.createRepository<boolean, IStore<IState>>({
   log: true,
-  middlewares: {
-    someMiddleware: ({ resolve, reject }, state) => {
-      resolve((value, message) => {
-        return value + message;
-      });
-    },
+  store({ id, initialState }: { id: string; initialState: boolean }) {
+    let state = {
+      open: initialState,
+      message: undefined,
+    };
+    return {
+      setState() {
+        console.log("setState");
+      },
+      getStateByProp(prop: keyof typeof state) {
+        return () => {};
+      },
+    };
+  },
+  model(params: any) {
+    console.log("model", params);
+    return {};
   },
 });
 
-const { useToggle, useMiddleware } = toggleObservers.reactHooks;
-const ModalComponent = (params: { id: string; initialState: boolean }) => {
-  const [isOpen, close, message] = useToggle(params);
-  console.log("ModalComponent", message);
-  return (
-    <Modal
-      open={isOpen}
-      onCancel={() => close("close message")}
-      onOk={() => close()}
-    >
-      <div>
-        <h1>Modal</h1>
-      </div>
-    </Modal>
-  );
-};
-
-const SomeComponent = () => {
-  const [counter, setCounter] = useState(0);
-  return (
-    <>
-      <Button onClick={() => setCounter(counter + 1)}>Increment</Button>
-      <p>Counter: {counter}</p>
-    </>
-  );
-};
-
-const SomeOtherComponent = () => {
-  const toggle = toggleObservers.getToggleClient("test");
-  return (
-    <>
-      <Button onClick={() => toggle.open(1)}>Open Modal</Button>
-    </>
-  );
-};
+app.createModel({
+  id: "test",
+  initialState: true,
+});
+app.createModel({
+  id: "test2",
+  initialState: false,
+});
+app.createModel({
+  id: "test3",
+  initialState: true,
+});
 
 const HomePage = () => {
-  return (
-    <>
-      <ModalComponent id="test" initialState={false} />
-      <SomeComponent />
-      <SomeOtherComponent />
-    </>
-  );
+  return <>home</>;
 };
 
 export { HomePage };

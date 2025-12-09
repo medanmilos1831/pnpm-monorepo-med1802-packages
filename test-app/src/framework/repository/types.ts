@@ -1,3 +1,3 @@
-export type StoreModel<T> = {
+export type StoreModel<T = any> = {
   model: T;
 };
