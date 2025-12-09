@@ -1,12 +1,12 @@
 export type middlewareParamsType = { use: string; value: any };
 
-export type middlewareType = (
+export type middlewareType<S = any> = (
   middleware: {
     resolve: (callback: (value: any, message: any) => any) => void;
     reject: () => void;
   },
-  state: any
+  state: S
 ) => void;
-export type middlewareStoreConfigType = {
-  [key: string]: middlewareType;
+export type middlewareStoreConfigType<S = any> = {
+  [key: string]: middlewareType<S>;
 };
