@@ -10,7 +10,7 @@ const createMiddlewareContext = (payload: any, value: any) => {
       {
         resolve: (params) => {
           let result = params(value, payload.message);
-          state.payload.message = result;
+          state.payload = result;
         },
         reject: () => {
           state.status = false;

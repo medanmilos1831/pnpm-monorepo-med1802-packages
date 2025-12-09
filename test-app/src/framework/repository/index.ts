@@ -10,15 +10,16 @@ function createRepository<I, S, M>({
 }: {
   log: boolean;
   middlewares: middlewareStoreConfigType<S>;
-  model: (context: ReturnType<typeof createModel>) => M;
+  model: (context: ReturnType<typeof createModel<I, S>>) => M;
   store: storeType<I, S>;
 }) {
   const repository = new Map<string, StoreModel<M>>();
 
   return {
     createModel(params: { id: string; initialState: I }) {
-      const context = createModel<storeType<I, S>>({
+      const context = createModel<I, S>({
         modelId: params.id,
+        initialState: params.initialState,
         store,
         middlewares,
         log,

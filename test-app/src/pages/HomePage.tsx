@@ -5,8 +5,7 @@ interface IState {
   message: any;
 }
 interface IStore<S extends IState> {
-  // state: S;
-  setState: () => void;
+  setState: (callback: (params: S) => S) => void;
   getStateByProp: (prop: keyof S) => () => any;
 }
 
@@ -30,30 +29,59 @@ const app = framework.createRepository<boolean, IStore<IState>, IModel>({
       message: undefined,
     };
     return {
-      setState() {
-        console.log("setState");
+      setState(callback: (params: typeof state) => typeof state) {
+        state = callback(state);
       },
       getStateByProp(prop: keyof typeof state) {
-        return () => {};
+        return () => state[prop];
       },
     };
   },
   model(context) {
+    function publishHandler(payload: any) {
+      context.store.setState((state) => ({
+        ...state,
+        ...payload,
+      }));
+
+      const decoratedPublish = context.logger.logAction(
+        context.publish,
+        payload
+      );
+      decoratedPublish({
+        eventName: "onChange",
+        payload,
+      });
+    }
+    const getMessage = context.store.getStateByProp("message");
+    const getValue = context.store.getStateByProp("open");
     return {
       open: (message?: any) => {
-        console.log("open", message);
-        // publishHandler({
-        //   open: true,
-        //   message,
-        // });
+        publishHandler({
+          open: true,
+          message,
+        });
       },
       close: (message?: any) => {
-        console.log("close", message);
-        // publishHandler({
-        //   open: false,
-        //   message,
-        // });
+        publishHandler({
+          open: false,
+          message,
+        });
       },
+      onChangeSync: (callback: () => void) => {
+        return context.subscribe({
+          eventName: "onChange",
+          callback,
+        });
+      },
+      onChange: (callback: (event: any) => void) => {
+        return context.subscribe({
+          eventName: "onChange",
+          callback,
+        });
+      },
+      getMessage,
+      getValue,
     };
   },
 });
@@ -62,7 +90,7 @@ app.createModel({
   id: "test",
   initialState: true,
 });
-app.getModel("test").open();
+app.getModel("test").open("open message");
 app.getModel("test").close("close message");
 // app.createModel({
 //   id: "test2",

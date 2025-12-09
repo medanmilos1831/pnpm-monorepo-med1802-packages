@@ -5,15 +5,19 @@ import type {
   middlewareStoreConfigType,
 } from "./middleware/types";
 import { createMiddlewareContext } from "./middleware/middlewareContext";
-function createModel<S = any>({
+import type { storeType } from "../types";
+import { createModelLogger } from "../../toggle/infrastructure/logger/modellogger";
+function createModel<I = any, S = any>({
   modelId,
+  initialState,
   store,
   middlewares,
   log,
 }: {
   modelId: string;
-  store: S;
-  middlewares: middlewareStoreConfigType;
+  initialState: I;
+  store: storeType<I, S>;
+  middlewares: middlewareStoreConfigType<S>;
   log: boolean;
 }) {
   const scopedObserver = createScopedObserver();
@@ -21,8 +25,13 @@ function createModel<S = any>({
   return {
     publish: messageBroker.publish,
     subscribe: messageBroker.subscribe,
+    logger: createModelLogger(log, modelId),
+    store: store({
+      id: modelId,
+      initialState,
+    }),
     middleware:
-      (eventName: string, middlewares: middlewareStoreConfigType) =>
+      (eventName: string, middlewares: middlewareStoreConfigType<S>) =>
       ({ use, value }: middlewareParamsType) => {
         const unsubscribe = messageBroker.interceptor({
           eventName,

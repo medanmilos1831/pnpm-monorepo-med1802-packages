@@ -1,10 +1,8 @@
-import { type onChangePayload } from "../../types";
-
 const createModelLogger = (active: boolean, id: string) => {
   return {
     logAction: <T extends (...args: any[]) => void>(
       callback: T,
-      params: onChangePayload
+      params: any
     ): T => {
       return ((...args: any[]) => {
         const { open, message } = params;
