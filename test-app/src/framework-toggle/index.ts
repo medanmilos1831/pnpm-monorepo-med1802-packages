@@ -14,18 +14,11 @@ const toggleRepository = ({
   middlewares,
 }: {
   log?: boolean;
-  middlewares: any;
+  middlewares?: any;
 }) => {
   const repo = framework.createRepository<boolean, IStore<IState>, IModel>({
     log,
     middlewares,
-    // middlewares: {
-    //   someMiddleware: ({ resolve, reject }, state) => {
-    //     resolve((value, message) => {
-    //       return value + message;
-    //     });
-    //   },
-    // },
     store({ id, initialState }: { id: string; initialState: boolean }) {
       let state = {
         open: initialState,
@@ -42,11 +35,6 @@ const toggleRepository = ({
     },
     model(context) {
       function publishHandler(payload: any) {
-        context.store.setState((state) => ({
-          ...state,
-          ...payload,
-        }));
-
         const decoratedPublish = context.logger.logAction(
           context.publish,
           payload
@@ -71,10 +59,20 @@ const toggleRepository = ({
             message,
           });
         },
-        onChangeSync: (callback: () => void) => {
+        onChangeSync: (notify: () => void) => {
           return context.subscribe({
             eventName: ToggleEventName.ON_CHANGE,
-            callback,
+            callback: ({ payload }: any) => {
+              context.store.setState((state) => {
+                const { open, ...rest } = payload;
+                return {
+                  ...state,
+                  open,
+                  message: rest,
+                };
+              });
+              notify();
+            },
           });
         },
         onChange: (callback: (event: any) => void) => {
@@ -115,12 +113,13 @@ const toggleRepository = ({
       toggleId: string;
     } & middlewareParamsType) => {
       const model = repo.getModel(toggleId);
-      console.log("model", model);
+      console.log("model", model.middleware);
       useEffect(() => {
         if (!model.middleware) {
           return;
         }
-        const unsubscribe = model.middleware({ use, value });
+        const middleware = model.middleware(ToggleEventName.ON_CHANGE);
+        const unsubscribe = middleware({ use, value });
         return () => {
           if (!model.middleware) {
             return;

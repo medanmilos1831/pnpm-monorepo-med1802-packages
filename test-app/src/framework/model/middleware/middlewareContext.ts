@@ -1,6 +1,6 @@
 import type { middlewareType } from "./types";
 
-const createMiddlewareContext = (payload: any, value: any) => {
+const createMiddlewareContext = (value: any, payload: any) => {
   let state = {
     payload,
     status: true,
@@ -9,7 +9,7 @@ const createMiddlewareContext = (payload: any, value: any) => {
     middleware(
       {
         resolve: (params) => {
-          let result = params(value, payload.message);
+          let result = params(value, payload);
           state.payload = result;
         },
         reject: () => {

@@ -22,6 +22,7 @@ function createModel<I = any, S = any>({
 }) {
   const scopedObserver = createScopedObserver();
   const messageBroker = createMessageBroker(scopedObserver);
+  console.log("middlewares", middlewares);
   return {
     publish: messageBroker.publish,
     subscribe: messageBroker.subscribe,
@@ -31,16 +32,20 @@ function createModel<I = any, S = any>({
       initialState,
     }),
     middleware:
-      (eventName: string, middlewares: middlewareStoreConfigType<S>) =>
+      (eventName: string) =>
       ({ use, value }: middlewareParamsType) => {
         const unsubscribe = messageBroker.interceptor({
           eventName,
           onPublish: (event) => {
             const result = createMiddlewareContext(
-              event.payload,
-              value
+              value,
+              event.payload
             )(middlewares[use]);
-            if (typeof result === "object") {
+            if (result.status === true) {
+              return {
+                eventName,
+                payload: result.payload,
+              };
               // modelState.setState((state) => ({
               //   ...state,
               //   message: result.payload.message,
