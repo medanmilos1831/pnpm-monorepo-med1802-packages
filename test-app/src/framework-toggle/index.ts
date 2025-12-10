@@ -113,7 +113,6 @@ const toggleRepository = ({
       toggleId: string;
     } & middlewareParamsType) => {
       const model = repo.getModel(toggleId);
-      console.log("model", model.middleware);
       useEffect(() => {
         if (!model.middleware) {
           return;

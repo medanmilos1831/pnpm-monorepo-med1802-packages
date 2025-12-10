@@ -22,7 +22,6 @@ function createModel<I = any, S = any>({
 }) {
   const scopedObserver = createScopedObserver();
   const messageBroker = createMessageBroker(scopedObserver);
-  console.log("middlewares", middlewares);
   return {
     publish: messageBroker.publish,
     subscribe: messageBroker.subscribe,
@@ -46,10 +45,6 @@ function createModel<I = any, S = any>({
                 eventName,
                 payload: result.payload,
               };
-              // modelState.setState((state) => ({
-              //   ...state,
-              //   message: result.payload.message,
-              // }));
             }
             if (result.status === false) {
               return false;
