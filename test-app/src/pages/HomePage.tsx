@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { toggleRepository } from "../framework-toggle";
 import { Button, Modal } from "antd";
-const toggle = toggleRepository({
-  log: true,
+const { useToggle, useMiddleware, getToggle } = toggleRepository({
+  log: false,
   middlewares: {
     someMiddleware: ({ resolve, reject }: any, state: any) => {
       console.log("Middleware called");
@@ -100,8 +100,6 @@ const toggle = toggleRepository({
 //   },
 // });
 
-console.log("log 1", toggle);
-
 // app.createModel({
 //   id: "test",
 //   initialState: true,
@@ -118,7 +116,7 @@ console.log("log 1", toggle);
 // });
 
 const ModalComponent = () => {
-  const [isOpen, close, message] = toggle.useToggle({
+  const [isOpen, close, message] = useToggle({
     id: "test",
     initialState: false,
   });
@@ -136,6 +134,11 @@ const ModalComponent = () => {
 };
 
 const SomeComponent = () => {
+  useMiddleware({
+    toggleId: "test",
+    use: "someMiddleware",
+    value: 222,
+  });
   return (
     <>
       <h1>Some Component</h1>
@@ -144,7 +147,7 @@ const SomeComponent = () => {
 };
 
 const ButtonHandler = () => {
-  const item = toggle.getToggle("test");
+  const item = getToggle("test");
   return (
     <>
       <Button onClick={() => item.open("OPEN MODAL")}>Open Modal</Button>

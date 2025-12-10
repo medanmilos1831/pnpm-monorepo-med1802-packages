@@ -7,6 +7,7 @@ import {
   ToggleEventName,
 } from "./types";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
+import type { middlewareParamsType } from "../framework/model/middleware/types";
 
 const toggleRepository = ({
   log = false,
@@ -82,6 +83,7 @@ const toggleRepository = ({
             callback,
           });
         },
+        middleware: context.middleware,
         getMessage,
         getValue,
       };
@@ -105,9 +107,32 @@ const toggleRepository = ({
         any
       ];
     },
+    useMiddleware: ({
+      toggleId,
+      use,
+      value,
+    }: {
+      toggleId: string;
+    } & middlewareParamsType) => {
+      const model = repo.getModel(toggleId);
+      console.log("model", model);
+      useEffect(() => {
+        if (!model.middleware) {
+          return;
+        }
+        const unsubscribe = model.middleware({ use, value });
+        return () => {
+          if (!model.middleware) {
+            return;
+          }
+          unsubscribe();
+        };
+      });
+    },
   };
   return {
     useToggle: reactAdapter.useToggle,
+    useMiddleware: reactAdapter.useMiddleware,
     createToggle: repo.createModel,
     deleteToggle: repo.deleteModel,
     getToggle: repo.getModel,
