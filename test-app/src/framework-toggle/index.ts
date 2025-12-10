@@ -1,22 +1,14 @@
 import { useEffect, useState } from "react";
-
 import { framework } from "../framework";
+import { createReactAdapter } from "./react-adapter";
+import type { IStore, IState, IModel } from "./types";
+import { useSyncExternalStore } from "use-sync-external-store/shim";
 
-interface IState {
-  open: boolean;
-  message: any;
-}
-interface IStore<S extends IState> {
-  setState: (callback: (params: S) => S) => void;
-  getStateByProp: (prop: keyof S) => () => any;
-}
-
-interface IModel {
-  open: (message?: any) => void;
-  close: (message?: any) => void;
-}
-
-const app = framework.createRepository<boolean, IStore<IState>, IModel>({
+const toggleRepository = framework.createRepository<
+  boolean,
+  IStore<IState>,
+  IModel
+>({
   log: true,
   middlewares: {
     someMiddleware: ({ resolve, reject }, state) => {
@@ -88,23 +80,31 @@ const app = framework.createRepository<boolean, IStore<IState>, IModel>({
   },
 });
 
-// app.createModel({
-//   id: "test",
-//   initialState: true,
-// });
-// app.getModel("test").open("open message");
-// app.getModel("test").close("close message");
-// // app.createModel({
-//   id: "test2",
-//   initialState: false,
-// });
-// app.createModel({
-//   id: "test3",
-//   initialState: true,
-// });
-
-const HomePage = () => {
-  return <></>;
+const reactAdapter = {
+  useToggle: (params: { id: string; initialState: boolean }) => {
+    const [toggle] = useState(() => {
+      toggleRepository.createModel(params);
+      return toggleRepository.getModel(params.id)!;
+    });
+    const value = useSyncExternalStore(toggle.onChangeSync, toggle.getValue);
+    useEffect(() => {
+      return () => {
+        toggleRepository.deleteModel(params.id);
+      };
+    }, [params.id]);
+    return [value, toggle.close, toggle.getMessage()] as [
+      boolean,
+      (message?: any) => void,
+      any
+    ];
+  },
 };
 
-export { HomePage };
+const api = {
+  useToggle: reactAdapter.useToggle,
+  createToggle: toggleRepository.createModel,
+  deleteToggle: toggleRepository.deleteModel,
+  getToggle: toggleRepository.getModel,
+};
+
+export { api };
