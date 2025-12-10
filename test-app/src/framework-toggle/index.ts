@@ -13,13 +13,14 @@ const toggleRepository = ({
 }) => {
   const repo = framework.createRepository<boolean, IStore<IState>, IModel>({
     log,
-    middlewares: {
-      someMiddleware: ({ resolve, reject }, state) => {
-        resolve((value, message) => {
-          return value + message;
-        });
-      },
-    },
+    middlewares,
+    // middlewares: {
+    //   someMiddleware: ({ resolve, reject }, state) => {
+    //     resolve((value, message) => {
+    //       return value + message;
+    //     });
+    //   },
+    // },
     store({ id, initialState }: { id: string; initialState: boolean }) {
       let state = {
         open: initialState,
