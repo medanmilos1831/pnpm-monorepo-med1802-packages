@@ -20,4 +20,4 @@ interface IModel {
 export enum ToggleEventName {
   ON_CHANGE = "onChange",
 }
-export type { IState, IStore, IModel };
+export type { IModel, IState, IStore };

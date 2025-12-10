@@ -4,11 +4,16 @@ import { Button, Modal } from "antd";
 const { useToggle, useMiddleware, getToggle } = toggleRepository({
   log: false,
   middlewares: {
-    someMiddleware: ({ resolve, reject }: any) => {
-      resolve((value: any, payload: any) => {
+    someMiddleware: (params) => {
+      // console.log("someMiddleware", params);
+      params.resolve((value, payload) => {
+        console.log("VALUE", value);
+        console.log("PAYLOAD", payload);
         return {
-          ...payload,
-          dataFromSomeComponent: value,
+          open: true,
+          message: "22",
+          kita: "ss",
+          dsdsds: "dsdsds",
         };
       });
     },
@@ -19,7 +24,7 @@ const ModalComponent = () => {
     id: "test",
     initialState: false,
   });
-  console.log("message", message);
+  console.log("MODAL COMPONENT MESSAGE", message);
   return (
     <>
       <Modal

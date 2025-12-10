@@ -1,14 +1,12 @@
-import type { middlewareType } from "./types";
-
 const createMiddlewareContext = (value: any, payload: any) => {
   let state = {
     payload,
     status: true,
   };
-  return (middleware: middlewareType) => {
+  return (middleware: any) => {
     middleware(
       {
-        resolve: (params) => {
+        resolve: (params: any) => {
           let result = params(value, payload);
           state.payload = result;
         },

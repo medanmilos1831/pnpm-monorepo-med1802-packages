@@ -1,15 +1,19 @@
 import { createModel } from "../model";
-import type { middlewareStoreConfigType } from "../model/middleware/types";
 import type { StoreModel, storeType } from "../types";
 
-function createRepository<I, S, M>({
+function createRepository<I, S, M, MI>({
   log,
   middlewares,
   model,
   store,
 }: {
   log: boolean;
-  middlewares: middlewareStoreConfigType<S>;
+  middlewares?: {
+    [key: string]: (params: {
+      resolve: (callback: (value: any, payload: any) => MI) => void;
+      reject: () => void;
+    }) => void;
+  };
   model: (context: ReturnType<typeof createModel<I, S>>) => M;
   store: storeType<I, S>;
 }) {
@@ -17,7 +21,7 @@ function createRepository<I, S, M>({
 
   return {
     createModel(params: { id: string; initialState: I }) {
-      const context = createModel<I, S>({
+      const context = createModel<I, S, MI>({
         modelId: params.id,
         initialState: params.initialState,
         store,

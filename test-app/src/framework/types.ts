@@ -6,7 +6,3 @@ export type StoreModel<M = any> = {
 
 export type storeType<I, S> = (params: { id: string; initialState: I }) => S;
 export type modelType<S> = (context: ReturnType<typeof createModel>) => S;
-export type middlewareType<S> = (params: {
-  use: string;
-  value: any;
-}) => (middleware: middlewareType<S>) => void;

@@ -7,16 +7,32 @@ import {
   ToggleEventName,
 } from "./types";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
-import type { middlewareParamsType } from "../framework/model/middleware/types";
+
+interface IModelMiddleware {
+  open: boolean;
+  message: string;
+}
 
 const toggleRepository = ({
   log = false,
   middlewares,
 }: {
   log?: boolean;
-  middlewares?: any;
+  middlewares?: {
+    [key: string]: (params: {
+      resolve: (
+        callback: (value: any, payload: any) => IModelMiddleware
+      ) => void;
+      reject: () => void;
+    }) => void;
+  };
 }) => {
-  const repo = framework.createRepository<boolean, IStore<IState>, IModel>({
+  const repo = framework.createRepository<
+    boolean,
+    IStore<IState>,
+    IModel,
+    IModelMiddleware
+  >({
     log,
     middlewares,
     store({ id, initialState }: { id: string; initialState: boolean }) {
@@ -105,13 +121,7 @@ const toggleRepository = ({
         any
       ];
     },
-    useMiddleware: ({
-      toggleId,
-      use,
-      value,
-    }: {
-      toggleId: string;
-    } & middlewareParamsType) => {
+    useMiddleware: ({ toggleId, use, value }: any) => {
       const model = repo.getModel(toggleId);
       useEffect(() => {
         if (!model.middleware) {
