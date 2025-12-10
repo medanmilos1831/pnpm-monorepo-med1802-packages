@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
-import { toggle } from "../framework-toggle";
+import { toggleRepository } from "../framework-toggle";
 import { Button, Modal } from "antd";
+const toggle = toggleRepository({
+  log: true,
+  middlewares: {
+    someMiddleware: ({ resolve, reject }: any, state: any) => {
+      console.log("Middleware called");
+      // resolve((value, message) => {
+      //   return value + message;
+      // });
+    },
+  },
+});
 // import { framework } from "../framework";
 
 // interface IState {
@@ -124,6 +135,14 @@ const ModalComponent = () => {
   );
 };
 
+const SomeComponent = () => {
+  return (
+    <>
+      <h1>Some Component</h1>
+    </>
+  );
+};
+
 const ButtonHandler = () => {
   const item = toggle.getToggle("test");
   return (
@@ -137,6 +156,7 @@ const HomePage = () => {
   return (
     <>
       <ModalComponent />
+      <SomeComponent />
       <ButtonHandler />
     </>
   );
