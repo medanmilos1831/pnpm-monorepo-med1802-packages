@@ -1,92 +1,95 @@
 import { useEffect, useState } from "react";
+import { toggle } from "../framework-toggle";
+import { Button, Modal } from "antd";
+// import { framework } from "../framework";
 
-import { framework } from "../framework";
+// interface IState {
+//   open: boolean;
+//   message: any;
+// }
+// interface IStore<S extends IState> {
+//   setState: (callback: (params: S) => S) => void;
+//   getStateByProp: (prop: keyof S) => () => any;
+// }
 
-interface IState {
-  open: boolean;
-  message: any;
-}
-interface IStore<S extends IState> {
-  setState: (callback: (params: S) => S) => void;
-  getStateByProp: (prop: keyof S) => () => any;
-}
+// interface IModel {
+//   open: (message?: any) => void;
+//   close: (message?: any) => void;
+// }
 
-interface IModel {
-  open: (message?: any) => void;
-  close: (message?: any) => void;
-}
+// const app = framework.createRepository<boolean, IStore<IState>, IModel>({
+//   log: true,
+//   middlewares: {
+//     someMiddleware: ({ resolve, reject }, state) => {
+//       resolve((value, message) => {
+//         return value + message;
+//       });
+//     },
+//   },
+//   store({ id, initialState }: { id: string; initialState: boolean }) {
+//     let state = {
+//       open: initialState,
+//       message: undefined,
+//     };
+//     return {
+//       setState(callback: (params: typeof state) => typeof state) {
+//         state = callback(state);
+//       },
+//       getStateByProp(prop: keyof typeof state) {
+//         return () => state[prop];
+//       },
+//     };
+//   },
+//   model(context) {
+//     function publishHandler(payload: any) {
+//       context.store.setState((state) => ({
+//         ...state,
+//         ...payload,
+//       }));
 
-const app = framework.createRepository<boolean, IStore<IState>, IModel>({
-  log: true,
-  middlewares: {
-    someMiddleware: ({ resolve, reject }, state) => {
-      resolve((value, message) => {
-        return value + message;
-      });
-    },
-  },
-  store({ id, initialState }: { id: string; initialState: boolean }) {
-    let state = {
-      open: initialState,
-      message: undefined,
-    };
-    return {
-      setState(callback: (params: typeof state) => typeof state) {
-        state = callback(state);
-      },
-      getStateByProp(prop: keyof typeof state) {
-        return () => state[prop];
-      },
-    };
-  },
-  model(context) {
-    function publishHandler(payload: any) {
-      context.store.setState((state) => ({
-        ...state,
-        ...payload,
-      }));
+//       const decoratedPublish = context.logger.logAction(
+//         context.publish,
+//         payload
+//       );
+//       decoratedPublish({
+//         eventName: "onChange",
+//         payload,
+//       });
+//     }
+//     const getMessage = context.store.getStateByProp("message");
+//     const getValue = context.store.getStateByProp("open");
+//     return {
+//       open: (message?: any) => {
+//         publishHandler({
+//           open: true,
+//           message,
+//         });
+//       },
+//       close: (message?: any) => {
+//         publishHandler({
+//           open: false,
+//           message,
+//         });
+//       },
+//       onChangeSync: (callback: () => void) => {
+//         return context.subscribe({
+//           eventName: "onChange",
+//           callback,
+//         });
+//       },
+//       onChange: (callback: (event: any) => void) => {
+//         return context.subscribe({
+//           eventName: "onChange",
+//           callback,
+//         });
+//       },
+//       getMessage,
+//       getValue,
+//     };
+//   },
+// });
 
-      const decoratedPublish = context.logger.logAction(
-        context.publish,
-        payload
-      );
-      decoratedPublish({
-        eventName: "onChange",
-        payload,
-      });
-    }
-    const getMessage = context.store.getStateByProp("message");
-    const getValue = context.store.getStateByProp("open");
-    return {
-      open: (message?: any) => {
-        publishHandler({
-          open: true,
-          message,
-        });
-      },
-      close: (message?: any) => {
-        publishHandler({
-          open: false,
-          message,
-        });
-      },
-      onChangeSync: (callback: () => void) => {
-        return context.subscribe({
-          eventName: "onChange",
-          callback,
-        });
-      },
-      onChange: (callback: (event: any) => void) => {
-        return context.subscribe({
-          eventName: "onChange",
-          callback,
-        });
-      },
-      getMessage,
-      getValue,
-    };
-  },
-});
+console.log("log 1", toggle);
 
 // app.createModel({
 //   id: "test",
@@ -103,8 +106,40 @@ const app = framework.createRepository<boolean, IStore<IState>, IModel>({
 //   initialState: true,
 // });
 
+const ModalComponent = () => {
+  const [isOpen, close, message] = toggle.useToggle({
+    id: "test",
+    initialState: false,
+  });
+  return (
+    <>
+      <Modal
+        open={isOpen}
+        onCancel={() => close("User cancelled")}
+        onOk={() => close("User confirmed")}
+      >
+        <h1>Modal</h1>
+      </Modal>
+    </>
+  );
+};
+
+const ButtonHandler = () => {
+  const item = toggle.getToggle("test");
+  return (
+    <>
+      <Button onClick={() => item.open("OPEN MODAL")}>Open Modal</Button>
+    </>
+  );
+};
+
 const HomePage = () => {
-  return <></>;
+  return (
+    <>
+      <ModalComponent />
+      <ButtonHandler />
+    </>
+  );
 };
 
 export { HomePage };

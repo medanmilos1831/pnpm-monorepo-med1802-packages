@@ -100,11 +100,11 @@ const reactAdapter = {
   },
 };
 
-const api = {
+const toggle = {
   useToggle: reactAdapter.useToggle,
   createToggle: toggleRepository.createModel,
   deleteToggle: toggleRepository.deleteModel,
   getToggle: toggleRepository.getModel,
 };
 
-export { api };
+export { toggle };
