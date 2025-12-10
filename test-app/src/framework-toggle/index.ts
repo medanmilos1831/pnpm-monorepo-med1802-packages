@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { framework } from "../framework";
-import { createReactAdapter } from "./react-adapter";
-import type { IStore, IState, IModel } from "./types";
+import {
+  type IStore,
+  type IState,
+  type IModel,
+  ToggleEventName,
+} from "./types";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 
 const toggleRepository = ({
@@ -47,7 +51,7 @@ const toggleRepository = ({
           payload
         );
         decoratedPublish({
-          eventName: "onChange",
+          eventName: ToggleEventName.ON_CHANGE,
           payload,
         });
       }
@@ -68,13 +72,13 @@ const toggleRepository = ({
         },
         onChangeSync: (callback: () => void) => {
           return context.subscribe({
-            eventName: "onChange",
+            eventName: ToggleEventName.ON_CHANGE,
             callback,
           });
         },
         onChange: (callback: (event: any) => void) => {
           return context.subscribe({
-            eventName: "onChange",
+            eventName: ToggleEventName.ON_CHANGE,
             callback,
           });
         },

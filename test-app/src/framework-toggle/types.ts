@@ -15,4 +15,8 @@ interface IModel {
   getMessage: () => any;
   getValue: () => boolean;
 }
+
+export enum ToggleEventName {
+  ON_CHANGE = "onChange",
+}
 export type { IState, IStore, IModel };
