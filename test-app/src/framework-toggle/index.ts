@@ -45,7 +45,7 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
     },
   });
   const reactAdapter = {
-    useToggle: (params: { id: string; initialState: IState }) => {
+    useToggle: (params: ICreateToggle) => {
       const [toggle] = useState(() => {
         repo.createModel(params);
         return repo.getModel(params.id)!;

@@ -11,4 +11,8 @@ interface IModel {
   getMessage: () => any;
   getValue: () => boolean;
 }
-export type { IModel, IState };
+interface ICreateToggle {
+  id: string;
+  initialState: IState;
+}
+export type { IModel, IState, ICreateToggle };
