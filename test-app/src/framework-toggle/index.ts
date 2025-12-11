@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { framework } from "../framework";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
-import type { IState, IModel } from "./types";
+import type { IState, IModel, ICreateToggle } from "./types";
 
 const toggleRepository = ({ log = false }: { log?: boolean }) => {
   const repo = framework.createRepository<IState, IModel>({
