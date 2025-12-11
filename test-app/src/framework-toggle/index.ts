@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
 import { framework } from "../framework";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
-
-interface IInitialState {
-  open: boolean;
-  message?: any;
-}
-
-interface IState {
-  open: boolean;
-  message: any;
-}
+import type { IInitialState, IState, IModel } from "./types";
 
 const toggleRepository = ({ log = false }: { log?: boolean }) => {
-  const repo = framework.createRepository<IInitialState, IState, any>({
+  const repo = framework.createRepository<IInitialState, IState, IModel>({
     log,
     createState(initialState) {
       return {
@@ -22,7 +13,6 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
       };
     },
     model(context) {
-      console.log("CONTEXT", context);
       return {
         open: (message?: any) => {
           context.setState((prev) => {
@@ -43,7 +33,7 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
           });
         },
         onChangeSync: (notify: () => void) => {
-          return context.subscribe((state) => {
+          return context.subscribe(() => {
             notify();
           });
         },

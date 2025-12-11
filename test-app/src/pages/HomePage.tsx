@@ -1,5 +1,4 @@
 import { Button, Modal } from "antd";
-import { Store } from "@tanstack/store";
 import { toggleRepository } from "../framework-toggle";
 const { useToggle, getToggle } = toggleRepository({
   log: true,
@@ -12,7 +11,6 @@ const ModalComponent = () => {
       message: undefined,
     },
   });
-  console.log("MODAL COMPONENT MESSAGE", message);
   return (
     <>
       <Modal
