@@ -20,7 +20,6 @@ function createRepository<I, S, M>({
         store,
         log,
       });
-      model(context);
 
       if (repository.has(params.id)) return;
       repository.set(params.id, {
