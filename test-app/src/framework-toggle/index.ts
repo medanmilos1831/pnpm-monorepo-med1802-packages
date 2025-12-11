@@ -8,33 +8,9 @@ import {
 } from "./types";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 
-interface IModelMiddleware {
-  open: boolean;
-  message: string;
-}
-
-const toggleRepository = ({
-  log = false,
-  middlewares,
-}: {
-  log?: boolean;
-  middlewares?: {
-    [key: string]: (params: {
-      resolve: (
-        callback: (value: any, payload: any) => IModelMiddleware
-      ) => void;
-      reject: () => void;
-    }) => void;
-  };
-}) => {
-  const repo = framework.createRepository<
-    boolean,
-    IStore<IState>,
-    IModel,
-    IModelMiddleware
-  >({
+const toggleRepository = ({ log = false }: { log?: boolean }) => {
+  const repo = framework.createRepository<boolean, IStore<IState>, IModel>({
     log,
-    middlewares,
     store({ id, initialState }: { id: string; initialState: boolean }) {
       let state = {
         open: initialState,
@@ -51,6 +27,10 @@ const toggleRepository = ({
     },
     model(context) {
       function publishHandler(payload: any) {
+        context.store.setState((state) => ({
+          ...state,
+          ...payload,
+        }));
         const decoratedPublish = context.logger.logAction(
           context.publish,
           payload
@@ -78,17 +58,7 @@ const toggleRepository = ({
         onChangeSync: (notify: () => void) => {
           return context.subscribe({
             eventName: ToggleEventName.ON_CHANGE,
-            callback: ({ payload }: any) => {
-              context.store.setState((state) => {
-                const { open, ...rest } = payload;
-                return {
-                  ...state,
-                  open,
-                  message: rest,
-                };
-              });
-              notify();
-            },
+            callback: notify,
           });
         },
         onChange: (callback: (event: any) => void) => {
@@ -97,7 +67,6 @@ const toggleRepository = ({
             callback,
           });
         },
-        middleware: context.middleware,
         getMessage,
         getValue,
       };
@@ -121,26 +90,9 @@ const toggleRepository = ({
         any
       ];
     },
-    useMiddleware: ({ toggleId, use, value }: any) => {
-      const model = repo.getModel(toggleId);
-      useEffect(() => {
-        if (!model.middleware) {
-          return;
-        }
-        const middleware = model.middleware(ToggleEventName.ON_CHANGE);
-        const unsubscribe = middleware({ use, value });
-        return () => {
-          if (!model.middleware) {
-            return;
-          }
-          unsubscribe();
-        };
-      });
-    },
   };
   return {
     useToggle: reactAdapter.useToggle,
-    useMiddleware: reactAdapter.useMiddleware,
     createToggle: repo.createModel,
     deleteToggle: repo.deleteModel,
     getToggle: repo.getModel,
@@ -148,32 +100,3 @@ const toggleRepository = ({
 };
 
 export { toggleRepository };
-
-// const reactAdapter = {
-//   useToggle: (params: { id: string; initialState: boolean }) => {
-//     const [toggle] = useState(() => {
-//       toggleRepository.createModel(params);
-//       return toggleRepository.getModel(params.id)!;
-//     });
-//     const value = useSyncExternalStore(toggle.onChangeSync, toggle.getValue);
-//     useEffect(() => {
-//       return () => {
-//         toggleRepository.deleteModel(params.id);
-//       };
-//     }, [params.id]);
-//     return [value, toggle.close, toggle.getMessage()] as [
-//       boolean,
-//       (message?: any) => void,
-//       any
-//     ];
-//   },
-// };
-
-// const toggle = {
-//   useToggle: reactAdapter.useToggle,
-//   createToggle: toggleRepository.createModel,
-//   deleteToggle: toggleRepository.deleteModel,
-//   getToggle: toggleRepository.getModel,
-// };
-
-// export { toggle };

@@ -1,19 +1,12 @@
 import { createModel } from "../model";
 import type { StoreModel, storeType } from "../types";
 
-function createRepository<I, S, M, MI>({
+function createRepository<I, S, M>({
   log,
-  middlewares,
   model,
   store,
 }: {
   log: boolean;
-  middlewares?: {
-    [key: string]: (params: {
-      resolve: (callback: (value: any, payload: any) => MI) => void;
-      reject: () => void;
-    }) => void;
-  };
   model: (context: ReturnType<typeof createModel<I, S>>) => M;
   store: storeType<I, S>;
 }) {
@@ -21,11 +14,10 @@ function createRepository<I, S, M, MI>({
 
   return {
     createModel(params: { id: string; initialState: I }) {
-      const context = createModel<I, S, MI>({
+      const context = createModel<I, S>({
         modelId: params.id,
         initialState: params.initialState,
         store,
-        middlewares,
         log,
       });
       model(context);
@@ -37,7 +29,7 @@ function createRepository<I, S, M, MI>({
     },
     getModel: (id: string) => {
       if (!repository.has(id)) {
-        throw new Error(`Toggle ${id} not found`);
+        throw new Error(`Model ${id} not found`);
       }
       const model = repository.get(id)!.model;
       return model;

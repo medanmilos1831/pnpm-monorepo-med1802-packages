@@ -1,23 +1,7 @@
-import { useEffect, useState } from "react";
-import { toggleRepository } from "../framework-toggle";
 import { Button, Modal } from "antd";
-const { useToggle, useMiddleware, getToggle } = toggleRepository({
-  log: false,
-  middlewares: {
-    someMiddleware: (params) => {
-      // console.log("someMiddleware", params);
-      params.resolve((value, payload) => {
-        console.log("VALUE", value);
-        console.log("PAYLOAD", payload);
-        return {
-          open: true,
-          message: "22",
-          kita: "ss",
-          dsdsds: "dsdsds",
-        };
-      });
-    },
-  },
+import { toggleRepository } from "../framework-toggle";
+const { useToggle, getToggle } = toggleRepository({
+  log: true,
 });
 const ModalComponent = () => {
   const [isOpen, close, message] = useToggle({
@@ -40,11 +24,6 @@ const ModalComponent = () => {
 };
 
 const SomeComponent = () => {
-  useMiddleware({
-    toggleId: "test",
-    use: "someMiddleware",
-    value: 222,
-  });
   return (
     <>
       <h1>Some Component</h1>

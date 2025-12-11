@@ -14,7 +14,6 @@ interface IModel {
   onChange: (callback: (event: any) => void) => () => void;
   getMessage: () => any;
   getValue: () => boolean;
-  middleware: any;
 }
 
 export enum ToggleEventName {
