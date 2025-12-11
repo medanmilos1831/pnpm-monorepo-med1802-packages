@@ -1,17 +1,38 @@
 import { createScopedObserver } from "@med1802/scoped-observer";
 import { createMessageBroker } from "@med1802/scoped-observer-message-broker";
-import type { storeType } from "../types";
 import { createModelLogger } from "./modellogger";
 
-function createModel<I = any, S = any>({
+function createStore<S>(state: S) {
+  const scopedObserver = createScopedObserver();
+  const messageBroker = createMessageBroker(scopedObserver);
+  return {
+    setState(callback: (params: S) => S) {
+      state = callback(state);
+      messageBroker.publish({
+        eventName: "setState",
+      });
+    },
+    getStateByProp(prop: keyof S) {
+      return () => state[prop];
+    },
+    subscribe(selector: (payload: any) => void) {
+      return messageBroker.subscribe({
+        eventName: "setState",
+        callback: () => {
+          selector(state);
+        },
+      });
+    },
+  };
+}
+
+function createModel<S = any>({
   modelId,
-  initialState,
-  store,
+  state,
   log,
 }: {
   modelId: string;
-  initialState: I;
-  store: storeType<I, S>;
+  state: S;
   log: boolean;
 }) {
   const scopedObserver = createScopedObserver();
@@ -21,10 +42,7 @@ function createModel<I = any, S = any>({
     subscribe: messageBroker.subscribe,
     interceptor: messageBroker.interceptor,
     logger: createModelLogger(log, modelId),
-    store: store({
-      id: modelId,
-      initialState,
-    }),
+    store: createStore<S>(state),
   };
 }
 

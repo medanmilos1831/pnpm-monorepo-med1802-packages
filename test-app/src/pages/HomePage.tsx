@@ -1,4 +1,5 @@
 import { Button, Modal } from "antd";
+import { Store } from "@tanstack/store";
 import { toggleRepository } from "../framework-toggle";
 const { useToggle, getToggle } = toggleRepository({
   log: true,
@@ -6,7 +7,10 @@ const { useToggle, getToggle } = toggleRepository({
 const ModalComponent = () => {
   const [isOpen, close, message] = useToggle({
     id: "test",
-    initialState: false,
+    initialState: {
+      open: false,
+      message: undefined,
+    },
   });
   console.log("MODAL COMPONENT MESSAGE", message);
   return (
@@ -39,6 +43,13 @@ const ButtonHandler = () => {
     </>
   );
 };
+
+// const store = new Store({
+//   open: false,
+//   message: undefined,
+// });
+
+// console.log("STORE", store);
 
 const HomePage = () => {
   return (

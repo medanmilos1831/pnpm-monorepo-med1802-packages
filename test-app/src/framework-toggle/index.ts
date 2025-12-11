@@ -1,79 +1,67 @@
 import { useEffect, useState } from "react";
 import { framework } from "../framework";
-import {
-  type IStore,
-  type IState,
-  type IModel,
-  ToggleEventName,
-} from "./types";
+import { ToggleEventName } from "./types";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 
+interface IInitialState {
+  open: boolean;
+  message?: any;
+}
+
+interface IState {
+  open: boolean;
+  message: any;
+}
+
 const toggleRepository = ({ log = false }: { log?: boolean }) => {
-  const repo = framework.createRepository<boolean, IStore<IState>, IModel>({
+  const repo = framework.createRepository<IInitialState, IState, any>({
     log,
-    store({ id, initialState }: { id: string; initialState: boolean }) {
-      let state = {
-        open: initialState,
-        message: undefined,
-      };
+    createState(initialState) {
       return {
-        setState(callback: (params: typeof state) => typeof state) {
-          state = callback(state);
-        },
-        getStateByProp(prop: keyof typeof state) {
-          return () => state[prop];
-        },
+        message: undefined,
+        ...initialState,
       };
     },
     model(context) {
-      function publishHandler(payload: any) {
-        context.store.setState((state) => ({
-          ...state,
-          ...payload,
-        }));
-        const decoratedPublish = context.logger.logAction(
-          context.publish,
-          payload
-        );
-        decoratedPublish({
-          eventName: ToggleEventName.ON_CHANGE,
-          payload,
-        });
-      }
-      const getMessage = context.store.getStateByProp("message");
-      const getValue = context.store.getStateByProp("open");
       return {
         open: (message?: any) => {
-          publishHandler({
-            open: true,
-            message,
+          context.store.setState((prev) => {
+            return {
+              ...prev,
+              open: true,
+              message,
+            };
           });
         },
         close: (message?: any) => {
-          publishHandler({
-            open: false,
-            message,
+          context.store.setState((prev) => {
+            return {
+              ...prev,
+              open: false,
+              message,
+            };
           });
         },
         onChangeSync: (notify: () => void) => {
-          return context.subscribe({
-            eventName: ToggleEventName.ON_CHANGE,
-            callback: notify,
+          return context.store.subscribe((state) => {
+            notify();
           });
         },
         onChange: (callback: (event: any) => void) => {
-          return context.subscribe({
-            eventName: ToggleEventName.ON_CHANGE,
-            callback,
+          return context.store.subscribe((state) => {
+            callback(state);
           });
         },
-        getMessage,
-        getValue,
+        getMessage: context.store.getStateByProp("message"),
+        getValue: context.store.getStateByProp("open"),
       };
     },
   });
   const reactAdapter = {
-    useToggle: (params: { id: string; initialState: boolean }) => {
+    useToggle: (params: {
+      id: string;
+      initialState: { open: boolean; message?: any };
+    }) => {
       const [toggle] = useState(() => {
         repo.createModel(params);
         return repo.getModel(params.id)!;
