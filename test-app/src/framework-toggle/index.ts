@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
 import { framework } from "../framework";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
-import type { IInitialState, IState, IModel } from "./types";
+import type { IState, IModel } from "./types";
 
 const toggleRepository = ({ log = false }: { log?: boolean }) => {
-  const repo = framework.createRepository<IInitialState, IState, IModel>({
+  const repo = framework.createRepository<IState, IModel>({
     log,
     createState(initialState) {
-      return {
-        message: undefined,
-        ...initialState,
-      };
+      return initialState;
     },
     model(context) {
       return {
@@ -48,10 +45,7 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
     },
   });
   const reactAdapter = {
-    useToggle: (params: {
-      id: string;
-      initialState: { open: boolean; message?: any };
-    }) => {
+    useToggle: (params: { id: string; initialState: IState }) => {
       const [toggle] = useState(() => {
         repo.createModel(params);
         return repo.getModel(params.id)!;

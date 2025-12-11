@@ -1,8 +1,3 @@
-interface IInitialState {
-  open: boolean;
-  message?: any;
-}
-
 interface IState {
   open: boolean;
   message: any;
@@ -16,4 +11,4 @@ interface IModel {
   getMessage: () => any;
   getValue: () => boolean;
 }
-export type { IModel, IState, IInitialState };
+export type { IModel, IState };

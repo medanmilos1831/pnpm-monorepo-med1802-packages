@@ -1,19 +1,19 @@
 import { createStore } from "../model";
 import type { StoreModel } from "../types";
 
-function createRepository<IS, S, M>({
+function createRepository<S, M>({
   log,
   createState,
   model,
 }: {
   log: boolean;
-  createState: (params: IS) => S;
+  createState: (params: S) => S;
   model: (context: ReturnType<typeof createStore<S>>) => M;
 }) {
   const repository = new Map<string, StoreModel<M>>();
 
   return {
-    createModel(params: { id: string; initialState: IS }) {
+    createModel(params: { id: string; initialState: S }) {
       if (repository.has(params.id)) return;
       repository.set(params.id, {
         model: model(
