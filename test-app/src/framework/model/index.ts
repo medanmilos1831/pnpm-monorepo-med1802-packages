@@ -17,8 +17,11 @@ function createStore<S>({
   return {
     setState(callback: (params: S) => S) {
       state = callback(state);
-      let r = modelLogger.logAction(messageBroker.publish, state);
-      r({
+      let decoratedPublish = modelLogger.logAction(
+        messageBroker.publish,
+        state
+      );
+      decoratedPublish({
         eventName: "setState",
         payload: undefined,
       });
