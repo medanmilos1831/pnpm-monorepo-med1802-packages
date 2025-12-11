@@ -5,34 +5,11 @@ const createModelLogger = (active: boolean, id: string) => {
       params: any
     ): T => {
       return ((...args: any[]) => {
-        const { open, message } = params;
         if (active) {
-          console.table([
-            {
-              id,
-              open,
-            },
-          ]);
-          if (message !== undefined) {
-            console.group(
-              `%c📨 Message`,
-              "color: #4CAF50; font-weight: bold; font-size: 12px;"
-            );
-            if (typeof message === "object" && message !== null) {
-              console.log(
-                "%cObject:",
-                "color: #2196F3; font-weight: bold",
-                message
-              );
-            } else {
-              console.log(
-                "%cValue:",
-                "color: #2196F3; font-weight: bold",
-                message
-              );
-            }
-            console.groupEnd();
-          }
+          const timestamp = new Date().toISOString();
+          console.group(`🔔 [${id}] Action Log - ${timestamp}`);
+          console.log("📦 Payload:", params);
+          console.groupEnd();
         }
         callback(...args);
       }) as T;

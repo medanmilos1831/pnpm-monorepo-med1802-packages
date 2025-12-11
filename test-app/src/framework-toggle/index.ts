@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { framework } from "../framework";
-import { ToggleEventName } from "./types";
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 
 interface IInitialState {
@@ -23,9 +22,10 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
       };
     },
     model(context) {
+      console.log("CONTEXT", context);
       return {
         open: (message?: any) => {
-          context.store.setState((prev) => {
+          context.setState((prev) => {
             return {
               ...prev,
               open: true,
@@ -34,7 +34,7 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
           });
         },
         close: (message?: any) => {
-          context.store.setState((prev) => {
+          context.setState((prev) => {
             return {
               ...prev,
               open: false,
@@ -43,17 +43,17 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
           });
         },
         onChangeSync: (notify: () => void) => {
-          return context.store.subscribe((state) => {
+          return context.subscribe((state) => {
             notify();
           });
         },
         onChange: (callback: (event: any) => void) => {
-          return context.store.subscribe((state) => {
+          return context.subscribe((state) => {
             callback(state);
           });
         },
-        getMessage: context.store.getStateByProp("message"),
-        getValue: context.store.getStateByProp("open"),
+        getMessage: context.getStateByProp("message"),
+        getValue: context.getStateByProp("open"),
       };
     },
   });
