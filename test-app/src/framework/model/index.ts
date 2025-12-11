@@ -19,6 +19,7 @@ function createModel<I = any, S = any>({
   return {
     publish: messageBroker.publish,
     subscribe: messageBroker.subscribe,
+    interceptor: messageBroker.interceptor,
     logger: createModelLogger(log, modelId),
     store: store({
       id: modelId,
