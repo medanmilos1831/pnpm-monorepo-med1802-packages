@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { framework } from "../framework";
+import { framework } from "../repository-core";
 import type { ICreateToggle, IModel, IState } from "./types";
 import { useSelector } from "./useSelector";
 

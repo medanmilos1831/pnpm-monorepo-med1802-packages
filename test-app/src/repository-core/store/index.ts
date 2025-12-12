@@ -16,6 +16,7 @@ function createStore<S>({
   const messageBroker = createMessageBroker(scopedObserver);
   const logger = createLogger(log, id);
   return {
+    id,
     setState(callback: (params: S) => S) {
       state = callback(state);
       let decoratedPublish = logger.logAction(messageBroker.publish, state);

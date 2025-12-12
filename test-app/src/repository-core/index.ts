@@ -1,9 +1,9 @@
 import { createRepository } from "./repository";
 
-const framework = (() => {
+const core = (() => {
   return {
     createRepository,
   };
 })();
 
-export { framework };
+export { core };
