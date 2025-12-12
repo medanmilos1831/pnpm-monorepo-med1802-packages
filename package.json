@@ -19,6 +19,8 @@
         "build:med1802-scoped-observer-message-broker": "pnpm --filter @med1802/scoped-observer-message-broker run build",
         "publish:med1802-scoped-observer-message-broker": "pnpm publish --filter @med1802/scoped-observer-message-broker --access public",
         "build:med1802-react-toggle-observer": "pnpm --filter @med1802/react-toggle-observer run build",
-        "publish:med1802-react-toggle-observer": "pnpm publish --filter @med1802/react-toggle-observer --access public"
+        "publish:med1802-react-toggle-observer": "pnpm publish --filter @med1802/react-toggle-observer --access public",
+        "build:med1802-repository-core": "pnpm --filter @med1802/repository-core run build",
+        "publish:med1802-repository-core": "pnpm publish --filter @med1802/repository-core --access public"
     }
 }
