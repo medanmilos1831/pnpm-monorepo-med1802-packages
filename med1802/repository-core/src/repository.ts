@@ -1,31 +1,32 @@
-import { createStore } from "../store";
-import type { StoreModel } from "../types";
+import { createStore } from "./store";
+import type { StoreModel } from "./types";
 
-function createRepository<S, M>({
-  log,
+function createRepository<S>({
+  log = false,
   createState,
-  model,
 }: {
   log: boolean;
   createState: (params: S) => S;
-  model: (context: ReturnType<typeof createStore<S>>) => M;
 }) {
-  const repositoryStore = createStore<Map<string, StoreModel<M>>>({
+  const repositoryStore = createStore<
+    Map<string, StoreModel<ReturnType<typeof createStore<S>>>>
+  >({
     id: "repository",
-    state: new Map<string, StoreModel<M>>(),
+    state: new Map<string, StoreModel<ReturnType<typeof createStore<S>>>>(),
     log: false,
   });
   return {
     createModel: (params: { id: string; initialState: S }) => {
+      if (repositoryStore.getState().has(params.id)) {
+        return;
+      }
       repositoryStore.setState((prev) => {
         prev.set(params.id, {
-          model: model(
-            createStore<S>({
-              id: params.id,
-              state: createState(params.initialState),
-              log,
-            })
-          ),
+          model: createStore<S>({
+            id: params.id,
+            state: createState(params.initialState),
+            log,
+          }),
         });
         return prev;
       });

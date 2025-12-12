@@ -1,78 +1,66 @@
+import { useState } from "react";
 import { core } from "../repository-core";
-const toggleRepository = core.createRepository<
-  number,
-  { increment: () => void; getState: () => number }
->({
+import { useRepositorySelector } from "../respository-react";
+const toggleRepository = core.createRepository<number>({
   log: false,
   createState(initialState) {
     return initialState;
   },
-  model(context) {
-    return {
-      increment: () => {
-        context.setState((prev) => prev + 1);
-      },
-      getState: () => {
-        return context.getState();
-      },
-    };
+  // model(context) {
+  //   return {
+  //     increment: () => {
+  //       context.setState((prev) => prev + 1);
+  //     },
+  //     getStore: () => {
+  //       return context;
+  //     },
+  //   };
+  // },
+});
+const useSelector = ({
+  id,
+  selector,
+}: {
+  id: string;
+  selector: (state: any) => any;
+}) => {
+  const [model] = useState(() => {
+    return toggleRepository.getModel(id);
+  });
+  if (!model) {
+    throw new Error(`Model ${id} not found`);
+  }
+  return useRepositorySelector(model, (state) => selector(state));
+};
+
+const api = {
+  createModel: ({ id, initialState }: { id: string; initialState: any }) => {
+    toggleRepository.createModel({ id, initialState });
   },
-});
-toggleRepository.createModel({
-  id: "counter",
-  initialState: 0,
-});
-let counterModel = toggleRepository.getModel("counter");
-counterModel.increment();
-console.log(counterModel.getState());
-// const repo = createRepository<number, { incrementCounter: () => void }>({
-//   log: false,
-//   createState(initialState) {
-//     return initialState;
-//   },
-// });
-// const unsubscribe = repo.subscribe((state) => {
-// });
+  increment: () => {
+    toggleRepository.getModel("counter").setState((prev) => prev + 1);
+  },
+  useSelector: ({
+    id,
+    selector,
+  }: {
+    id: string;
+    selector: (state: any) => any;
+  }) => {
+    return useSelector({ id, selector });
+  },
+};
 
-// repo.createModel({
-//   id: "counter",
-//   initialState: 0,
-// });
-// let counterModel = repo.getModel("counter").setState((prev) => prev + 2);
-// repo.getModel("counter").setState((prev) => prev + 2);
-// repo.getModel("counter").setState((prev) => prev + 2);
-// repo.getModel("counter").setState((prev) => prev + 2);
-// console.log(repo.getModel("counter").getState());
-// console.log(repo.getModel("home"));
-// repo.createModel({
-//   id: "home",
-//   initialState: {
-//     counter: 0,
-//   },
-// });
-// const model = repo.getModel("home");
-// const incrementCounter = () => {
-//   model.store.setState((prev: any) => {
-//     return {
-//       ...prev,
-//       counter: prev.counter + 1,
-//     };
-//   });
-// };
-// const unsubscribe = model.store.subscribe((state) => {
-//   console.log("state changed", state);
-// });
-
-// incrementCounter();
-// incrementCounter();
-// incrementCounter();
-// incrementCounter();
-// unsubscribe();
-// incrementCounter();
-// incrementCounter();
-// console.log(model.store.getState());
 const HomePage = () => {
-  return <></>;
+  api.createModel({ id: "counter", initialState: 0 });
+  const e = api.useSelector({ id: "counter", selector: (state) => state });
+  console.log(e);
+  return (
+    <>
+      <button onClick={() => api.increment()}>Increment</button>
+      <p>Counter: {e}</p>
+    </>
+  );
 };
 
 export { HomePage };

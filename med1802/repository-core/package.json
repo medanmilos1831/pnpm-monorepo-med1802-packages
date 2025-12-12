@@ -1,0 +1,23 @@
+{
+  "name": "@med1802/repository-core",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@med1802/scoped-observer": "^1.1.4",
+    "@med1802/scoped-observer-message-broker": "^2.1.0"
+  },
+  "peerDependencies": {
+    "@med1802/scoped-observer": "^1.1.4",
+    "@med1802/scoped-observer-message-broker": "^2.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/medanmilos1831/repository-core.git",
+    "directory": "med1802/repository-core"
+  },
+  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/repository-core#readme"
+}
