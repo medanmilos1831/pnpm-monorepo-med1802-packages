@@ -9,10 +9,10 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
     createState(initialState) {
       return initialState;
     },
-    createContext(store) {
+    commands(setState) {
       return {
         open: (message?: any) => {
-          store.setState((prev: any) => {
+          setState((prev) => {
             return {
               ...prev,
               open: true,
@@ -21,7 +21,7 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
           });
         },
         close: (message?: any) => {
-          store.setState((prev: any) => {
+          setState((prev) => {
             return {
               ...prev,
               open: false,
@@ -29,15 +29,14 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
             };
           });
         },
-        // store,
       };
     },
   });
   const reactAdapter = {
     useToggle: (params: ICreateToggle) => {
       const [toggle] = useState(() => {
-        repo.createContext(params);
-        return repo.getContext(params.id);
+        repo.create(params);
+        return repo.get(params.id);
       });
       if (!toggle) {
         throw new Error(`Toggle ${params.id} not found`);
@@ -56,7 +55,7 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
       selector: (state: any) => any;
     }) => {
       const [model] = useState(() => {
-        return repo.getContext(id);
+        return repo.get(id);
       });
       if (!model) {
         throw new Error(`Toggle ${id} not found`);
@@ -67,9 +66,9 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
   return {
     useToggle: reactAdapter.useToggle,
     useToggleSelector: reactAdapter.useToggleSelector,
-    createToggle: repo.createContext,
-    deleteToggle: repo.deleteModel,
-    getToggle: repo.getContext,
+    createToggle: repo.create,
+    deleteToggle: repo.remove,
+    getToggle: repo.get,
   };
 };
 

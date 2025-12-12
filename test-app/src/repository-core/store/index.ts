@@ -1,26 +1,15 @@
 import { createScopedObserver } from "@med1802/scoped-observer";
 import { createMessageBroker } from "@med1802/scoped-observer-message-broker";
-import { createLogger } from "./logger";
 import { StoreEventType } from "../types";
 
-function createStore<S>({
-  id,
-  state,
-  log,
-}: {
-  id: string;
-  state: S;
-  log: boolean;
-}) {
+function createStore<S>({ id, state }: { id: string; state: S }) {
   const scopedObserver = createScopedObserver();
   const messageBroker = createMessageBroker(scopedObserver);
-  const logger = createLogger(log, id);
   return {
     id,
     setState(callback: (params: S) => S) {
       state = callback(state);
-      let decoratedPublish = logger.logAction(messageBroker.publish, state);
-      decoratedPublish({
+      messageBroker.publish({
         eventName: StoreEventType.SET_STATE,
       });
     },

@@ -1,22 +1,19 @@
 import { createStore } from "./store";
-import type { StoreModel } from "./types";
 
 function createRepository<S, C = any>({
-  log = false,
   createState,
-  createContext,
+  commands,
 }: {
   log: boolean;
   createState: (params: S) => S;
-  createContext: (store: ReturnType<typeof createStore<S>>) => C;
+  commands: (store: ReturnType<typeof createStore<S>>["setState"]) => C;
 }) {
-  const repositoryStore = createStore<Map<string, StoreModel<C>>>({
+  const repositoryStore = createStore<Map<string, C>>({
     id: "repository",
-    state: new Map<string, StoreModel<C>>(),
-    log: false,
+    state: new Map<string, C>(),
   });
   return {
-    createContext: (params: { id: string; initialState: S }) => {
+    create: (params: { id: string; initialState: S }) => {
       if (repositoryStore.getState().has(params.id)) {
         return;
       }
@@ -24,27 +21,26 @@ function createRepository<S, C = any>({
         const store = createStore<S>({
           id: params.id,
           state: createState(params.initialState),
-          log,
         });
-        const context = createContext(store);
-        let proto = Object.create({ context: store });
-        Object.assign(proto, context);
-        prev.set(params.id, {
-          context: Object.assign(proto, context),
+        const context = commands(store.setState);
+        let proto = Object.create({
+          subscribe: store.subscribe,
+          getState: store.getState,
         });
+        prev.set(params.id, Object.assign(proto, context));
         return prev;
       });
-      console.log(repositoryStore.getState());
     },
-    getContext: (id: string) => {
-      return repositoryStore.getState().get(id)?.context! as C & {
-        context: ReturnType<typeof createStore<S>>;
+    get: (id: string) => {
+      return repositoryStore.getState().get(id)! as C & {
+        subscribe: ReturnType<typeof createStore<S>>["subscribe"];
+        getState: ReturnType<typeof createStore<S>>["getState"];
       };
     },
-    hasModel: (id: string) => {
+    has: (id: string) => {
       return repositoryStore.getState().has(id);
     },
-    deleteModel: (id: string) => {
+    remove: (id: string) => {
       repositoryStore.setState((prev) => {
         prev.delete(id);
         return prev;
