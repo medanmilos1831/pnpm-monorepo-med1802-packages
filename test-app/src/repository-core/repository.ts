@@ -1,39 +1,45 @@
 import { createStore } from "./store";
 import type { StoreModel } from "./types";
 
-function createRepository<S>({
+function createRepository<S, C = any>({
   log = false,
   createState,
+  createContext,
 }: {
   log: boolean;
   createState: (params: S) => S;
+  createContext: (store: ReturnType<typeof createStore<S>>) => C;
 }) {
-  const repositoryStore = createStore<
-    Map<string, StoreModel<ReturnType<typeof createStore<S>>>>
-  >({
+  const repositoryStore = createStore<Map<string, StoreModel<C>>>({
     id: "repository",
-    state: new Map<string, StoreModel<ReturnType<typeof createStore<S>>>>(),
+    state: new Map<string, StoreModel<C>>(),
     log: false,
   });
   return {
-    createModel: (params: { id: string; initialState: S }) => {
+    createContext: (params: { id: string; initialState: S }) => {
       if (repositoryStore.getState().has(params.id)) {
         return;
       }
       repositoryStore.setState((prev) => {
+        const store = createStore<S>({
+          id: params.id,
+          state: createState(params.initialState),
+          log,
+        });
+        const context = createContext(store);
+        let proto = Object.create({ context: store });
+        Object.assign(proto, context);
         prev.set(params.id, {
-          model: createStore<S>({
-            id: params.id,
-            state: createState(params.initialState),
-            log,
-          }),
+          context: Object.assign(proto, context),
         });
         return prev;
       });
       console.log(repositoryStore.getState());
     },
-    getModel: (id: string) => {
-      return repositoryStore.getState().get(id)?.model!;
+    getContext: (id: string) => {
+      return repositoryStore.getState().get(id)?.context! as C & {
+        context: ReturnType<typeof createStore<S>>;
+      };
     },
     hasModel: (id: string) => {
       return repositoryStore.getState().has(id);

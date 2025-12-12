@@ -3,13 +3,13 @@ interface IState {
   message: any;
 }
 
-interface IModel {
+interface IContext {
   open: (message?: any) => void;
   close: (message?: any) => void;
-  store: any;
+  // store: any;
 }
 interface ICreateToggle {
   id: string;
   initialState: IState;
 }
-export type { IModel, IState, ICreateToggle };
+export type { IContext, IState, ICreateToggle };

@@ -1,6 +1,10 @@
 import { toggleRepository } from "../framework-toggle";
-toggleRepository({ log: true });
+const { useToggle } = toggleRepository({ log: true });
 const HomePage = () => {
+  const w = useToggle({
+    id: "toggle",
+    initialState: { open: false, message: "test" },
+  });
   return <></>;
 };
 
