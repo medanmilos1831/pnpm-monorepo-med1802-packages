@@ -1,5 +1,5 @@
 {
-  "name": "@med1802/repository-core",
+  "name": "@med1802/repository-engine",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,8 +16,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/medanmilos1831/repository-core.git",
-    "directory": "med1802/repository-core"
+    "url": "https://github.com/medanmilos1831/repository-engine.git",
+    "directory": "med1802/repository-engine"
   },
-  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/repository-core#readme"
+  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/repository-engine#readme"
 }

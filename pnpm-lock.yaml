@@ -38,7 +38,7 @@ importers:
         specifier: ^0.0.6
         version: 0.0.6
 
-  med1802/repository-core:
+  med1802/repository-engine:
     dependencies:
       '@med1802/scoped-observer':
         specifier: ^1.1.4

@@ -7,3 +7,4 @@ const core = (() => {
 })();
 
 export { core };
+a;

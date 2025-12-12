@@ -17,6 +17,6 @@
     { "path": "./med1802/scoped-observer" },
     { "path": "./med1802/scoped-observer-message-broker" },
     { "path": "./med1802/react-toggle-observer" },
-    { "path": "./med1802/repository-core" }
+    { "path": "./med1802/repository-engine" }
   ]
 }
