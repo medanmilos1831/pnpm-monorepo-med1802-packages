@@ -1,14 +1,16 @@
 import { useState } from "react";
-
+import { core } from "@med1802/repository-engine";
 import type { ICreateToggle, IModel, IState } from "./types";
 import { useSelector } from "./useSelector";
-import { createRepositoryReactAdapter } from "../respository-react";
+
 const toggleRepository = ({ log = false }: { log?: boolean }) => {
-  const repo = createRepositoryReactAdapter<IState>({
-    createState: (initialState) => {
+  const repo = core.createRepository<IState>({
+    log,
+    createState(initialState) {
       return initialState;
     },
   });
+  console.log(repo);
   // const reactAdapter = {
   //   useToggle: (params: ICreateToggle) => {
   //     const [toggle] = useState(() => {
