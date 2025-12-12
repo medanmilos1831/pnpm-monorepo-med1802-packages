@@ -1,4 +1,4 @@
-import { createStore } from "../model";
+import { createStore } from "../store";
 import type { StoreModel } from "../types";
 
 function createRepository<S, M>({

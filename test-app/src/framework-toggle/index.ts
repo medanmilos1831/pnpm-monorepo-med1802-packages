@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { framework } from "../framework";
-import { useSyncExternalStore } from "use-sync-external-store/shim";
-import type { IState, IModel, ICreateToggle } from "./types";
+import type { ICreateToggle, IModel, IState } from "./types";
+import { useSelector } from "./useSelector";
 
 const toggleRepository = ({ log = false }: { log?: boolean }) => {
   const repo = framework.createRepository<IState, IModel>({
@@ -29,18 +29,7 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
             };
           });
         },
-        onChangeSync: (notify: () => void) => {
-          return context.subscribe(() => {
-            notify();
-          });
-        },
-        onChange: (callback: (event: any) => void) => {
-          return context.subscribe((state) => {
-            callback(state);
-          });
-        },
-        getMessage: context.getStateByProp("message"),
-        getValue: context.getStateByProp("open"),
+        store: context,
       };
     },
   });
@@ -48,23 +37,35 @@ const toggleRepository = ({ log = false }: { log?: boolean }) => {
     useToggle: (params: ICreateToggle) => {
       const [toggle] = useState(() => {
         repo.createModel(params);
-        return repo.getModel(params.id)!;
+        return repo.getModel(params.id);
       });
-      const value = useSyncExternalStore(toggle.onChangeSync, toggle.getValue);
-      useEffect(() => {
-        return () => {
-          repo.deleteModel(params.id);
-        };
-      }, [params.id]);
-      return [value, toggle.close, toggle.getMessage()] as [
-        boolean,
-        (message?: any) => void,
-        any
-      ];
+      if (!toggle) {
+        throw new Error(`Toggle ${params.id} not found`);
+      }
+      return {
+        open: toggle.open,
+        close: toggle.close,
+      };
+    },
+    useToggleSelector: ({
+      id,
+      selector,
+    }: {
+      id: string;
+      selector: (state: any) => any;
+    }) => {
+      const [model] = useState(() => {
+        return repo.getModel(id);
+      });
+      if (!model) {
+        throw new Error(`Toggle ${id} not found`);
+      }
+      return useSelector(model.store, selector);
     },
   };
   return {
     useToggle: reactAdapter.useToggle,
+    useToggleSelector: reactAdapter.useToggleSelector,
     createToggle: repo.createModel,
     deleteToggle: repo.deleteModel,
     getToggle: repo.getModel,

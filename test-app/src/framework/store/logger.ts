@@ -1,4 +1,4 @@
-const createModelLogger = (active: boolean, id: string) => {
+const createLogger = (active: boolean, id: string) => {
   return {
     logAction: <T extends (...args: any[]) => void>(
       callback: T,
@@ -17,4 +17,4 @@ const createModelLogger = (active: boolean, id: string) => {
   };
 };
 
-export { createModelLogger };
+export { createLogger };

@@ -6,10 +6,7 @@ interface IState {
 interface IModel {
   open: (message?: any) => void;
   close: (message?: any) => void;
-  onChangeSync: (callback: () => void) => () => void;
-  onChange: (callback: (event: any) => void) => () => void;
-  getMessage: () => any;
-  getValue: () => boolean;
+  store: any;
 }
 interface ICreateToggle {
   id: string;

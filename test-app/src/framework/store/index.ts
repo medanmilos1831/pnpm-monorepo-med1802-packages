@@ -1,6 +1,6 @@
 import { createScopedObserver } from "@med1802/scoped-observer";
 import { createMessageBroker } from "@med1802/scoped-observer-message-broker";
-import { createModelLogger } from "./modellogger";
+import { createLogger } from "./logger";
 
 function createStore<S>({
   id,
@@ -13,21 +13,18 @@ function createStore<S>({
 }) {
   const scopedObserver = createScopedObserver();
   const messageBroker = createMessageBroker(scopedObserver);
-  const modelLogger = createModelLogger(log, id);
+  const logger = createLogger(log, id);
   return {
     setState(callback: (params: S) => S) {
       state = callback(state);
-      let decoratedPublish = modelLogger.logAction(
-        messageBroker.publish,
-        state
-      );
+      let decoratedPublish = logger.logAction(messageBroker.publish, state);
       decoratedPublish({
         eventName: "setState",
         payload: undefined,
       });
     },
-    getStateByProp(prop: keyof S) {
-      return () => state[prop];
+    getState() {
+      return state;
     },
     subscribe(selector: (payload: any) => void) {
       return messageBroker.subscribe({
