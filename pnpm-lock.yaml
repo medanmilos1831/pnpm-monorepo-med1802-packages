@@ -22,49 +22,6 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
 
-  med1802/quantum-scrollium:
-    devDependencies:
-      '@med1802/quantum-ui':
-        specifier: workspace:*
-        version: link:../quantum-ui
-      '@med1802/scoped-observer':
-        specifier: workspace:*
-        version: link:../scoped-observer
-      '@types/react':
-        specifier: ^18.0.0
-        version: 18.3.23
-      react:
-        specifier: ^18.0.0
-        version: 18.3.1
-
-  med1802/quantum-toggle:
-    dependencies:
-      '@med1802/quantum-ui-react':
-        specifier: ^2.1.2
-        version: 2.1.2(react@19.2.0)
-
-  med1802/quantum-ui:
-    dependencies:
-      '@med1802/scoped-observer':
-        specifier: ^1.1.4
-        version: 1.1.4
-      '@med1802/scoped-observer-message-broker':
-        specifier: ^2.0.2
-        version: 2.0.2(@med1802/scoped-observer@1.1.4)
-
-  med1802/quantum-ui-react:
-    dependencies:
-      '@med1802/quantum-ui':
-        specifier: ^2.1.1
-        version: 2.1.1
-      use-sync-external-store:
-        specifier: ^1.6.0
-        version: 1.6.0(react@19.2.0)
-    devDependencies:
-      '@types/use-sync-external-store':
-        specifier: ^0.0.6
-        version: 0.0.6
-
   med1802/react-toggle-observer:
     dependencies:
       '@med1802/scoped-observer':
@@ -81,6 +38,15 @@ importers:
         specifier: ^0.0.6
         version: 0.0.6
 
+  med1802/repository-core:
+    dependencies:
+      '@med1802/scoped-observer':
+        specifier: ^1.1.4
+        version: 1.1.4
+      '@med1802/scoped-observer-message-broker':
+        specifier: ^2.1.0
+        version: 2.1.0(@med1802/scoped-observer@1.1.4)
+
   med1802/scoped-observer: {}
 
   med1802/scoped-observer-message-broker:
@@ -91,12 +57,21 @@ importers:
 
   test-app:
     dependencies:
+      '@med1802/react-toggle-observer':
+        specifier: ^1.0.0
+        version: 1.0.0(react@19.2.0)
+      '@med1802/scoped-observer':
+        specifier: ^1.1.4
+        version: 1.1.4
       '@med1802/scoped-observer-message-broker':
-        specifier: ^2.0.2
+        specifier: ^2.1.0
         version: 2.1.0(@med1802/scoped-observer@1.1.4)
       '@tanstack/store':
         specifier: ^0.8.0
         version: 0.8.0
+      '@types/use-sync-external-store':
+        specifier: ^1.5.0
+        version: 1.5.0
       antd:
         specifier: ^5.29.1
         version: 5.29.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -119,9 +94,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.6)
-      '@types/use-sync-external-store':
-        specifier: ^0.0.6
-        version: 0.0.6
       '@vitejs/plugin-react':
         specifier: ^5.1.1
         version: 5.1.1(vite@7.2.4(@types/node@24.10.1))
@@ -454,16 +426,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.30':
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
 
-  '@med1802/quantum-ui-react@2.1.2':
-    resolution: {integrity: sha512-5gW1sguypGN5wctd82lq8q/rmjISWvJGTwTU+i97sOn5MLpEGtO5ZyUJ2vFaPmEwMq0c/GqrBzkrbpN9jIbQPQ==}
-
-  '@med1802/quantum-ui@2.1.1':
-    resolution: {integrity: sha512-XAVnQVT+l+q4r94Cajha/Hha9rcvTa+Z8b408Kh2op31S0t7An869RxFR9Plf3J//LjAynzSCfWWU1k33mZdYw==}
-
-  '@med1802/scoped-observer-message-broker@2.0.2':
-    resolution: {integrity: sha512-b9EllvQcI3X9ygRHIudzybqMd+aus6ByWTJnrOb/hHTwDlIDvNvrtY9cPoXGwmSaxw1gy/d4TNCWWyuUFTxCAw==}
-    peerDependencies:
-      '@med1802/scoped-observer': ^1.1.4
+  '@med1802/react-toggle-observer@1.0.0':
+    resolution: {integrity: sha512-ZAuywevMXsXzWfLuo8Im/kzb8TUzI4oC+pP+kbIafOFKIvEF4kbCFp2Fl4U2cY46RVYeK7XjdsP13ez34R/WLw==}
 
   '@med1802/scoped-observer-message-broker@2.1.0':
     resolution: {integrity: sha512-iNG0uSaNbuTG3M652pEgIDgfUcA+tIYsgi5nEUgr1eF67A+B3zLIkTVN9F+dM6xYi+DUq1wupAS5lU2zIXuq4A==}
@@ -673,6 +637,9 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
+
+  '@types/use-sync-external-store@1.5.0':
+    resolution: {integrity: sha512-5dyB8nLC/qogMrlCizZnYWQTA4lnb/v+It+sqNl5YnSRAPMlIqY/X0Xn+gZw8vOL+TgTTr28VEbn3uf8fUtAkw==}
 
   '@vitejs/plugin-react@5.1.1':
     resolution: {integrity: sha512-WQfkSw0QbQ5aJ2CHYw23ZGkqnRwqKHD/KYsMeTkZzPT4Jcf0DcBxBtwMJxnu6E7oxw5+JC6ZAiePgh28uJ1HBA==}
@@ -1450,21 +1417,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@med1802/quantum-ui-react@2.1.2(react@19.2.0)':
+  '@med1802/react-toggle-observer@1.0.0(react@19.2.0)':
     dependencies:
-      '@med1802/quantum-ui': 2.1.1
+      '@med1802/scoped-observer': 1.1.4
+      '@med1802/scoped-observer-message-broker': 2.1.0(@med1802/scoped-observer@1.1.4)
       use-sync-external-store: 1.6.0(react@19.2.0)
     transitivePeerDependencies:
       - react
-
-  '@med1802/quantum-ui@2.1.1':
-    dependencies:
-      '@med1802/scoped-observer': 1.1.4
-      '@med1802/scoped-observer-message-broker': 2.0.2(@med1802/scoped-observer@1.1.4)
-
-  '@med1802/scoped-observer-message-broker@2.0.2(@med1802/scoped-observer@1.1.4)':
-    dependencies:
-      '@med1802/scoped-observer': 1.1.4
 
   '@med1802/scoped-observer-message-broker@2.1.0(@med1802/scoped-observer@1.1.4)':
     dependencies:
@@ -1651,6 +1610,8 @@ snapshots:
       csstype: 3.2.3
 
   '@types/use-sync-external-store@0.0.6': {}
+
+  '@types/use-sync-external-store@1.5.0': {}
 
   '@vitejs/plugin-react@5.1.1(vite@7.2.4(@types/node@24.10.1))':
     dependencies:
