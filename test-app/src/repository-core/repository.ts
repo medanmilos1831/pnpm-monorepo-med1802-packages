@@ -22,12 +22,11 @@ function createRepository<S, C = any>({
           id: params.id,
           state: createState(params.initialState),
         });
-        const context = commands(store.setState);
         let proto = Object.create({
           subscribe: store.subscribe,
           getState: store.getState,
         });
-        prev.set(params.id, Object.assign(proto, context));
+        prev.set(params.id, Object.assign(proto, commands(store.setState)));
         return prev;
       });
     },
