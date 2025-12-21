@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@med1802/react-toggle-observer": "^1.0.0",
-    "@med1802/repository-engine": "^1.0.0",
     "@med1802/scoped-observer": "^1.1.4",
     "@med1802/scoped-observer-message-broker": "^2.1.0",
     "@tanstack/store": "^0.8.0",
