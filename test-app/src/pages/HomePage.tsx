@@ -33,16 +33,27 @@ app.defineRepository("user-repo", (infrastructure) => {
     },
   };
 });
+app.defineRepository("country-repo", (infrastructure) => {
+  return {
+    getCountries() {
+      infrastructure.someHttpsModule.get();
+    },
+    createCountry() {
+      infrastructure.someHttpsModule.post();
+    },
+  };
+});
 
-app.connectRepository("user-repo");
-app.connectRepository("user-repo");
-app.connectRepository("user-repo");
-app.connectRepository("user-repo");
-app.connectRepository("user-repo");
-app.disconnectRepository("user-repo");
-app.disconnectRepository("user-repo");
-app.disconnectRepository("user-repo");
-app.disconnectRepository("user-repo");
+app.useRepository("user-repo").connect();
+app.useRepository("user-repo").connect();
+app.useRepository("user-repo").connect();
+app.useRepository("user-repo").connect();
+app.useRepository("user-repo").disconnect();
+app.useRepository("user-repo").disconnect();
+app.useRepository("user-repo").disconnect();
+app.useRepository("user-repo").disconnect();
+app.useRepository("user-repo").disconnect();
+app.useRepository("user-repo").disconnect();
 
 // console.log("USER REPO", userRepo);
 // userRepo.getUsers();
