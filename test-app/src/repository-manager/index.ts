@@ -1,4 +1,4 @@
-import { createRepository } from "./repository";
+import { createRepositoryReference } from "./createRepositoryReference";
 import { createStore } from "./store";
 
 const REPOSITORY_MANAGER_ID = "repository-manager";
@@ -27,21 +27,23 @@ const repositoryManager = () => {
         ) {
           if (hasRepository(id)) return;
           store.setState((prev) => {
-            const repository = createRepository(id, () =>
+            const reference = createRepositoryReference(id, () =>
               repositoryDefinition(config.infrastructure)
             );
-            prev.repositories.set(id, repository);
+            prev.repositories.set(id, reference);
             return prev;
           });
         },
-        useRepository(id: string) {
-          return getRepository(id);
-        },
-        deleteRepository(id: string) {
-          store.setState((prev) => {
-            prev.repositories.delete(id);
-            return prev;
-          });
+        queryRepository(id: string) {
+          const repository = getRepository(id);
+          if (!repository) {
+            throw new Error(`Repository "${id}" not found`);
+          }
+          repository.connect();
+          return {
+            repository: repository?.getItem(),
+            disconnect: () => repository?.disconnect(),
+          };
         },
       };
     },

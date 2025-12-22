@@ -1,4 +1,4 @@
-function createRepository(id: string, create: () => any) {
+function createRepositoryReference(id: string, create: () => any) {
   let item = undefined as any;
   let connections = 0;
   return {
@@ -7,6 +7,7 @@ function createRepository(id: string, create: () => any) {
         item = create();
       }
       connections += 1;
+      console.log("CONNECTED REPOSITORY", id, connections);
     },
     disconnect() {
       if (connections === 0) return;
@@ -14,6 +15,7 @@ function createRepository(id: string, create: () => any) {
       if (connections === 0) {
         item = undefined;
       }
+      console.log("CONNECTED REPOSITORY", id, connections);
     },
     getItem() {
       return item;
@@ -21,4 +23,4 @@ function createRepository(id: string, create: () => any) {
   };
 }
 
-export { createRepository };
+export { createRepositoryReference };

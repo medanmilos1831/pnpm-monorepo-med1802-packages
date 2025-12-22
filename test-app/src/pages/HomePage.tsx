@@ -44,17 +44,6 @@ app.defineRepository("country-repo", (infrastructure) => {
   };
 });
 
-app.useRepository("user-repo").connect();
-app.useRepository("user-repo").connect();
-app.useRepository("user-repo").connect();
-app.useRepository("user-repo").connect();
-app.useRepository("user-repo").disconnect();
-app.useRepository("user-repo").disconnect();
-app.useRepository("user-repo").disconnect();
-app.useRepository("user-repo").disconnect();
-app.useRepository("user-repo").disconnect();
-app.useRepository("user-repo").disconnect();
-
 // console.log("USER REPO", userRepo);
 // userRepo.getUsers();
 // userRepo.getUsers();
