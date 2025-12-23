@@ -1,13 +1,13 @@
-function createRepositoryReference<C extends Record<string, any>>(
-  definition: (config: C) => unknown,
-  config: C
+function createRepositoryReference<I extends Record<string, any>>(
+  definition: (infrastructure: I) => unknown,
+  infrastructure: I
 ) {
   let item = undefined as unknown;
   let connections = 0;
   return {
     connect() {
       if (connections === 0) {
-        item = definition(config);
+        item = definition(infrastructure);
       }
       connections += 1;
     },

@@ -16,16 +16,21 @@ interface ICountryRepo {
 }
 
 const manager = repositoryManager();
-const app = manager.createContainer({
-  someHttpsModule: {
-    get() {
-      console.log("GET");
-    },
-    post() {
-      console.log("POST");
+const app = manager.createContainer(
+  {
+    someHttpsModule: {
+      get() {
+        console.log("GET");
+      },
+      post() {
+        console.log("POST");
+      },
     },
   },
-});
+  {
+    logging: true,
+  }
+);
 
 app.defineRepository("user-repo", (infrastructure) => {
   return {
@@ -48,8 +53,8 @@ app.defineRepository("country-repo", (infrastructure) => {
   };
 });
 
-// const userRepoOne = app.queryRepository<IUserRepo>("user-repo");
-// const userRepoTwo = app.queryRepository<IUserRepo>("user-repo");
+const userRepoOne = app.queryRepository<IUserRepo>("user-repo");
+const userRepoTwo = app.queryRepository<IUserRepo>("user-repo");
 // const userRepoThree = app.queryRepository<IUserRepo>("user-repo");
 // const userRepoFour = app.queryRepository<IUserRepo>("user-repo");
 // const userRepoFive = app.queryRepository<IUserRepo>("user-repo");
@@ -58,7 +63,8 @@ app.defineRepository("country-repo", (infrastructure) => {
 // app.queryRepository<IUserRepo>("user-repo");
 // app.queryRepository<IUserRepo>("user-repo");
 
-// userRepo.repository.getUsers();
+const pera = userRepoOne.repository.getUsers();
+console.log(pera);
 
 const HomePage = () => {
   return <></>;

@@ -1,26 +1,39 @@
 import { createRepositoryReference } from "./createRepositoryReference";
 import { createStore } from "./store";
 import { createLogger } from "./logger";
+import type { IConfiguration } from "./types";
 const repositoryManager = () => {
   return {
-    createContainer<C extends Record<string, any>>(config: C) {
+    createContainer<I extends Record<string, any>>(
+      infrastructure: I,
+      config?: IConfiguration
+    ) {
+      const defaultConfig: IConfiguration = {
+        logging: false,
+        ...config,
+      };
       const store = createStore();
-      const logger = createLogger();
+      const logger = createLogger(defaultConfig);
 
       const getRepository = (id: string) => store.getRepository(id);
       const hasRepository = (id: string) => store.hasRepository(id);
+      const allRepositories = () =>
+        Array.from(store.entries()).map(([id, repository]) => ({
+          repository: id,
+          connections: repository.getConnections(),
+        }));
 
       return {
         defineRepository(
           id: string,
-          repositoryDefinition: (config: C) => void
+          repositoryDefinition: (infrastructure: I) => void
         ) {
           if (hasRepository(id)) return;
           logger.log(
             () => {
               store.setRepository(
                 id,
-                createRepositoryReference(repositoryDefinition, config)
+                createRepositoryReference(repositoryDefinition, infrastructure)
               );
             },
             {
@@ -28,11 +41,9 @@ const repositoryManager = () => {
               scope: id,
               metadata: () => {
                 return {
-                  repositories: Array.from(store.entries()).map(
-                    ([id, repository]) => ({
-                      id,
-                    })
-                  ),
+                  repositories: allRepositories().map(({ repository }) => ({
+                    repository,
+                  })),
                 };
               },
             }
@@ -48,12 +59,7 @@ const repositoryManager = () => {
             scope: id,
             metadata: () => {
               return {
-                connections: Array.from(store.entries()).map(
-                  ([id, repository]) => ({
-                    id,
-                    value: repository.getConnections(),
-                  })
-                ),
+                connections: allRepositories(),
               };
             },
           });
@@ -65,12 +71,7 @@ const repositoryManager = () => {
                 scope: id,
                 metadata: () => {
                   return {
-                    connections: Array.from(store.entries()).map(
-                      ([id, repository]) => ({
-                        id,
-                        value: repository.getConnections(),
-                      })
-                    ),
+                    connections: allRepositories(),
                   };
                 },
               }),
