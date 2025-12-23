@@ -1,48 +1,79 @@
 import { createRepositoryReference } from "./createRepositoryReference";
 import { createStore } from "./store";
-
-const REPOSITORY_MANAGER_ID = "repository-manager";
-
+import { createLogger } from "./logger";
 const repositoryManager = () => {
   return {
-    createContainer<I extends Record<string, any>>(config: {
-      infrastructure: I;
-    }) {
-      const store = createStore<any>({
-        id: REPOSITORY_MANAGER_ID,
-        state: {
-          repositories: new Map<string, any>(),
-        },
-        log: false,
-      });
+    createContainer<C extends Record<string, any>>(config: C) {
+      const store = createStore();
+      const logger = createLogger();
 
-      const getRepositories = () => store.getState().repositories;
-      const getRepository = (id: string) => getRepositories().get(id);
-      const hasRepository = (id: string) => getRepositories().has(id);
+      const getRepository = (id: string) => store.getRepository(id);
+      const hasRepository = (id: string) => store.hasRepository(id);
 
       return {
         defineRepository(
           id: string,
-          repositoryDefinition: (infrastructure: I) => void
+          repositoryDefinition: (config: C) => void
         ) {
           if (hasRepository(id)) return;
-          store.setState((prev) => {
-            const reference = createRepositoryReference(id, () =>
-              repositoryDefinition(config.infrastructure)
-            );
-            prev.repositories.set(id, reference);
-            return prev;
-          });
+          logger.log(
+            () => {
+              store.setRepository(
+                id,
+                createRepositoryReference(repositoryDefinition, config)
+              );
+            },
+            {
+              type: "repository.define",
+              scope: id,
+              metadata: () => {
+                return {
+                  repositories: Array.from(store.entries()).map(
+                    ([id, repository]) => ({
+                      id,
+                    })
+                  ),
+                };
+              },
+            }
+          );
         },
-        queryRepository(id: string) {
+        queryRepository<R = any>(id: string) {
           const repository = getRepository(id);
           if (!repository) {
             throw new Error(`Repository "${id}" not found`);
           }
-          repository.connect();
+          logger.log(() => repository.connect(), {
+            type: "repository.connect",
+            scope: id,
+            metadata: () => {
+              return {
+                connections: Array.from(store.entries()).map(
+                  ([id, repository]) => ({
+                    id,
+                    value: repository.getConnections(),
+                  })
+                ),
+              };
+            },
+          });
           return {
-            repository: repository?.getItem(),
-            disconnect: () => repository?.disconnect(),
+            repository: repository.getItem() as R,
+            disconnect: () =>
+              logger.log(() => repository.disconnect(), {
+                type: "repository.disconnect",
+                scope: id,
+                metadata: () => {
+                  return {
+                    connections: Array.from(store.entries()).map(
+                      ([id, repository]) => ({
+                        id,
+                        value: repository.getConnections(),
+                      })
+                    ),
+                  };
+                },
+              }),
           };
         },
       };

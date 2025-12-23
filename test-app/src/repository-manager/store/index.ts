@@ -1,38 +1,23 @@
-import { createScopedObserver } from "@med1802/scoped-observer";
-import { createMessageBroker } from "@med1802/scoped-observer-message-broker";
-import { createLogger } from "./logger";
+import type { createRepositoryReference } from "../createRepositoryReference";
 
-function createStore<S>({
-  id,
-  state,
-  log,
-}: {
-  id: string;
-  state: S;
-  log: boolean;
-}) {
-  const scopedObserver = createScopedObserver();
-  const messageBroker = createMessageBroker(scopedObserver);
-  const logger = createLogger(log, id);
+type repositoryReferenceType = ReturnType<typeof createRepositoryReference>;
+function createStore() {
+  const state = new Map<string, repositoryReferenceType>();
   return {
-    id,
-    setState(callback: (params: S) => S) {
-      state = callback(state);
-      let decoratedPublish = logger.logAction(messageBroker.publish, state);
-      decoratedPublish({
-        eventName: "setState",
-      });
+    setRepository(id: string, repository: repositoryReferenceType) {
+      state.set(id, repository);
     },
-    getState() {
-      return state;
+    getRepository(id: string) {
+      return state.get(id);
     },
-    subscribe(selector: (payload: any) => void) {
-      return messageBroker.subscribe({
-        eventName: "setState",
-        callback: () => {
-          selector(state);
-        },
-      });
+    hasRepository(id: string) {
+      return state.has(id);
+    },
+    deleteRepository(id: string) {
+      state.delete(id);
+    },
+    entries() {
+      return state.entries();
     },
   };
 }

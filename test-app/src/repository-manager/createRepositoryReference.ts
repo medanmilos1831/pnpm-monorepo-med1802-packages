@@ -1,13 +1,15 @@
-function createRepositoryReference(id: string, create: () => any) {
-  let item = undefined as any;
+function createRepositoryReference<C extends Record<string, any>>(
+  definition: (config: C) => unknown,
+  config: C
+) {
+  let item = undefined as unknown;
   let connections = 0;
   return {
     connect() {
       if (connections === 0) {
-        item = create();
+        item = definition(config);
       }
       connections += 1;
-      console.log("CONNECTED REPOSITORY", id, connections);
     },
     disconnect() {
       if (connections === 0) return;
@@ -15,10 +17,12 @@ function createRepositoryReference(id: string, create: () => any) {
       if (connections === 0) {
         item = undefined;
       }
-      console.log("CONNECTED REPOSITORY", id, connections);
     },
     getItem() {
       return item;
+    },
+    getConnections() {
+      return connections;
     },
   };
 }

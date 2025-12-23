@@ -5,20 +5,24 @@ interface IHttpsModule {
   post(): void;
 }
 
-interface IInfrastructure {
-  someHttpsModule: IHttpsModule;
+interface IUserRepo {
+  getUsers(): void;
+  createUser(): void;
+}
+
+interface ICountryRepo {
+  getCountries(): void;
+  createCountry(): void;
 }
 
 const manager = repositoryManager();
-const app = manager.createContainer<IInfrastructure>({
-  infrastructure: {
-    someHttpsModule: {
-      get() {
-        console.log("GET");
-      },
-      post() {
-        console.log("POST");
-      },
+const app = manager.createContainer({
+  someHttpsModule: {
+    get() {
+      console.log("GET");
+    },
+    post() {
+      console.log("POST");
     },
   },
 });
@@ -44,12 +48,17 @@ app.defineRepository("country-repo", (infrastructure) => {
   };
 });
 
-// console.log("USER REPO", userRepo);
-// userRepo.getUsers();
-// userRepo.getUsers();
-// app.disconnectRepository("user-repo");
-// userRepo.getUsers();
-// userRepo.createUser();
+// const userRepoOne = app.queryRepository<IUserRepo>("user-repo");
+// const userRepoTwo = app.queryRepository<IUserRepo>("user-repo");
+// const userRepoThree = app.queryRepository<IUserRepo>("user-repo");
+// const userRepoFour = app.queryRepository<IUserRepo>("user-repo");
+// const userRepoFive = app.queryRepository<IUserRepo>("user-repo");
+// userRepoOne.disconnect();
+
+// app.queryRepository<IUserRepo>("user-repo");
+// app.queryRepository<IUserRepo>("user-repo");
+
+// userRepo.repository.getUsers();
 
 const HomePage = () => {
   return <></>;
