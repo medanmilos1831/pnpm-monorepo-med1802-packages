@@ -1,4 +1,4 @@
-import { createRepositoryReference } from "./createRepositoryReference";
+import { createRepositoryInstance } from "./repositoryInstance";
 import { createStore } from "./store";
 import { createLogger } from "./logger";
 import type { IConfiguration } from "./types";
@@ -33,7 +33,7 @@ const repositoryManager = () => {
             () => {
               store.setRepository(
                 id,
-                createRepositoryReference(repositoryDefinition, infrastructure)
+                createRepositoryInstance(repositoryDefinition, infrastructure)
               );
             },
             {

@@ -1,4 +1,4 @@
-import type { createRepositoryReference } from "./createRepositoryReference";
+import type { createRepositoryReference } from "./repositoryInstance";
 
 type repositoryReferenceType = ReturnType<typeof createRepositoryReference>;
 function createStore() {

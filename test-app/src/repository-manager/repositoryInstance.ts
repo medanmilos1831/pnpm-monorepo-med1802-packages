@@ -1,4 +1,4 @@
-function createRepositoryReference<I extends Record<string, any>>(
+function createRepositoryInstance<I extends Record<string, any>>(
   definition: (infrastructure: I) => unknown,
   infrastructure: I
 ) {
@@ -27,4 +27,4 @@ function createRepositoryReference<I extends Record<string, any>>(
   };
 }
 
-export { createRepositoryReference };
+export { createRepositoryInstance };
