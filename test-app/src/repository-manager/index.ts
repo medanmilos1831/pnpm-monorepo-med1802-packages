@@ -64,7 +64,7 @@ const repositoryManager = () => {
             },
           });
           return {
-            repository: repository.getItem() as R,
+            repository: repository.getReference() as R,
             disconnect: () =>
               logger.log(() => repository.disconnect(), {
                 type: "repository.disconnect",

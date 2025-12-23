@@ -1,10 +1,8 @@
-import type { createRepositoryReference } from "./repositoryInstance";
-
-type repositoryReferenceType = ReturnType<typeof createRepositoryReference>;
+import type { IRepositoryInstance } from "./types";
 function createStore() {
-  const state = new Map<string, repositoryReferenceType>();
+  const state = new Map<string, IRepositoryInstance>();
   return {
-    setRepository(id: string, repository: repositoryReferenceType) {
+    setRepository(id: string, repository: IRepositoryInstance) {
       state.set(id, repository);
     },
     getRepository(id: string) {

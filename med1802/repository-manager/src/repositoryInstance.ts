@@ -2,12 +2,12 @@ function createRepositoryInstance<I extends Record<string, any>>(
   definition: (infrastructure: I) => unknown,
   infrastructure: I
 ) {
-  let item = undefined as unknown;
+  let reference = undefined as unknown;
   let connections = 0;
   return {
     connect() {
       if (connections === 0) {
-        item = definition(infrastructure);
+        reference = definition(infrastructure);
       }
       connections += 1;
     },
@@ -15,11 +15,11 @@ function createRepositoryInstance<I extends Record<string, any>>(
       if (connections === 0) return;
       connections -= 1;
       if (connections === 0) {
-        item = undefined;
+        reference = undefined;
       }
     },
-    getItem() {
-      return item;
+    getReference() {
+      return reference;
     },
     getConnections() {
       return connections;
