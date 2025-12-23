@@ -14,11 +14,16 @@ interface ICountryRepo {
   getCountries(): void;
   createCountry(): void;
 }
-
+interface IInfrastructure {
+  httpClient: {
+    get(): void;
+    post(): void;
+  };
+}
 const manager = repositoryManager();
-const app = manager.createContainer(
+const app = manager.createContainer<IInfrastructure>(
   {
-    someHttpsModule: {
+    httpClient: {
       get() {
         console.log("GET");
       },
@@ -35,20 +40,20 @@ const app = manager.createContainer(
 app.defineRepository("user-repo", (infrastructure) => {
   return {
     getUsers() {
-      infrastructure.someHttpsModule.get();
+      infrastructure.httpClient.get();
     },
     createUser() {
-      infrastructure.someHttpsModule.post();
+      infrastructure.httpClient.post();
     },
   };
 });
 app.defineRepository("country-repo", (infrastructure) => {
   return {
     getCountries() {
-      infrastructure.someHttpsModule.get();
+      infrastructure.httpClient.get();
     },
     createCountry() {
-      infrastructure.someHttpsModule.post();
+      infrastructure.httpClient.post();
     },
   };
 });

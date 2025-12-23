@@ -1,0 +1,15 @@
+{
+  "name": "@med1802/repository-manager",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/medanmilos1831/repository-manager.git",
+    "directory": "med1802/repository-manager"
+  },
+  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/repository-manager#readme"
+}
