@@ -1,17 +1,16 @@
-import type { IRepositoryInstance } from "./types";
-function createStore() {
-  const state = new Map<string, IRepositoryInstance>();
+function createStore<S>() {
+  const state = new Map<string, S>();
   return {
-    setRepository(id: string, repository: IRepositoryInstance) {
-      state.set(id, repository);
+    setState(id: string, params: S) {
+      state.set(id, params);
     },
-    getRepository(id: string) {
+    getState(id: string) {
       return state.get(id);
     },
-    hasRepository(id: string) {
+    hasState(id: string) {
       return state.has(id);
     },
-    deleteRepository(id: string) {
+    deleteState(id: string) {
       state.delete(id);
     },
     entries() {
@@ -19,4 +18,5 @@ function createStore() {
     },
   };
 }
+
 export { createStore };

@@ -20,56 +20,84 @@ interface IInfrastructure {
     post(): void;
   };
 }
-const manager = repositoryManager();
-const app = manager.createContainer<IInfrastructure>(
+const manager = repositoryManager([
   {
-    httpClient: {
-      get() {
-        console.log("GET");
-      },
-      post() {
-        console.log("POST");
+    id: "infra-container",
+    dependencies: {
+      httpClient: {
+        get() {
+          console.log("GET");
+        },
+        post() {
+          console.log("POST");
+        },
       },
     },
-  },
-  {
+    repositories: {
+      userRepo(infra) {
+        return {
+          getUsers() {
+            console.log("GET USERS", infra);
+          },
+        };
+      },
+      countryRepo(infra: any) {
+        console.log(infra);
+        return {
+          getCountries() {
+            console.log("GET COUNTRIES");
+          },
+        };
+      },
+    },
     logging: true,
-  }
-);
+  },
+]);
 
-app.defineRepository("user-repo", (infrastructure) => {
-  return {
-    getUsers() {
-      infrastructure.httpClient.get();
-    },
-    createUser() {
-      infrastructure.httpClient.post();
-    },
-  };
-});
-app.defineRepository("country-repo", (infrastructure) => {
-  return {
-    getCountries() {
-      infrastructure.httpClient.get();
-    },
-    createCountry() {
-      infrastructure.httpClient.post();
-    },
-  };
-});
+const userRepo = manager.query("infra-container/userRepo");
+userRepo.repository.getUsers();
 
-const userRepoOne = app.queryRepository<IUserRepo>("user-repo");
-const userRepoTwo = app.queryRepository<IUserRepo>("user-repo");
-// const userRepoThree = app.queryRepository<IUserRepo>("user-repo");
-// const userRepoFour = app.queryRepository<IUserRepo>("user-repo");
-// const userRepoFive = app.queryRepository<IUserRepo>("user-repo");
-// userRepoOne.disconnect();
+// const app = manager.createContainer<IInfrastructure>(
+//   {
+//     httpClient: {
+//       get() {
+//         console.log("GET");
+//       },
+//       post() {
+//         console.log("POST");
+//       },
+//     },
+//   },
+//   {
+//     logging: false,
+//   }
+// );
 
-// app.queryRepository<IUserRepo>("user-repo");
-// app.queryRepository<IUserRepo>("user-repo");
+// app.defineRepository("user-repo", (infrastructure) => {
+//   return {
+//     getUsers() {
+//       infrastructure.httpClient.get();
+//     },
+//     createUser() {
+//       infrastructure.httpClient.post();
+//     },
+//   };
+// });
+// app.defineRepository("country-repo", (infrastructure) => {
+//   return {
+//     getCountries() {
+//       infrastructure.httpClient.get();
+//     },
+//     createCountry() {
+//       infrastructure.httpClient.post();
+//     },
+//   };
+// });
 
-const pera = userRepoOne.repository.getUsers();
-console.log(pera);
+// const userRepoOne = app.queryRepository<IUserRepo>("user-repo");
+// const userRepoTwo = app.queryRepository<IUserRepo>("user-repo");
+// const pera = userRepoOne.repository.getUsers();
+// console.log(pera);
 
 const HomePage = () => {
   return <></>;
