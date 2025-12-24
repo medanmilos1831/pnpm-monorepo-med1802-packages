@@ -1,4 +1,4 @@
-function createRepositoryInstance<I extends Record<string, any>>(
+function createRepositoryInstance<I = unknown>(
   definition: (infrastructure: I) => unknown,
   infrastructure: I
 ) {

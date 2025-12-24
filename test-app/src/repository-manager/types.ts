@@ -9,7 +9,7 @@ export interface IRepositoryInstance {
   getConnections(): number;
 }
 
-export interface IContainerConfig<D> {
+export interface IContainerConfig<D = any> {
   id: string;
   dependencies: D;
   repositories: Record<string, (dependencies: D) => any>;

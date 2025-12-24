@@ -1,9 +1,9 @@
 import { createLogger } from "./logger";
 import { createRepositoryInstance } from "./repositoryInstance";
 import { createStore } from "./store";
-import type { IRepositoryInstance } from "./types";
+import type { IContainerConfig, IRepositoryInstance } from "./types";
 
-const createContainerInstance = (config: any) => {
+function createContainerInstance(config: IContainerConfig<unknown>) {
   const { id, dependencies, repositories, logging } = config;
   const store = createStore<IRepositoryInstance>();
   const logger = createLogger({ logging: logging ?? false });
@@ -14,11 +14,8 @@ const createContainerInstance = (config: any) => {
     }));
   logger.log(
     () => {
-      Object.entries(repositories).forEach(([key, value]) => {
-        store.setState(
-          key,
-          createRepositoryInstance(value as any, dependencies as any)
-        );
+      Object.entries(repositories).forEach(([key, repository]) => {
+        store.setState(key, createRepositoryInstance(repository, dependencies));
       });
     },
     {
@@ -61,6 +58,6 @@ const createContainerInstance = (config: any) => {
       };
     },
   };
-};
+}
 
 export { createContainerInstance };
