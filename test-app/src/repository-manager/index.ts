@@ -6,6 +6,12 @@ const repositoryManager = () => {
   return {
     createContainer<I extends Record<string, any>>(
       infrastructure: I,
+      use: (
+        definition: (
+          path: string,
+          repository: (infrastructure: I) => void
+        ) => void
+      ) => void,
       config?: IConfiguration
     ) {
       const defaultConfig: IConfiguration = {
@@ -23,32 +29,35 @@ const repositoryManager = () => {
           connections: repository.getConnections(),
         }));
 
-      return {
-        defineRepository(
-          id: string,
-          repositoryDefinition: (infrastructure: I) => void
-        ) {
-          if (hasRepository(id)) return;
-          logger.log(
-            () => {
-              store.setRepository(
-                id,
-                createRepositoryInstance(repositoryDefinition, infrastructure)
-              );
+      function defRepository(
+        path: string,
+        repository: (infrastructure: I) => void
+      ) {
+        if (hasRepository(path)) return;
+        logger.log(
+          () => {
+            store.setRepository(
+              path,
+              createRepositoryInstance(repository, infrastructure)
+            );
+          },
+          {
+            type: "repository.define",
+            scope: path,
+            metadata: () => {
+              return {
+                repositories: allRepositories().map(({ repository }) => ({
+                  repository,
+                })),
+              };
             },
-            {
-              type: "repository.define",
-              scope: id,
-              metadata: () => {
-                return {
-                  repositories: allRepositories().map(({ repository }) => ({
-                    repository,
-                  })),
-                };
-              },
-            }
-          );
-        },
+          }
+        );
+      }
+
+      use(defRepository);
+
+      return {
         queryRepository<R = any>(id: string) {
           const repository = getRepository(id);
           if (!repository) {
