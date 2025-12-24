@@ -1,11 +1,11 @@
-import { repositoryManager } from "../repository-manager";
+import { createRepositoryManager } from "../repository-manager";
 
 interface IUserRepo {
   getUsers(): void;
   createUser(): void;
 }
 
-const manager = repositoryManager([
+const manager = createRepositoryManager([
   {
     id: "infra-container",
     dependencies: {
@@ -38,7 +38,7 @@ const manager = repositoryManager([
     logging: false,
   },
 ]);
-const userRepo = manager.query<IUserRepo>("infra-condstainer/userRepo");
+const userRepo = manager.query<IUserRepo>("infra-container/userRepo");
 console.log(userRepo);
 // console.log(manager.query<IUserRepo>("infra-container/userRdsepo"));
 // const userRepo = manager.query("infra-container/userRepo");
