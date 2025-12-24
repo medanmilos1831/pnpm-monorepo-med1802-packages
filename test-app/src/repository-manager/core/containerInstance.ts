@@ -70,10 +70,10 @@ function createContainerInstance<D>(config: IManagerConfig<D>) {
      * @example
      * ```typescript
      * const { repository, disconnect } = container.queryRepository("userRepo");
-     * 
+     *
      * // Use repository
      * await repository.getUsers();
-     * 
+     *
      * // Cleanup when done
      * disconnect();
      * ```
