@@ -1,14 +1,16 @@
-type RepositoryType<D = any, R = any> = (dependencies: D) => R;
+export type RepositoryType<D = any, R = any> = (dependencies: D) => R;
 export interface IManagerConfig<D = any, R = any> {
   id: string;
   dependencies: D;
-  repositories: Record<string, RepositoryType<D, R>>;
+  repositories: R;
   logging?: boolean;
 }
 
-export interface IContainerInstance<R = any> {
-  queryRepository(id: string): {
-    repository: R;
+export interface IContainerInstance<K> {
+  queryRepository<R = any>(
+    id: keyof K
+  ): {
+    repository: ReturnType<RepositoryType<any, R>>;
     disconnect: () => void;
   };
 }

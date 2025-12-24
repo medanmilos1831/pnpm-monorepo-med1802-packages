@@ -5,41 +5,40 @@ interface IUserRepo {
   createUser(): void;
 }
 
-const manager = createRepositoryManager([
-  {
-    id: "infra-container",
-    dependencies: {
-      httpClient: {
-        get() {
-          console.log("GET");
-        },
-        post() {
-          console.log("POST");
-        },
+const manager = createRepositoryManager();
+let r = manager.createContainer({
+  id: "infra-container",
+  dependencies: {
+    axios: {
+      get() {
+        console.log("GET");
+      },
+      post() {
+        console.log("POST");
       },
     },
-    repositories: {
-      userRepo(infra) {
-        return {
-          getUsers() {
-            console.log("GET USERS", infra);
-          },
-        };
-      },
-      countryRepo(infra: any) {
-        console.log(infra);
-        return {
-          getCountries() {
-            console.log("GET COUNTRIES");
-          },
-        };
-      },
-    },
-    logging: false,
   },
-]);
-const userRepo = manager.query<IUserRepo>("infra-container/userRepo");
-console.log(userRepo);
+  repositories: {
+    userRepo(infra) {
+      return {
+        getUsers() {
+          console.log("GET USERS", infra);
+        },
+      };
+    },
+    countryRepo(infra) {
+      return {
+        getCountries() {
+          console.log("GET COUNTRIES", infra);
+        },
+      };
+    },
+  },
+});
+console.log(r.queryRepository<IUserRepo>("userRepo").repository);
+// const userRepo = manager.queryRepository<IUserRep  o>("infra-container/userRepo");
+// console.log(userRepo.repository.getUsers);
+// console.log(userRepo.repository.getUsers());
 // console.log(manager.query<IUserRepo>("infra-container/userRdsepo"));
 // const userRepo = manager.query("infra-container/userRepo");
 // userRepo.repository.getUsers();
