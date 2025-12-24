@@ -1,25 +1,10 @@
 import { repositoryManager } from "../repository-manager";
 
-interface IHttpsModule {
-  get(): void;
-  post(): void;
-}
-
 interface IUserRepo {
   getUsers(): void;
   createUser(): void;
 }
 
-interface ICountryRepo {
-  getCountries(): void;
-  createCountry(): void;
-}
-interface IInfrastructure {
-  httpClient: {
-    get(): void;
-    post(): void;
-  };
-}
 const manager = repositoryManager([
   {
     id: "infra-container",
@@ -50,12 +35,14 @@ const manager = repositoryManager([
         };
       },
     },
-    logging: true,
+    logging: false,
   },
 ]);
-
-const userRepo = manager.query("infra-container/userRepo");
-userRepo.repository.getUsers();
+const userRepo = manager.query<IUserRepo>("infra-condstainer/userRepo");
+console.log(userRepo);
+// console.log(manager.query<IUserRepo>("infra-container/userRdsepo"));
+// const userRepo = manager.query("infra-container/userRepo");
+// userRepo.repository.getUsers();
 
 // const app = manager.createContainer<IInfrastructure>(
 //   {

@@ -1,13 +1,13 @@
 function createRepositoryInstance<I = unknown>(
-  definition: (infrastructure: I) => unknown,
-  infrastructure: I
+  repository: (dependencies: I) => unknown,
+  dependencies: I
 ) {
   let reference = undefined as unknown;
   let connections = 0;
   return {
     connect() {
       if (connections === 0) {
-        reference = definition(infrastructure);
+        reference = repository(dependencies);
       }
       connections += 1;
     },

@@ -1,9 +1,9 @@
-import { createLogger } from "./logger";
+import { createLogger } from "../logger";
 import { createRepositoryInstance } from "./repositoryInstance";
 import { createStore } from "./store";
-import type { IContainerConfig, IRepositoryInstance } from "./types";
+import type { IManagerConfig, IRepositoryInstance } from "../types";
 
-function createContainerInstance(config: IContainerConfig<unknown>) {
+function createContainerInstance<D>(config: IManagerConfig<D>) {
   const { id, dependencies, repositories, logging } = config;
   const store = createStore<IRepositoryInstance>();
   const logger = createLogger({ logging: logging ?? false });
@@ -31,7 +31,7 @@ function createContainerInstance(config: IContainerConfig<unknown>) {
     }
   );
   return {
-    query(id: string) {
+    queryRepository(id: string) {
       const repository = store.getState(id);
       const allRepositories = () =>
         Array.from(store.entries()).map(([id, repository]: any) => ({

@@ -1,21 +1,23 @@
-import { createContainerInstance } from "./containerInstance";
-import { createStore } from "./store";
-import type { IContainerInstance, ManagerType } from "./types";
+import { createContainerInstance, createStore } from "./core";
+import type { IContainerInstance, IManagerConfig } from "./types";
 
-function repositoryManager<D>(config: ManagerType<D>) {
-  const globalStore = createStore<IContainerInstance>();
+function repositoryManager<D>(config: IManagerConfig<D>[]) {
+  const store = createStore<IContainerInstance<unknown>>();
   config.forEach((containerConfig) => {
-    globalStore.setState(
+    store.setState(
       containerConfig.id,
       createContainerInstance(containerConfig)
     );
   });
 
   return {
-    query(path: string) {
+    query<R>(path: string) {
       const [containerId, id] = path.split("/");
-      const container = globalStore.getState(containerId) as IContainerInstance;
-      return container.query(id) as any;
+      const container = store.getState(containerId) as IContainerInstance<R>;
+      if (!container) {
+        throw new Error(`Container "${containerId}" not found`);
+      }
+      return container.queryRepository(id);
     },
   };
 }

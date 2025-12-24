@@ -1,23 +1,20 @@
-export interface IConfiguration {
-  logging?: boolean;
-}
-
-export interface IRepositoryInstance {
-  connect(): void;
-  disconnect(): void;
-  getReference(): unknown;
-  getConnections(): number;
-}
-
-export interface IContainerConfig<D = any> {
+type RepositoryType<D = any, R = any> = (dependencies: D) => R;
+export interface IManagerConfig<D = any, R = any> {
   id: string;
   dependencies: D;
-  repositories: Record<string, (dependencies: D) => any>;
+  repositories: Record<string, RepositoryType<D, R>>;
   logging?: boolean;
 }
 
-export interface IContainerInstance {
-  query(id: string): any;
+export interface IContainerInstance<R = any> {
+  queryRepository(id: string): {
+    repository: R;
+    disconnect: () => void;
+  };
 }
-
-export type ManagerType<D> = IContainerConfig<D>[];
+export interface IRepositoryInstance<R = any> {
+  connect(): R;
+  disconnect(): void;
+  getReference(): R;
+  getConnections(): number;
+}
