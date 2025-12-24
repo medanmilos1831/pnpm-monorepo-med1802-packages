@@ -12,7 +12,7 @@ function createContainerInstance<
   R extends Record<string, RepositoryType<D>>
 >(config: IManagerConfig<D, R>) {
   const { id, dependencies, repositories, logging } = config;
-  const store = createStore<IRepositoryInstance>();
+  const store = createStore<IRepositoryInstance<any>>();
   const logger = createLogger({ logging: logging ?? false });
   const allRepositories = () =>
     Array.from(store.entries()).map(([id, repository]) => ({

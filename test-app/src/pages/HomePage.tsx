@@ -33,9 +33,21 @@ let r = manager.createContainer({
         },
       };
     },
+    djoka(infra) {
+      return {
+        getCountries() {
+          console.log("djoka", infra);
+        },
+      };
+    },
   },
+  logging: true,
 });
-console.log(r.queryRepository<IUserRepo>("userRepo").repository);
+console.log(
+  r
+    .queryRepository<{ getCountries: () => void }>("djoka")
+    .repository.getCountries()
+);
 // const userRepo = manager.queryRepository<IUserRep  o>("infra-container/userRepo");
 // console.log(userRepo.repository.getUsers);
 // console.log(userRepo.repository.getUsers());

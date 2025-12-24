@@ -6,17 +6,17 @@ import type {
 } from "./types";
 
 function createRepositoryManager() {
-  const store = createStore<IContainerInstance<any>>();
+  const store = createStore<IContainerInstance<any, any>>();
 
   return {
-    createContainer<D, R extends Record<string, RepositoryType<D>>>(
+    createContainer<D, R extends Record<string, RepositoryType<D, any>>>(
       config: IManagerConfig<D, R>
     ) {
-      store.setState(config.id, createContainerInstance(config));
+      store.setState(config.id, createContainerInstance<D, R>(config));
       if (!store.getState(config.id)) {
         throw new Error(`Container ${config.id} not found`);
       }
-      return store.getState(config.id) as IContainerInstance<R>;
+      return store.getState(config.id) as IContainerInstance<D, R>;
     },
   };
 }
