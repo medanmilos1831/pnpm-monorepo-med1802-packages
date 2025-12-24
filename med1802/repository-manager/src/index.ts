@@ -1,79 +1,85 @@
-import { createContainerInstance, createStore } from "./core";
-import type { IContainerInstance, IManagerConfig } from "./types";
-
-/**
- * Creates a repository manager instance with multiple containers.
- * Each container can have its own dependencies and repositories.
- *
- * @template D - The type of dependencies/infrastructure
- * @param config - Array of container configurations. Each container must have:
- *   - `id`: Unique identifier for the container
- *   - `dependencies`: Infrastructure dependencies to inject into repositories
- *   - `repositories`: Object mapping repository IDs to factory functions
- *   - `logging`: Optional flag to enable/disable logging (default: false)
- * @returns Manager object with `query` method to access repositories
- *
- * @example
- * ```typescript
- * const manager = createRepositoryManager([
- *   {
- *     id: "app-container",
- *     dependencies: {
- *       httpClient: {
- *         get: (url) => fetch(url).then(r => r.json())
- *       }
- *     },
- *     repositories: {
- *       userRepo: (deps) => ({
- *         getUsers: () => deps.httpClient.get("/api/users")
- *       })
- *     },
- *     logging: true
- *   }
- * ]);
- * ```
- */
-function createRepositoryManager<D>(config: IManagerConfig<D>[]) {
-  const store = createStore<IContainerInstance<unknown>>();
-  config.forEach((containerConfig) => {
-    store.setState(
-      containerConfig.id,
-      createContainerInstance(containerConfig)
-    );
-  });
-
+import { createRepositoryInstance } from "./repositoryInstance";
+import { createStore } from "./store";
+import { createLogger } from "./logger";
+import type { IConfiguration } from "./types";
+const repositoryManager = () => {
   return {
-    /**
-     * Queries a repository from a container using a path format: "containerId/repositoryId".
-     * Automatically manages connection lifecycle with reference counting.
-     *
-     * @template R - The return type of the repository
-     * @param path - Path to repository in format "containerId/repositoryId"
-     * @returns Object containing:
-     *   - `repository`: The repository instance
-     *   - `disconnect`: Function to disconnect and cleanup (decrements reference count)
-     * @throws {Error} If container or repository is not found
-     *
-     * @example
-     * ```typescript
-     * const { repository, disconnect } = manager.query<IUserRepo>("app-container/userRepo");
-     *
-     * // Use repository
-     * await repository.getUsers();
-     *
-     * // Cleanup when done
-     * disconnect();
-     * ```
-     */
-    query<R>(path: string) {
-      const [containerId, id] = path.split("/");
-      const container = store.getState(containerId) as IContainerInstance<R>;
-      if (!container) {
-        throw new Error(`Container "${containerId}" not found`);
-      }
-      return container.queryRepository(id);
+    createContainer<I extends Record<string, any>>(
+      infrastructure: I,
+      config?: IConfiguration
+    ) {
+      const defaultConfig: IConfiguration = {
+        logging: false,
+        ...config,
+      };
+      const store = createStore();
+      const logger = createLogger(defaultConfig);
+
+      const getRepository = (id: string) => store.getRepository(id);
+      const hasRepository = (id: string) => store.hasRepository(id);
+      const allRepositories = () =>
+        Array.from(store.entries()).map(([id, repository]) => ({
+          repository: id,
+          connections: repository.getConnections(),
+        }));
+
+      return {
+        defineRepository(
+          id: string,
+          repositoryDefinition: (infrastructure: I) => void
+        ) {
+          if (hasRepository(id)) return;
+          logger.log(
+            () => {
+              store.setRepository(
+                id,
+                createRepositoryInstance(repositoryDefinition, infrastructure)
+              );
+            },
+            {
+              type: "repository.define",
+              scope: id,
+              metadata: () => {
+                return {
+                  repositories: allRepositories().map(({ repository }) => ({
+                    repository,
+                  })),
+                };
+              },
+            }
+          );
+        },
+        queryRepository<R = any>(id: string) {
+          const repository = getRepository(id);
+          if (!repository) {
+            throw new Error(`Repository "${id}" not found`);
+          }
+          logger.log(() => repository.connect(), {
+            type: "repository.connect",
+            scope: id,
+            metadata: () => {
+              return {
+                connections: allRepositories(),
+              };
+            },
+          });
+          return {
+            repository: repository.getReference() as R,
+            disconnect: () =>
+              logger.log(() => repository.disconnect(), {
+                type: "repository.disconnect",
+                scope: id,
+                metadata: () => {
+                  return {
+                    connections: allRepositories(),
+                  };
+                },
+              }),
+          };
+        },
+      };
     },
   };
-}
+};
 
-export { createRepositoryManager };
+export { repositoryManager };
