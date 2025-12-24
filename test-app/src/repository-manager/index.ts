@@ -18,7 +18,7 @@ import type { IContainerInstance, IManagerConfig } from "./types";
  * const manager = createRepositoryManager([
  *   {
  *     id: "app-container",
- *     dependencies: { 
+ *     dependencies: {
  *       httpClient: {
  *         get: (url) => fetch(url).then(r => r.json())
  *       }
@@ -57,10 +57,10 @@ function createRepositoryManager<D>(config: IManagerConfig<D>[]) {
      * @example
      * ```typescript
      * const { repository, disconnect } = manager.query<IUserRepo>("app-container/userRepo");
-     * 
+     *
      * // Use repository
      * await repository.getUsers();
-     * 
+     *
      * // Cleanup when done
      * disconnect();
      * ```
