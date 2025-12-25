@@ -3,14 +3,12 @@ export interface IConfiguration {
   logging?: boolean;
 }
 
-export interface IContainerInstance<I> {
+export interface IContainerInstance<I = any, R = any> {
   defineRepository(
     id: string,
     repositoryDefinition: (infrastructure: I) => void
   ): void;
-  queryRepository<R = any>(
-    id: string
-  ): {
+  queryRepository(id: string): {
     repository: ReturnType<IRepositoryInstance<R>["getReference"]>;
     disconnect(): void;
   };

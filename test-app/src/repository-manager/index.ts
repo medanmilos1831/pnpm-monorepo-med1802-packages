@@ -10,9 +10,17 @@ const repositoryManager = () => {
     ) {
       store.setState(
         config.id,
-        createContainerInstance(infrastructure, config)
+        createContainerInstance(infrastructure as I, config)
       );
-      return store.getState(config.id)?.defineRepository!;
+      const container = store.getState(config.id);
+      if (!container) {
+        throw new Error(`Container ${config.id} not found`);
+      }
+      const defineRepository =
+        container.defineRepository as IContainerInstance<I>["defineRepository"];
+      return {
+        defineRepository,
+      };
     },
     query<R = any>(path: string) {
       const [containerId, repositoryId] = path.split("/");
@@ -20,8 +28,11 @@ const repositoryManager = () => {
       if (!container) {
         throw new Error(`Container ${containerId} not found`);
       }
-
-      return container.queryRepository<R>(repositoryId);
+      const queryRepository = container.queryRepository as IContainerInstance<
+        any,
+        R
+      >["queryRepository"];
+      return queryRepository(repositoryId);
     },
   };
 };
