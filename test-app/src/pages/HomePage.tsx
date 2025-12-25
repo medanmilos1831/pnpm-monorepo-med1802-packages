@@ -11,43 +11,20 @@ const infrastructure = {
     },
   },
 };
-const app = manager.createContainer(
-  infrastructure,
-  (definition) => {
-    definition("user-repo", (infrastructure) => {
-      return {
-        getUsers() {
-          infrastructure.someHttpsModule.get();
-        },
-        createUser() {
-          infrastructure.someHttpsModule.post();
-        },
-      };
-    });
-    definition("company-repo", (infrastructure) => {
-      return {
-        getCompanies() {
-          infrastructure.someHttpsModule.get();
-        },
-        createCompany() {
-          infrastructure.someHttpsModule.post();
-        },
-      };
-    });
-  },
-  {
-    logging: true, // Enable colored console logging
-  }
-);
-// app.defineRepository("user-repo", (infrastructure) => {
-//   return {
-//     getUsers() {
-//       console.log("GET USERS");
-//     },
-//   };
-// });
+const app = manager.createContainer(infrastructure, {
+  id: "app",
+  logging: false, // Enable colored console logging
+});
+app.defineRepository("user-repo", (infrastructure) => {
+  return {
+    getUsers() {
+      infrastructure.someHttpsModule.get();
+    },
+  };
+});
 
-app.queryRepository("user-repo").repository.getUsers();
+console.log(manager);
+manager.query("app/user-repo");
 
 const HomePage = () => {
   return <></>;

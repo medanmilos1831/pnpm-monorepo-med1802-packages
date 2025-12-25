@@ -1,10 +1,22 @@
 export interface IConfiguration {
+  id: string;
   logging?: boolean;
 }
 
-export interface IRepositoryInstance {
+export interface IContainerInstance<I> {
+  defineRepository(
+    id: string,
+    repositoryDefinition: (infrastructure: I) => void
+  ): void;
+  queryRepository<R>(id: string): {
+    repository: R;
+    disconnect(): void;
+  };
+}
+
+export interface IRepositoryInstance<R = any> {
   connect(): void;
   disconnect(): void;
-  getReference(): unknown;
+  getReference(): R;
   getConnections(): number;
 }
