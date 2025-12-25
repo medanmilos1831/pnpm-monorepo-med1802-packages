@@ -1,15 +1,14 @@
+export type repositoryType<I = any, R = any> = (infrastructure: I) => R;
+
 export interface IConfiguration {
   id: string;
   logging?: boolean;
 }
 
 export interface IContainerInstance<I = any, R = any> {
-  defineRepository(
-    id: string,
-    repositoryDefinition: (infrastructure: I) => void
-  ): void;
+  defineRepository(id: string, repository: repositoryType<I, R>): void;
   queryRepository(id: string): {
-    repository: ReturnType<IRepositoryInstance<R>["getReference"]>;
+    repository: ReturnType<repositoryType<I, R>>;
     disconnect(): void;
   };
 }
@@ -17,6 +16,6 @@ export interface IContainerInstance<I = any, R = any> {
 export interface IRepositoryInstance<R = any> {
   connect(): void;
   disconnect(): void;
-  getReference(): R;
+  getReference(): ReturnType<repositoryType<any, R>> | undefined;
   getConnections(): number;
 }

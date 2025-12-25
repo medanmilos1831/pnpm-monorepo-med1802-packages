@@ -20,30 +20,26 @@ function createContainerInstance<I extends Record<string, any>>(
     }));
   const logger = createLogger(defaultConfig);
   return {
-    defineRepository(
-      id: string,
-      repositoryDefinition: (infrastructure: I) => void
-    ) {
+    defineRepository(id: string, repository: (infrastructure: I) => void) {
+      function createRepository() {
+        store.setState(
+          id,
+          createRepositoryInstance(repository, infrastructure)
+        );
+      }
+      function metadata() {
+        return {
+          repositories: allRepositories().map(({ repository }) => ({
+            repository,
+          })),
+        };
+      }
       if (hasRepository(id)) return;
-      logger.log(
-        () => {
-          store.setState(
-            id,
-            createRepositoryInstance(repositoryDefinition, infrastructure)
-          );
-        },
-        {
-          type: "repository.define",
-          scope: id,
-          metadata: () => {
-            return {
-              repositories: allRepositories().map(({ repository }) => ({
-                repository,
-              })),
-            };
-          },
-        }
-      );
+      logger.log(createRepository, {
+        type: "repository.define",
+        scope: id,
+        metadata,
+      });
     },
     queryRepository<R = any>(id: string) {
       const repository = store.getState(id);
