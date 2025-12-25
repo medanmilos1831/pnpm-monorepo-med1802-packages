@@ -1,6 +1,4 @@
-import type { IRepositoryInstance } from "./types";
-
-function createGlobalStore<S>() {
+function createStore<S>() {
   const state = new Map<string, S>();
   return {
     setState(id: string, item: S) {
@@ -20,4 +18,4 @@ function createGlobalStore<S>() {
     },
   };
 }
-export { createGlobalStore };
+export { createStore };

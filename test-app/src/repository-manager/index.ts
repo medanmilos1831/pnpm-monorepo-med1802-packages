@@ -1,25 +1,22 @@
-import { createRepositoryInstance } from "./repositoryInstance";
-import { createStore } from "./store";
-import { createLogger } from "./logger";
+import { createContainerInstance, createStore } from "./core";
 import type { IConfiguration, IContainerInstance } from "./types";
-import { createGlobalStore } from "./globalStore";
-import { createContainerInstance } from "./containerInstance";
+
 const repositoryManager = () => {
-  const globalStore = createGlobalStore<IContainerInstance<any>>();
+  const store = createStore<IContainerInstance<any>>();
   return {
     createContainer<I extends Record<string, any>>(
       infrastructure: I,
       config: IConfiguration
     ) {
-      globalStore.setState(
+      store.setState(
         config.id,
         createContainerInstance(infrastructure, config)
       );
-      return globalStore.getState(config.id) as IContainerInstance<I>;
+      return store.getState(config.id) as IContainerInstance<I>;
     },
     query(path: string) {
       const [containerId, repositoryId] = path.split("/");
-      const container = globalStore.getState(containerId);
+      const container = store.getState(containerId);
       if (!container) {
         throw new Error(`Container ${containerId} not found`);
       }

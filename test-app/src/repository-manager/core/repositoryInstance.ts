@@ -10,7 +10,6 @@ function createRepositoryInstance<I extends Record<string, any>>(
         reference = definition(infrastructure);
       }
       connections += 1;
-      console.log("CONNECTED REPOSITORY", reference);
     },
     disconnect() {
       if (connections === 0) return;

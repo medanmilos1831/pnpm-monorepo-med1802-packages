@@ -1,13 +1,13 @@
-import { createGlobalStore } from "./globalStore";
-import { createLogger } from "./logger";
+import { createLogger } from "../logger";
 import { createRepositoryInstance } from "./repositoryInstance";
-import type { IConfiguration, IRepositoryInstance } from "./types";
+import { createStore } from "./store";
+import type { IConfiguration, IRepositoryInstance } from "../types";
 
 function createContainerInstance<I extends Record<string, any>>(
   infrastructure: I,
   config: IConfiguration
 ) {
-  const globalStore = createGlobalStore<IRepositoryInstance<any>>();
+  const globalStore = createStore<IRepositoryInstance<any>>();
   const defaultConfig: IConfiguration = {
     id: config.id,
     logging: config.logging ?? false,
