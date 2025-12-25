@@ -8,7 +8,9 @@ export interface IContainerInstance<I> {
     id: string,
     repositoryDefinition: (infrastructure: I) => void
   ): void;
-  queryRepository<R>(id: string): {
+  queryRepository<R = any>(
+    id: string
+  ): {
     repository: R;
     disconnect(): void;
   };

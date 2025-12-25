@@ -7,14 +7,14 @@ function createContainerInstance<I extends Record<string, any>>(
   infrastructure: I,
   config: IConfiguration
 ) {
-  const globalStore = createStore<IRepositoryInstance<any>>();
+  const store = createStore<IRepositoryInstance<any>>();
   const defaultConfig: IConfiguration = {
     id: config.id,
     logging: config.logging ?? false,
   };
-  const hasRepository = (id: string) => globalStore.hasState(id);
+  const hasRepository = (id: string) => store.hasState(id);
   const allRepositories = () =>
-    Array.from(globalStore.getEntries()).map(([id, repository]) => ({
+    Array.from(store.getEntries()).map(([id, repository]) => ({
       repository: id,
       connections: repository.getConnections(),
     }));
@@ -27,7 +27,7 @@ function createContainerInstance<I extends Record<string, any>>(
       if (hasRepository(id)) return;
       logger.log(
         () => {
-          globalStore.setState(
+          store.setState(
             id,
             createRepositoryInstance(repositoryDefinition, infrastructure)
           );
@@ -46,7 +46,7 @@ function createContainerInstance<I extends Record<string, any>>(
       );
     },
     queryRepository<R = any>(id: string) {
-      const repository = globalStore.getState(id);
+      const repository = store.getState(id);
       if (!repository) {
         throw new Error(`Repository "${id}" not found`);
       }

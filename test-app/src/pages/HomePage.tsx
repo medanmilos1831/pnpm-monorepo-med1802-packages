@@ -1,5 +1,9 @@
 import { repositoryManager } from "../repository-manager";
 
+interface IUserRepository {
+  getUsers(): void;
+}
+
 const manager = repositoryManager();
 const infrastructure = {
   someHttpsModule: {
@@ -11,11 +15,11 @@ const infrastructure = {
     },
   },
 };
-const app = manager.createContainer(infrastructure, {
+const defineRepository = manager.createContainer(infrastructure, {
   id: "app",
   logging: false, // Enable colored console logging
 });
-app.defineRepository("user-repo", (infrastructure) => {
+defineRepository("user-repo", (infrastructure) => {
   return {
     getUsers() {
       infrastructure.someHttpsModule.get();
@@ -23,9 +27,8 @@ app.defineRepository("user-repo", (infrastructure) => {
   };
 });
 
-console.log(manager);
-manager.query("app/user-repo");
-
+let userRepo = manager.query<IUserRepository>("app/user-repo");
+console.log(userRepo.repository.getUsers());
 const HomePage = () => {
   return <></>;
 };
