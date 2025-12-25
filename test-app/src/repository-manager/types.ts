@@ -11,7 +11,7 @@ export interface IContainerInstance<I> {
   queryRepository<R = any>(
     id: string
   ): {
-    repository: R;
+    repository: ReturnType<IRepositoryInstance<R>["getReference"]>;
     disconnect(): void;
   };
 }

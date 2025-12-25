@@ -1,9 +1,5 @@
 import { createContainerInstance, createStore } from "./core";
-import type {
-  IConfiguration,
-  IContainerInstance,
-  IRepositoryInstance,
-} from "./types";
+import type { IConfiguration, IContainerInstance } from "./types";
 
 const repositoryManager = () => {
   const store = createStore<IContainerInstance<any>>();
