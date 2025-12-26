@@ -8,6 +8,7 @@ function createRepository<I extends Record<string, any>>(
     connect() {
       if (connections === 0) {
         reference = definition(infrastructure);
+        console.log("CONNECTED REPOSITORY", reference);
       }
       connections += 1;
     },

@@ -1,4 +1,5 @@
-import { createContainer, createStore } from "./core";
+import { createStore } from "./core";
+import { createContainerService } from "./core/containerSerice";
 import type { IConfiguration, IContainerInstance } from "./types";
 
 const repositoryManager = () => {
@@ -8,15 +9,11 @@ const repositoryManager = () => {
       infrastructure: I,
       config: IConfiguration
     ) {
-      store.setState(config.id, createContainer(infrastructure as I, config));
-      const container = store.getState(config.id);
-      if (!container) {
-        throw new Error(`Container ${config.id} not found`);
-      }
-      const defineRepository =
-        container.defineRepository as IContainerInstance<I>["defineRepository"];
+      const { create } = createContainerService(infrastructure, config);
+      const { id, ...rest } = create();
+      store.setState(id, rest);
       return {
-        defineRepository,
+        defineRepository: rest.defineRepository,
       };
     },
     query<R = any>(path: string) {
