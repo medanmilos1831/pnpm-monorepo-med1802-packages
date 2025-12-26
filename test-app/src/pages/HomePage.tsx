@@ -28,7 +28,7 @@ defineRepository("user-repo", (infrastructure) => {
 });
 
 let userRepo = manager.query<IUserRepository>("app/user-repo");
-console.log(userRepo.repository);
+console.log(userRepo.repository.getUsers());
 const HomePage = () => {
   return <></>;
 };

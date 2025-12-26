@@ -1,3 +1,3 @@
 export { createWorkspace } from "./workspace";
-export { createRepository } from "./repository";
+export { createRepositoryAccessor } from "./repositoryAccessor";
 export { createStore } from "./store";

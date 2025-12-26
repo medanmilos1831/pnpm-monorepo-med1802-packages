@@ -4,7 +4,7 @@ import type {
   IRepositoryInstance,
   repositoryType,
 } from "../types";
-import { createRepository } from "./repository";
+import { createRepositoryAccessor } from "./repositoryAccessor";
 import { createStore } from "./store";
 
 function createWorkspace<I extends Record<string, any>>(
@@ -21,14 +21,17 @@ function createWorkspace<I extends Record<string, any>>(
   const allRepositories = () =>
     Array.from(store.getEntries()).map(([id, repository]) => ({
       repository: id,
-      connections: repository.getConnections(),
+      connections: repository.connections,
     }));
 
   const defineRepository = (id: string, repository: repositoryType<I, any>) => {
     if (hasRepository(id)) return;
     logger.log(
       () => {
-        store.setState(id, createRepository(repository, infrastructure));
+        store.setState(
+          id,
+          createRepositoryAccessor(repository, infrastructure)
+        );
       },
       {
         type: "repository.define",
@@ -45,11 +48,11 @@ function createWorkspace<I extends Record<string, any>>(
   };
 
   const queryRepository = (id: string) => {
-    const repository = store.getState(id);
-    if (!repository) {
+    const entity = store.getState(id);
+    if (!entity) {
       throw new Error(`Repository "${id}" not found`);
     }
-    logger.log(() => repository.connect(), {
+    logger.log(() => entity.connect(), {
       type: "repository.connect",
       scope: id,
       metadata: () => {
@@ -58,10 +61,11 @@ function createWorkspace<I extends Record<string, any>>(
         };
       },
     });
+    const { repository } = entity;
     return {
-      repository: store.getState(id)?.getRepository(),
+      repository,
       disconnect() {
-        store.setState(id, undefined as any);
+        entity.disconnect();
       },
     };
   };

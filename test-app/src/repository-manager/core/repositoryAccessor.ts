@@ -1,10 +1,16 @@
-function createRepository<I extends Record<string, any>>(
+function createRepositoryAccessor<I extends Record<string, any>>(
   definition: (infrastructure: I) => unknown,
   infrastructure: I
 ) {
   let repository = undefined as unknown;
   let connections = 0;
   return {
+    get repository() {
+      return repository;
+    },
+    get connections() {
+      return connections;
+    },
     connect() {
       if (connections === 0) {
         repository = definition(infrastructure);
@@ -18,16 +24,7 @@ function createRepository<I extends Record<string, any>>(
         repository = undefined;
       }
     },
-    getRepository() {
-      return repository;
-    },
-    // get repository() {
-    //   return repository;
-    // },
-    getConnections() {
-      return connections;
-    },
   };
 }
 
-export { createRepository };
+export { createRepositoryAccessor };

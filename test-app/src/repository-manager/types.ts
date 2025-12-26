@@ -16,6 +16,6 @@ export interface IWorkspace<I = any, R = any> {
 export interface IRepositoryInstance<R = any> {
   connect(): void;
   disconnect(): void;
-  getRepository(): ReturnType<repositoryType<any, R>> | undefined;
-  getConnections(): number;
+  repository: ReturnType<repositoryType<any, R>> | undefined;
+  connections: number;
 }
