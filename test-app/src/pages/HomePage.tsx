@@ -17,7 +17,7 @@ const infrastructure = {
 };
 const { defineRepository } = manager.createContainer(infrastructure, {
   id: "app",
-  logging: false, // Enable colored console logging
+  logging: false,
 });
 defineRepository("user-repo", (infrastructure) => {
   return {

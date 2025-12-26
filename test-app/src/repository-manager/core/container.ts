@@ -1,9 +1,9 @@
 import { createLogger } from "../logger";
-import { createRepositoryInstance } from "./repositoryInstance";
-import { createStore } from "./store";
 import type { IConfiguration, IRepositoryInstance } from "../types";
+import { createRepository } from "./repository";
+import { createStore } from "./store";
 
-function createContainerInstance<I extends Record<string, any>>(
+function createContainer<I extends Record<string, any>>(
   infrastructure: I,
   config: IConfiguration
 ) {
@@ -21,25 +21,23 @@ function createContainerInstance<I extends Record<string, any>>(
   const logger = createLogger(defaultConfig);
   return {
     defineRepository(id: string, repository: (infrastructure: I) => void) {
-      function createRepository() {
-        store.setState(
-          id,
-          createRepositoryInstance(repository, infrastructure)
-        );
-      }
-      function metadata() {
-        return {
-          repositories: allRepositories().map(({ repository }) => ({
-            repository,
-          })),
-        };
-      }
       if (hasRepository(id)) return;
-      logger.log(createRepository, {
-        type: "repository.define",
-        scope: id,
-        metadata,
-      });
+      logger.log(
+        () => {
+          store.setState(id, createRepository(repository, infrastructure));
+        },
+        {
+          type: "repository.define",
+          scope: id,
+          metadata() {
+            return {
+              repositories: allRepositories().map(({ repository }) => ({
+                repository,
+              })),
+            };
+          },
+        }
+      );
     },
     queryRepository<R = any>(id: string) {
       const repository = store.getState(id);
@@ -72,4 +70,4 @@ function createContainerInstance<I extends Record<string, any>>(
   };
 }
 
-export { createContainerInstance };
+export { createContainer };
