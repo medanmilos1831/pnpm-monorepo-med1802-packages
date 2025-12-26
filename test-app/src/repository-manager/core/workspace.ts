@@ -1,9 +1,13 @@
 import { createLogger } from "../logger";
-import type { IConfiguration, IRepositoryInstance } from "../types";
+import type {
+  IConfiguration,
+  IRepositoryInstance,
+  repositoryType,
+} from "../types";
 import { createRepository } from "./repository";
 import { createStore } from "./store";
 
-function createContainerService<I extends Record<string, any>>(
+function createWorkspace<I extends Record<string, any>>(
   infrastructure: I,
   config: IConfiguration
 ) {
@@ -20,15 +24,11 @@ function createContainerService<I extends Record<string, any>>(
       connections: repository.getConnections(),
     }));
 
-  const defineRepository = (
-    id: string,
-    repository: (infrastructure: I) => void
-  ) => {
+  const defineRepository = (id: string, repository: repositoryType<I, any>) => {
     if (hasRepository(id)) return;
-    const entity = createRepository(repository, infrastructure);
     logger.log(
       () => {
-        store.setState(id, entity);
+        store.setState(id, createRepository(repository, infrastructure));
       },
       {
         type: "repository.define",
@@ -59,7 +59,7 @@ function createContainerService<I extends Record<string, any>>(
       },
     });
     return {
-      repository: store.getState(id)?.getReference(),
+      repository: store.getState(id)?.getRepository(),
       disconnect() {
         store.setState(id, undefined as any);
       },
@@ -67,14 +67,9 @@ function createContainerService<I extends Record<string, any>>(
   };
 
   return {
-    create() {
-      return {
-        id: config.id,
-        defineRepository,
-        queryRepository,
-      };
-    },
+    defineRepository,
+    queryRepository,
   };
 }
 
-export { createContainerService };
+export { createWorkspace };

@@ -1,19 +1,18 @@
-import { createStore } from "./core";
-import { createContainerService } from "./core/containerSerice";
-import type { IConfiguration, IContainerInstance } from "./types";
+import { createWorkspace, createStore } from "./core";
+
+import type { IConfiguration, IWorkspace } from "./types";
 
 const repositoryManager = () => {
-  const store = createStore<IContainerInstance<any>>();
+  const store = createStore<IWorkspace<any>>();
   return {
-    createContainer<I extends Record<string, any>>(
+    workspace<I extends Record<string, any>>(
       infrastructure: I,
       config: IConfiguration
     ) {
-      const { create } = createContainerService(infrastructure, config);
-      const { id, ...rest } = create();
-      store.setState(id, rest);
+      const workspace = createWorkspace(infrastructure, config);
+      store.setState(config.id, workspace);
       return {
-        defineRepository: rest.defineRepository,
+        defineRepository: workspace.defineRepository,
       };
     },
     query<R = any>(path: string) {
@@ -22,7 +21,7 @@ const repositoryManager = () => {
       if (!container) {
         throw new Error(`Container ${containerId} not found`);
       }
-      const queryRepository = container.queryRepository as IContainerInstance<
+      const queryRepository = container.queryRepository as IWorkspace<
         any,
         R
       >["queryRepository"];

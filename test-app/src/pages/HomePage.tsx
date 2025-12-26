@@ -15,7 +15,7 @@ const infrastructure = {
     },
   },
 };
-const { defineRepository } = manager.createContainer(infrastructure, {
+const { defineRepository } = manager.workspace(infrastructure, {
   id: "app",
   logging: false,
 });

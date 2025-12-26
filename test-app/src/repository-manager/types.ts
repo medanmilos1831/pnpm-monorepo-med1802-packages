@@ -5,7 +5,7 @@ export interface IConfiguration {
   logging?: boolean;
 }
 
-export interface IContainerInstance<I = any, R = any> {
+export interface IWorkspace<I = any, R = any> {
   defineRepository(id: string, repository: repositoryType<I, R>): void;
   queryRepository(id: string): {
     repository: ReturnType<repositoryType<I, R>>;
@@ -16,6 +16,6 @@ export interface IContainerInstance<I = any, R = any> {
 export interface IRepositoryInstance<R = any> {
   connect(): void;
   disconnect(): void;
-  getReference(): ReturnType<repositoryType<any, R>> | undefined;
+  getRepository(): ReturnType<repositoryType<any, R>> | undefined;
   getConnections(): number;
 }
