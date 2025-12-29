@@ -1,83 +1,31 @@
-import { createRepositoryInstance } from "./repositoryInstance";
 import { createStore } from "./store";
-import { createLogger } from "./logger";
-import type { IConfiguration } from "./types";
+import type { IConfiguration, IWorkspace } from "./types";
+import { createWorkspace } from "./workspace";
+
 const repositoryManager = () => {
+  const store = createStore<IWorkspace<any>>();
   return {
-    createContainer<I extends Record<string, any>>(
+    workspace<I extends Record<string, any>>(
       infrastructure: I,
-      config?: IConfiguration
+      config: IConfiguration
     ) {
-      const defaultConfig: IConfiguration = {
-        logging: false,
-        ...config,
-      };
-      const store = createStore();
-      const logger = createLogger(defaultConfig);
-
-      const getRepository = (id: string) => store.getRepository(id);
-      const hasRepository = (id: string) => store.hasRepository(id);
-      const allRepositories = () =>
-        Array.from(store.entries()).map(([id, repository]) => ({
-          repository: id,
-          connections: repository.getConnections(),
-        }));
-
+      const workspace = createWorkspace(infrastructure, config);
+      store.setState(config.id, workspace);
       return {
-        defineRepository(
-          id: string,
-          repositoryDefinition: (infrastructure: I) => void
-        ) {
-          if (hasRepository(id)) return;
-          logger.log(
-            () => {
-              store.setRepository(
-                id,
-                createRepositoryInstance(repositoryDefinition, infrastructure)
-              );
-            },
-            {
-              type: "repository.define",
-              scope: id,
-              metadata: () => {
-                return {
-                  repositories: allRepositories().map(({ repository }) => ({
-                    repository,
-                  })),
-                };
-              },
-            }
-          );
-        },
-        queryRepository<R = any>(id: string) {
-          const repository = getRepository(id);
-          if (!repository) {
-            throw new Error(`Repository "${id}" not found`);
-          }
-          logger.log(() => repository.connect(), {
-            type: "repository.connect",
-            scope: id,
-            metadata: () => {
-              return {
-                connections: allRepositories(),
-              };
-            },
-          });
-          return {
-            repository: repository.getReference() as R,
-            disconnect: () =>
-              logger.log(() => repository.disconnect(), {
-                type: "repository.disconnect",
-                scope: id,
-                metadata: () => {
-                  return {
-                    connections: allRepositories(),
-                  };
-                },
-              }),
-          };
-        },
+        defineRepository: workspace.defineRepository,
       };
+    },
+    query<R = any>(path: string) {
+      const [containerId, repositoryId] = path.split("/");
+      const container = store.getState(containerId);
+      if (!container) {
+        throw new Error(`Container ${containerId} not found`);
+      }
+      const queryRepository = container.queryRepository as IWorkspace<
+        any,
+        R
+      >["queryRepository"];
+      return queryRepository(repositoryId);
     },
   };
 };

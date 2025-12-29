@@ -1,15 +1,15 @@
 # 🔄 Repository Manager
 
-A lightweight, type-safe repository manager with dependency injection, lifecycle management, and multi-container support for TypeScript/JavaScript applications.
+A lightweight, type-safe repository manager with dependency injection, lifecycle management, and multi-workspace support for TypeScript/JavaScript applications.
 
 ## Features
 
 - ✅ **Dependency Injection** - Inject infrastructure dependencies into repositories
 - ✅ **Lifecycle Management** - Automatic connection/disconnection with reference counting
-- ✅ **Multi-Container Support** - Manage multiple isolated containers with different dependencies
+- ✅ **Multi-Workspace Support** - Manage multiple isolated workspaces with different dependencies
 - ✅ **Type Safety** - Full TypeScript support with generics
 - ✅ **Lazy Initialization** - Repository instances are created only when needed
-- ✅ **Declarative API** - Define all containers and repositories upfront
+- ✅ **Imperative API** - Define workspaces and repositories as needed
 - ✅ **Logging** - Built-in logging with colored console output
 - ✅ **Memory Efficient** - Automatic cleanup when no connections remain
 
@@ -22,7 +22,7 @@ npm install @med1802/repository-manager
 ## Quick Start
 
 ```typescript
-import { createRepositoryManager } from "@med1802/repository-manager";
+import { repositoryManager } from "@med1802/repository-manager";
 
 // Define your dependencies interface
 interface IDependencies {
@@ -32,38 +32,42 @@ interface IDependencies {
   };
 }
 
-// Create manager with container configuration
-const manager = createRepositoryManager<IDependencies>([
-  {
-    id: "app-container",
-    dependencies: {
-      httpClient: {
-        get: async (url) => fetch(url).then((r) => r.json()),
-        post: async (url, data) =>
-          fetch(url, { method: "POST", body: JSON.stringify(data) }),
-      },
-    },
-    repositories: {
-      userRepo: (deps) => ({
-        async getUsers() {
-          return deps.httpClient.get("/api/users");
-        },
-        async createUser(user: any) {
-          return deps.httpClient.post("/api/users", user);
-        },
-      }),
-      postRepo: (deps) => ({
-        async getPosts() {
-          return deps.httpClient.get("/api/posts");
-        },
-      }),
-    },
-    logging: true,
-  },
-]);
+// Create manager instance
+const manager = repositoryManager();
 
-// Use repositories with path format: "containerId/repositoryId"
-const { repository: userRepo, disconnect } = manager.query("app-container/userRepo");
+// Define infrastructure dependencies
+const infrastructure: IDependencies = {
+  httpClient: {
+    get: async (url) => fetch(url).then((r) => r.json()),
+    post: async (url, data) =>
+      fetch(url, { method: "POST", body: JSON.stringify(data) }),
+  },
+};
+
+// Create a workspace and define repositories
+const { defineRepository } = manager.workspace(infrastructure, {
+  id: "app",
+  logging: true,
+});
+
+// Define repositories
+defineRepository("userRepo", (infrastructure) => ({
+  async getUsers() {
+    return infrastructure.httpClient.get("/api/users");
+  },
+  async createUser(user: any) {
+    return infrastructure.httpClient.post("/api/users", user);
+  },
+}));
+
+defineRepository("postRepo", (infrastructure) => ({
+  async getPosts() {
+    return infrastructure.httpClient.get("/api/posts");
+  },
+}));
+
+// Use repositories with path format: "workspaceId/repositoryId"
+const { repository: userRepo, disconnect } = manager.query("app/userRepo");
 const users = await userRepo.getUsers();
 
 // Cleanup when done
@@ -72,94 +76,124 @@ disconnect();
 
 ## API Reference
 
-### `createRepositoryManager<D>(config)`
+### `repositoryManager()`
 
-Creates a repository manager instance with one or more containers.
+Creates a repository manager instance.
 
-**Parameters:**
-
-- `config: IManagerConfig<D>[]` - Array of container configurations
-
-Each container configuration has:
-- `id: string` - Unique identifier for the container
-- `dependencies: D` - Infrastructure dependencies to inject into repositories
-- `repositories: Record<string, (deps: D) => T>` - Object mapping repository IDs to factory functions
-- `logging?: boolean` - Enable/disable logging (default: `false`)
-
-**Returns:** Manager object with `query` method
+**Returns:** Manager object with `workspace` and `query` methods
 
 **Example:**
 
 ```typescript
-const manager = createRepositoryManager([
-  {
-    id: "main-container",
-    dependencies: { /* ... */ },
-    repositories: { /* ... */ },
-    logging: true,
-  },
-]);
+const manager = repositoryManager();
+```
+
+### `manager.workspace<I>(infrastructure, config)`
+
+Creates a workspace with infrastructure dependencies and returns a `defineRepository` function.
+
+**Parameters:**
+
+- `infrastructure: I` - Infrastructure dependencies to inject into repositories
+- `config: IConfiguration` - Workspace configuration
+  - `id: string` - Unique identifier for the workspace
+  - `logging?: boolean` - Enable/disable logging (default: `false`)
+
+**Returns:** Object with `defineRepository` method
+
+**Example:**
+
+```typescript
+const { defineRepository } = manager.workspace(infrastructure, {
+  id: "app",
+  logging: true,
+});
+```
+
+### `defineRepository(id, factory)`
+
+Defines a repository within the workspace.
+
+**Parameters:**
+
+- `id: string` - Unique identifier for the repository
+- `factory: (infrastructure: I) => R` - Factory function that receives infrastructure and returns repository instance
+
+**Example:**
+
+```typescript
+defineRepository("userRepo", (infrastructure) => ({
+  getUsers: () => infrastructure.httpClient.get("/users"),
+}));
 ```
 
 ### `manager.query<R>(path)`
 
-Queries a repository from a container using path format: `"containerId/repositoryId"`.
+Queries a repository from a workspace using path format: `"workspaceId/repositoryId"`.
 
 **Parameters:**
 
-- `path: string` - Path to repository in format `"containerId/repositoryId"`
+- `path: string` - Path to repository in format `"workspaceId/repositoryId"`
 
 **Returns:** Object with:
+
 - `repository: R` - The repository instance
 - `disconnect: () => void` - Function to disconnect and cleanup
 
-**Throws:** `Error` if container or repository is not found
+**Throws:** `Error` if workspace or repository is not found
 
 **Example:**
 
 ```typescript
-const { repository, disconnect } = manager.query<IUserRepo>("app-container/userRepo");
+const { repository, disconnect } = manager.query<IUserRepo>("app/userRepo");
 await repository.getUsers();
 disconnect();
 ```
 
 ## Advanced Usage
 
-### Multiple Containers
+### Multiple Workspaces
 
-You can create multiple isolated containers with different dependencies:
+You can create multiple isolated workspaces with different dependencies:
 
 ```typescript
-const manager = createRepositoryManager([
-  {
-    id: "api-container",
-    dependencies: {
-      httpClient: apiHttpClient,
-      cache: redisCache,
-    },
-    repositories: {
-      userRepo: (deps) => ({
-        getUsers: () => deps.httpClient.get("/users"),
-      }),
-    },
-  },
-  {
-    id: "database-container",
-    dependencies: {
-      db: postgresClient,
-      logger: winstonLogger,
-    },
-    repositories: {
-      orderRepo: (deps) => ({
-        getOrders: () => deps.db.query("SELECT * FROM orders"),
-      }),
-    },
-  },
-]);
+const manager = repositoryManager();
 
-// Access repositories from different containers
-const { repository: userRepo } = manager.query("api-container/userRepo");
-const { repository: orderRepo } = manager.query("database-container/orderRepo");
+// API workspace
+const { defineRepository: defineApiRepo } = manager.workspace(
+  {
+    httpClient: apiHttpClient,
+    cache: redisCache,
+  },
+  {
+    id: "api",
+    logging: true,
+  }
+);
+
+defineApiRepo("userRepo", (infrastructure) => ({
+  getUsers: () => infrastructure.httpClient.get("/users"),
+}));
+
+// Database workspace
+const { defineRepository: defineDbRepo } = manager.workspace(
+  {
+    db: postgresClient,
+    logger: winstonLogger,
+  },
+  {
+    id: "database",
+    logging: false,
+  }
+);
+
+defineDbRepo("orderRepo", (infrastructure) => ({
+  getOrders: () => infrastructure.db.query("SELECT * FROM orders"),
+}));
+
+// Access repositories from different workspaces
+const { repository: userRepo } = manager.query("api/userRepo");
+const { repository: orderRepo } = manager.query("database/orderRepo");
 ```
 
 ### TypeScript Interfaces
@@ -179,20 +213,35 @@ interface IDependencies {
   cache: ICache;
 }
 
-const manager = createRepositoryManager<IDependencies>([
+const manager = repositoryManager();
+
+const { defineRepository } = manager.workspace<IDependencies>(
+  {
+    httpClient: myHttpClient,
+    cache: myCache,
+  },
   {
     id: "app",
-    dependencies: { /* ... */ },
-    repositories: {
-      userRepo: (deps): IUserRepo => ({
-        async getUsers() { /* ... */ },
-        async createUser(user) { /* ... */ },
-        async updateUser(id, user) { /* ... */ },
-        async deleteUser(id) { /* ... */ },
-      }),
+  }
+);
+
+defineRepository<IUserRepo>(
+  "userRepo",
+  (infrastructure): IUserRepo => ({
+    async getUsers() {
+      /* ... */
     },
-  },
-]);
+    async createUser(user) {
+      /* ... */
+    },
+    async updateUser(id, user) {
+      /* ... */
+    },
+    async deleteUser(id) {
+      /* ... */
+    },
+  })
+);
 
 // TypeScript knows the exact return type
 const { repository } = manager.query<IUserRepo>("app/userRepo");
@@ -225,13 +274,13 @@ import { useEffect } from "react";
 function UserList() {
   useEffect(() => {
     const { repository, disconnect } = manager.query<IUserRepo>("app/userRepo");
-    
+
     repository.getUsers().then(setUsers);
-    
+
     // Cleanup on unmount
     return disconnect;
   }, []);
-  
+
   return <div>{/* ... */}</div>;
 }
 ```
@@ -241,14 +290,12 @@ function UserList() {
 Enable logging to see connection lifecycle:
 
 ```typescript
-const manager = createRepositoryManager([
-  {
-    id: "app",
-    dependencies: { /* ... */ },
-    repositories: { /* ... */ },
-    logging: true, // Enables colored console output
-  },
-]);
+const manager = repositoryManager();
+
+const { defineRepository } = manager.workspace(infrastructure, {
+  id: "app",
+  logging: true, // Enables colored console output
+});
 
 // Console output will show:
 // repository.connect (app/userRepo)
@@ -285,28 +332,28 @@ interface IDependencies {
 }
 
 // Inject concrete implementations
-const manager = createRepositoryManager<IDependencies>([
+const manager = repositoryManager();
+
+const { defineRepository } = manager.workspace<IDependencies>(
+  {
+    database: new PostgreSQLClient(),
+    cache: new RedisCache(),
+  },
   {
     id: "prod",
-    dependencies: {
-      database: new PostgreSQLClient(),
-      cache: new RedisCache(),
-    },
-    repositories: { /* ... */ },
-  },
-]);
+  }
+);
 
 // Easy to test with mocks
-const testManager = createRepositoryManager<IDependencies>([
+const { defineRepository: defineTestRepo } = manager.workspace<IDependencies>(
+  {
+    database: new MockDatabase(),
+    cache: new MockCache(),
+  },
   {
     id: "test",
-    dependencies: {
-      database: new MockDatabase(),
-      cache: new MockCache(),
-    },
-    repositories: { /* ... */ },
-  },
-]);
+  }
+);
 ```
 
 ## Design Patterns
@@ -315,9 +362,9 @@ This library implements several design patterns:
 
 - **Dependency Injection** - Dependencies are injected into repositories
 - **Factory Pattern** - Repositories are created using factory functions
-- **Singleton Pattern** - Each repository is a singleton per container (with reference counting)
+- **Singleton Pattern** - Each repository is a singleton per workspace (with reference counting)
 - **Repository Pattern** - Abstracts data access logic
-- **Container Pattern** - Manages dependencies and lifecycle
+- **Workspace Pattern** - Manages dependencies and lifecycle
 
 ## Error Handling
 
@@ -338,7 +385,7 @@ try {
 ## Best Practices
 
 1. **Define interfaces for dependencies and repositories** - Better type safety
-2. **Use one container per context** - Separate API, database, etc.
+2. **Use one workspace per context** - Separate API, database, etc.
 3. **Always call disconnect** - Proper cleanup prevents memory leaks
 4. **Enable logging during development** - Helps debug lifecycle issues
 5. **Keep repositories focused** - Single responsibility principle
