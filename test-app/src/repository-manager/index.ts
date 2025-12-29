@@ -1,6 +1,6 @@
-import { createWorkspace, createStore } from "./core";
-
+import { createStore } from "./store";
 import type { IConfiguration, IWorkspace } from "./types";
+import { createWorkspace } from "./workspace";
 
 const repositoryManager = () => {
   const store = createStore<IWorkspace<any>>();

@@ -1,11 +1,11 @@
-import { createLogger } from "../logger";
+import { createLogger } from "./logger";
+import { createRepositoryAccessor } from "./repositoryAccessor";
+import { createStore } from "./store";
 import type {
   IConfiguration,
   IRepositoryInstance,
   repositoryType,
-} from "../types";
-import { createRepositoryAccessor } from "./repositoryAccessor";
-import { createStore } from "./store";
+} from "./types";
 
 function createWorkspace<I extends Record<string, any>>(
   infrastructure: I,
