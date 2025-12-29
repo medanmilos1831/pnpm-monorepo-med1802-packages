@@ -19,3 +19,12 @@ export interface IRepositoryInstance<R = any> {
   repository: ReturnType<repositoryType<any, R>> | undefined;
   connections: number;
 }
+
+export interface ILifeCycle {
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+}
+
+export interface IRepositoryConfig {
+  lifecycle?: ILifeCycle;
+}

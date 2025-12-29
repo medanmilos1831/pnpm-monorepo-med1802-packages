@@ -19,16 +19,33 @@ const { defineRepository } = manager.workspace(infrastructure, {
   id: "app",
   logging: false,
 });
-defineRepository("user-repo", (infrastructure) => {
-  return {
-    getUsers() {
-      infrastructure.someHttpsModule.get();
+defineRepository(
+  "user-repo",
+  (infrastructure) => {
+    return {
+      getUsers() {
+        infrastructure.someHttpsModule.get();
+      },
+    };
+  },
+  {
+    lifecycle: {
+      onConnect() {
+        console.log("ON CONNECT");
+      },
+      onDisconnect() {
+        console.log("ON DISCONNECT");
+      },
     },
-  };
-});
+  }
+);
 
-let userRepo = manager.query<IUserRepository>("app/user-repo");
-console.log(userRepo.repository.getUsers());
+let userRepoOne = manager.query<IUserRepository>("app/user-repo");
+let userRepoTwo = manager.query<IUserRepository>("app/user-repo");
+
+userRepoOne.disconnect();
+userRepoTwo.disconnect();
+
 const HomePage = () => {
   return <></>;
 };

@@ -110,7 +110,7 @@ const { defineRepository } = manager.workspace(infrastructure, {
 });
 ```
 
-### `defineRepository(id, factory)`
+### `defineRepository(id, factory, config?)`
 
 Defines a repository within the workspace.
 
@@ -118,6 +118,10 @@ Defines a repository within the workspace.
 
 - `id: string` - Unique identifier for the repository
 - `factory: (infrastructure: I) => R` - Factory function that receives infrastructure and returns repository instance
+- `config?: IRepositoryConfig` - Optional repository configuration
+  - `lifecycle?: ILifeCycle` - Lifecycle hooks
+    - `onConnect?: () => void` - Called when repository is first connected (when connections go from 0 to 1)
+    - `onDisconnect?: () => void` - Called when repository is last disconnected (when connections go from 1 to 0)
 
 **Example:**
 
@@ -125,6 +129,24 @@ Defines a repository within the workspace.
 defineRepository("userRepo", (infrastructure) => ({
   getUsers: () => infrastructure.httpClient.get("/users"),
 }));
+
+// With lifecycle hooks
+defineRepository(
+  "userRepo",
+  (infrastructure) => ({
+    getUsers: () => infrastructure.httpClient.get("/users"),
+  }),
+  {
+    lifecycle: {
+      onConnect: () => {
+        console.log("User repository initialized");
+      },
+      onDisconnect: () => {
+        console.log("User repository cleaned up");
+      },
+    },
+  }
+);
 ```
 
 ### `manager.query<R>(path)`
@@ -265,6 +287,50 @@ conn3.disconnect(); // Connections: 0 (instance destroyed)
 // Next query will create a new instance
 const conn4 = manager.query("app/userRepo"); // Connections: 1 (new instance)
 ```
+
+### Lifecycle Hooks
+
+You can define lifecycle hooks that are called at specific points in the repository lifecycle:
+
+- **`onConnect`** - Called only when the repository is first connected (when connections go from 0 to 1)
+- **`onDisconnect`** - Called only when the repository is last disconnected (when connections go from 1 to 0)
+
+**Example:**
+
+```typescript
+defineRepository(
+  "userRepo",
+  (infrastructure) => ({
+    getUsers: () => infrastructure.httpClient.get("/api/users"),
+  }),
+  {
+    lifecycle: {
+      onConnect: () => {
+        console.log("User repository initialized");
+        // Perform initialization tasks (e.g., setup cache, establish connection)
+      },
+      onDisconnect: () => {
+        console.log("User repository cleaned up");
+        // Perform cleanup tasks (e.g., clear cache, close connections)
+      },
+    },
+  }
+);
+
+// Usage
+const conn1 = manager.query("app/userRepo"); // onConnect called (first connection)
+const conn2 = manager.query("app/userRepo"); // onConnect NOT called (reusing instance)
+
+conn1.disconnect(); // onDisconnect NOT called (still has connections)
+conn2.disconnect(); // onDisconnect called (last connection removed)
+```
+
+**Use Cases:**
+
+- **Initialization**: Setup cache, establish database connections, initialize state
+- **Cleanup**: Clear cache, close connections, release resources
+- **Analytics**: Track repository usage and lifecycle events
+- **Debugging**: Monitor when repositories are created and destroyed
 
 ### Using with React
 

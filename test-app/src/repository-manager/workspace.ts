@@ -3,6 +3,8 @@ import { createRepositoryAccessor } from "./repositoryAccessor";
 import { createStore } from "./store";
 import type {
   IConfiguration,
+  ILifeCycle,
+  IRepositoryConfig,
   IRepositoryInstance,
   repositoryType,
 } from "./types";
@@ -24,13 +26,17 @@ function createWorkspace<I extends Record<string, any>>(
       connections: repository.connections,
     }));
 
-  const defineRepository = (id: string, repository: repositoryType<I, any>) => {
+  const defineRepository = (
+    id: string,
+    repository: repositoryType<I, any>,
+    config?: IRepositoryConfig
+  ) => {
     if (hasRepository(id)) return;
     logger.log(
       () => {
         store.setState(
           id,
-          createRepositoryAccessor(repository, infrastructure)
+          createRepositoryAccessor(repository, infrastructure, config)
         );
       },
       {
