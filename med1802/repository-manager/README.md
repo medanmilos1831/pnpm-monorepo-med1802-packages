@@ -12,6 +12,7 @@ A lightweight, type-safe repository manager with dependency injection, lifecycle
 - ✅ **Imperative API** - Define workspaces and repositories as needed
 - ✅ **Logging** - Built-in logging with colored console output
 - ✅ **Memory Efficient** - Automatic cleanup when no connections remain
+- ✅ **Middleware Support** - Intercept and modify repository method calls
 
 ## Installation
 
@@ -122,6 +123,7 @@ Defines a repository within the workspace.
   - `lifecycle?: ILifeCycle` - Lifecycle hooks
     - `onConnect?: () => void` - Called when repository is first connected (when connections go from 0 to 1)
     - `onDisconnect?: () => void` - Called when repository is last disconnected (when connections go from 1 to 0)
+  - `middlewares?: Middleware[]` - Array of middleware functions to intercept method calls
 
 **Example:**
 
@@ -331,6 +333,138 @@ conn2.disconnect(); // onDisconnect called (last connection removed)
 - **Cleanup**: Clear cache, close connections, release resources
 - **Analytics**: Track repository usage and lifecycle events
 - **Debugging**: Monitor when repositories are created and destroyed
+
+### Middleware
+
+Middleware allows you to intercept and modify repository method calls before and after execution. Middleware functions are executed in sequence, allowing you to add cross-cutting concerns like logging, caching, validation, and more.
+
+**Middleware Signature:**
+
+```typescript
+type Middleware = (
+  method: string,
+  args: any[],
+  next: (...nextArgs: any[]) => any
+) => any;
+```
+
+**Parameters:**
+
+- `method: string` - The name of the method being called
+- `args: any[]` - The arguments passed to the method
+- `next: (...nextArgs: any[]) => any` - Function to call the next middleware or the original method
+
+**Example:**
+
+```typescript
+// Define middleware functions
+const loggingMiddleware: Middleware = (method, args, next) => {
+  console.log(`[${new Date().toISOString()}] Calling ${method}`, args);
+  const result = next();
+  console.log(`[${new Date().toISOString()}] ${method} returned:`, result);
+  return result;
+};
+
+const performanceMiddleware: Middleware = (method, args, next) => {
+  const start = performance.now();
+  const result = next();
+  const duration = performance.now() - start;
+
+  if (duration > 1000) {
+    console.warn(`Slow call: ${method} took ${duration}ms`);
+  }
+
+  return result;
+};
+
+// Apply middleware to repository
+defineRepository(
+  "userRepo",
+  (infrastructure) => ({
+    getUsers: () => infrastructure.httpClient.get("/api/users"),
+    createUser: (user) => infrastructure.httpClient.post("/api/users", user),
+  }),
+  {
+    middlewares: [loggingMiddleware, performanceMiddleware],
+  }
+);
+
+// When you call repository methods, middleware intercepts them
+const { repository } = manager.query("app/userRepo");
+await repository.getUsers(); // Middleware logs and measures performance
+```
+
+**Middleware Execution Flow:**
+
+```typescript
+// When you call: repository.getUsers("filter")
+// 1. loggingMiddleware - logs "Calling getUsers"
+// 2. performanceMiddleware - starts timer
+// 3. repository.getUsers("filter") - original method executes
+// 4. performanceMiddleware - ends timer, logs if slow
+// 5. loggingMiddleware - logs result
+// 6. Returns result to caller
+```
+
+**Common Use Cases:**
+
+- **Logging**: Log all method calls and their results
+- **Performance Monitoring**: Measure execution time and warn about slow calls
+- **Caching**: Cache method results to avoid redundant calls
+- **Validation**: Validate arguments before method execution
+- **Error Handling**: Centralized error handling and retry logic
+- **Data Transformation**: Transform arguments or results
+- **Authentication**: Check permissions before method execution
+- **Rate Limiting**: Limit the number of calls per method
+
+**Example: Caching Middleware**
+
+```typescript
+const cache = new Map<string, any>();
+
+const cacheMiddleware: Middleware = (method, args, next) => {
+  const cacheKey = `${method}-${JSON.stringify(args)}`;
+
+  if (cache.has(cacheKey)) {
+    return cache.get(cacheKey); // Return cached result, skip method execution
+  }
+
+  const result = next(); // Execute method
+  cache.set(cacheKey, result); // Cache result
+  return result;
+};
+
+defineRepository(
+  "userRepo",
+  (infrastructure) => ({
+    getUsers: () => infrastructure.httpClient.get("/api/users"),
+  }),
+  {
+    middlewares: [cacheMiddleware],
+  }
+);
+```
+
+**Example: Validation Middleware**
+
+```typescript
+const validationMiddleware: Middleware = (method, args, next) => {
+  if (method === "createUser" && (!args[0] || typeof args[0] !== "object")) {
+    throw new Error("Invalid user data");
+  }
+  return next();
+};
+
+defineRepository(
+  "userRepo",
+  (infrastructure) => ({
+    createUser: (user) => infrastructure.httpClient.post("/api/users", user),
+  }),
+  {
+    middlewares: [validationMiddleware],
+  }
+);
+```
 
 ### Using with React
 

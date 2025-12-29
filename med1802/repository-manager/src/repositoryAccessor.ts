@@ -1,4 +1,5 @@
 import type { IRepositoryConfig } from "./types";
+import { applyMiddleware } from "./middleware";
 
 function createRepositoryAccessor<I extends Record<string, any>>(
   definition: (infrastructure: I) => unknown,
@@ -8,7 +9,7 @@ function createRepositoryAccessor<I extends Record<string, any>>(
   let repository = undefined as unknown;
   let connections = 0;
 
-  return {
+  const obj = {
     get repository() {
       return repository;
     },
@@ -17,7 +18,10 @@ function createRepositoryAccessor<I extends Record<string, any>>(
     },
     connect() {
       if (connections === 0) {
-        repository = definition(infrastructure);
+        const rawRepository = definition(infrastructure);
+        repository = config?.middlewares
+          ? applyMiddleware(rawRepository, config.middlewares)
+          : rawRepository;
         if (config?.lifecycle?.onConnect) {
           config.lifecycle.onConnect();
         }
@@ -35,6 +39,8 @@ function createRepositoryAccessor<I extends Record<string, any>>(
       }
     },
   };
+
+  return obj;
 }
 
 export { createRepositoryAccessor };

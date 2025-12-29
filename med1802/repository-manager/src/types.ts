@@ -25,6 +25,13 @@ export interface ILifeCycle {
   onDisconnect?: () => void;
 }
 
+export type Middleware = (
+  method: string,
+  args: any[],
+  next: (...nextArgs: any[]) => any
+) => any;
+
 export interface IRepositoryConfig {
   lifecycle?: ILifeCycle;
+  middlewares?: Middleware[];
 }
