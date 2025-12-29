@@ -30,20 +30,16 @@ defineRepository(
     };
   },
   {
-    // lifecycle: {
-    //   onConnect() {
-    //     console.log("ON CONNECT");
-    //   },
-    //   onDisconnect() {
-    //     console.log("ON DISCONNECT");
-    //   },
-    // },
     middlewares: [
-      (target, prop: string, args: any[], next: any) => {
+      (...rest) => {
+        console.log("MIDDLEWARE 1", rest);
+        rest[2]();
+      },
+      (prop: string, args: any[], next: any) => {
         console.log("MIDDLEWARE 1", args);
         next(1);
       },
-      (target, prop: string, args: any[], next: any) => {
+      (prop: string, args: any[], next: any) => {
         console.log("MIDDLEWARE 2", args);
         next(2);
       },

@@ -1,4 +1,5 @@
 import type { IRepositoryConfig } from "./types";
+import { applyMiddleware } from "./middleware";
 
 function createRepositoryAccessor<I extends Record<string, any>>(
   definition: (infrastructure: I) => unknown,
@@ -17,40 +18,10 @@ function createRepositoryAccessor<I extends Record<string, any>>(
     },
     connect() {
       if (connections === 0) {
-        repository = new Proxy(definition(infrastructure) as object, {
-          get(target, prop) {
-            if (typeof target[prop as keyof typeof target] === "function") {
-              const originalMethod = target[prop as keyof typeof target] as (
-                ...args: any[]
-              ) => any;
-
-              if (!config?.middlewares || config.middlewares.length === 0) {
-                return originalMethod;
-              }
-
-              return (...args: any[]) => {
-                let index = 0;
-                const next = (...nextArgs: any[]) => {
-                  if (index >= config.middlewares!.length) {
-                    return originalMethod.apply(
-                      target,
-                      nextArgs.length > 0 ? nextArgs : args
-                    );
-                  }
-                  const middleware = config.middlewares![index++];
-                  return middleware(
-                    target,
-                    prop as string,
-                    nextArgs.length > 0 ? nextArgs : args,
-                    next
-                  );
-                };
-                return next();
-              };
-            }
-            return target[prop as keyof typeof target];
-          },
-        });
+        const rawRepository = definition(infrastructure);
+        repository = config?.middlewares
+          ? applyMiddleware(rawRepository, config.middlewares)
+          : rawRepository;
         if (config?.lifecycle?.onConnect) {
           config.lifecycle.onConnect();
         }
