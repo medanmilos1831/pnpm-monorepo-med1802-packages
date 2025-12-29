@@ -8,7 +8,7 @@ function createRepositoryAccessor<I extends Record<string, any>>(
   let repository = undefined as unknown;
   let connections = 0;
 
-  return {
+  const obj = {
     get repository() {
       return repository;
     },
@@ -17,7 +17,40 @@ function createRepositoryAccessor<I extends Record<string, any>>(
     },
     connect() {
       if (connections === 0) {
-        repository = definition(infrastructure);
+        repository = new Proxy(definition(infrastructure) as object, {
+          get(target, prop) {
+            if (typeof target[prop as keyof typeof target] === "function") {
+              const originalMethod = target[prop as keyof typeof target] as (
+                ...args: any[]
+              ) => any;
+
+              if (!config?.middlewares || config.middlewares.length === 0) {
+                return originalMethod;
+              }
+
+              return (...args: any[]) => {
+                let index = 0;
+                const next = (...nextArgs: any[]) => {
+                  if (index >= config.middlewares!.length) {
+                    return originalMethod.apply(
+                      target,
+                      nextArgs.length > 0 ? nextArgs : args
+                    );
+                  }
+                  const middleware = config.middlewares![index++];
+                  return middleware(
+                    target,
+                    prop as string,
+                    nextArgs.length > 0 ? nextArgs : args,
+                    next
+                  );
+                };
+                return next();
+              };
+            }
+            return target[prop as keyof typeof target];
+          },
+        });
         if (config?.lifecycle?.onConnect) {
           config.lifecycle.onConnect();
         }
@@ -35,6 +68,8 @@ function createRepositoryAccessor<I extends Record<string, any>>(
       }
     },
   };
+
+  return obj;
 }
 
 export { createRepositoryAccessor };

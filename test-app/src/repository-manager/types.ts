@@ -27,4 +27,5 @@ export interface ILifeCycle {
 
 export interface IRepositoryConfig {
   lifecycle?: ILifeCycle;
+  middlewares?: any[];
 }

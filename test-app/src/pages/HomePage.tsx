@@ -1,7 +1,7 @@
 import { repositoryManager } from "../repository-manager";
 
 interface IUserRepository {
-  getUsers(): void;
+  getUsers(id: number): void;
 }
 
 const manager = repositoryManager();
@@ -23,29 +23,36 @@ defineRepository(
   "user-repo",
   (infrastructure) => {
     return {
-      getUsers() {
+      getUsers(id: number) {
+        console.log("GET USERS", id);
         infrastructure.someHttpsModule.get();
       },
     };
   },
   {
-    lifecycle: {
-      onConnect() {
-        console.log("ON CONNECT");
+    // lifecycle: {
+    //   onConnect() {
+    //     console.log("ON CONNECT");
+    //   },
+    //   onDisconnect() {
+    //     console.log("ON DISCONNECT");
+    //   },
+    // },
+    middlewares: [
+      (target, prop: string, args: any[], next: any) => {
+        console.log("MIDDLEWARE 1", args);
+        next(1);
       },
-      onDisconnect() {
-        console.log("ON DISCONNECT");
+      (target, prop: string, args: any[], next: any) => {
+        console.log("MIDDLEWARE 2", args);
+        next(2);
       },
-    },
+    ],
   }
 );
 
-let userRepoOne = manager.query<IUserRepository>("app/user-repo");
-let userRepoTwo = manager.query<IUserRepository>("app/user-repo");
-
-userRepoOne.disconnect();
-userRepoTwo.disconnect();
-
+let userRepo = manager.query<IUserRepository>("app/user-repo");
+userRepo.repository.getUsers(0);
 const HomePage = () => {
   return <></>;
 };
