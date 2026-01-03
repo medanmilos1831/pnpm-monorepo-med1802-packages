@@ -581,16 +581,3 @@ try {
   console.error(error.message); // Repository "non-existent" not found
 }
 ```
-
-## Best Practices
-
-1. **Define interfaces for dependencies and repositories** - Better type safety
-2. **Use one workspace per context** - Separate API, database, etc.
-3. **Always call disconnect** - Proper cleanup prevents memory leaks
-4. **Enable logging during development** - Helps debug lifecycle issues
-5. **Keep repositories focused** - Single responsibility principle
-6. **Use dependency interfaces, not concrete classes** - Easier to test and swap
-
-## License
-
-MIT
