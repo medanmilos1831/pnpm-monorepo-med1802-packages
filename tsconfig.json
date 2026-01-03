@@ -14,8 +14,8 @@
     "baseUrl": "."
   },
   "references": [
-    { "path": "./med1802/scoped-observer" },
-    { "path": "./med1802/scoped-observer-message-broker" },
-    { "path": "./med1802/repository-manager" }
+    {"path": "./med1802/scoped-observer"},
+    {"path": "./med1802/scoped-observer-message-broker"},
+    {"path": "./med1802/repository-manager"}
   ]
 }
