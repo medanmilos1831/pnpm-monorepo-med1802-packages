@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@med1802/repository-manager": "^2.2.1",
+    "@med1802/repository-manager": "^2.2.2",
     "@tanstack/store": "^0.8.0",
     "@types/use-sync-external-store": "^1.5.0",
     "antd": "^5.29.1",

@@ -6,6 +6,8 @@ import type {
   ILifeCycle,
   IRepositoryConfig,
   IRepositoryInstance,
+  IRepositoryPlugin,
+  Middleware,
   repositoryType,
 } from "./types";
 
@@ -26,17 +28,19 @@ function createWorkspace<I extends Record<string, any>>(
       connections: repository.connections,
     }));
 
-  const defineRepository = (
-    id: string,
-    repository: repositoryType<I, any>,
-    config?: IRepositoryConfig
-  ) => {
-    if (hasRepository(id)) return;
+  const defineRepository = (repositoryPlugin: IRepositoryPlugin<I, any>) => {
+    if (hasRepository(repositoryPlugin.id)) return;
+    const { id, install, middlewares, onConnect, onDisconnect } =
+      repositoryPlugin;
     logger.log(
       () => {
         store.setState(
           id,
-          createRepositoryAccessor(repository, infrastructure, config)
+          createRepositoryAccessor(install, infrastructure, {
+            middlewares,
+            onConnect,
+            onDisconnect,
+          })
         );
       },
       {

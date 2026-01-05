@@ -6,7 +6,7 @@ export interface IConfiguration {
 }
 
 export interface IWorkspace<I = any, R = any> {
-  defineRepository(id: string, repository: repositoryType<I, R>): void;
+  defineRepository(repositoryPlugin: IRepositoryPlugin<I, R>): void;
   queryRepository(id: string): {
     repository: ReturnType<repositoryType<I, R>>;
     disconnect(): void;
@@ -34,4 +34,12 @@ export type Middleware = (
 export interface IRepositoryConfig {
   lifecycle?: ILifeCycle;
   middlewares?: Middleware[];
+}
+
+export interface IRepositoryPlugin<I = any, R = any> {
+  id: string;
+  install: repositoryType<I, R>;
+  middlewares?: Middleware[];
+  onConnect?: () => void;
+  onDisconnect?: () => void;
 }

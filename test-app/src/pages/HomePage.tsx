@@ -19,33 +19,32 @@ const { defineRepository } = manager.workspace(infrastructure, {
   id: "app",
   logging: false,
 });
-defineRepository(
-  "user-repo",
-  (infrastructure) => {
+
+defineRepository({
+  id: "user-repo",
+  install(infrastructure) {
     return {
       getUsers(id: number) {
-        console.log("GET USERS", id);
         infrastructure.someHttpsModule.get();
       },
     };
   },
-  {
-    middlewares: [
-      (...rest) => {
-        console.log("MIDDLEWARE 1", rest);
-        rest[2]();
-      },
-      (prop: string, args: any[], next: any) => {
-        console.log("MIDDLEWARE 1", args);
-        next(1);
-      },
-      (prop: string, args: any[], next: any) => {
-        console.log("MIDDLEWARE 2", args);
-        next(2);
-      },
-    ],
-  }
-);
+  onConnect: () => {
+    console.log("ON CONNECT");
+  },
+  onDisconnect: () => {
+    console.log("ON DISCONNECT");
+  },
+  middlewares: [],
+  // lifecycle: {
+  //   onConnect: () => {
+  //     console.log("ON CONNECT");
+  //   },
+  //   onDisconnect: () => {
+  //     console.log("ON DISCONNECT");
+  //   },
+  // },
+});
 
 let userRepo = manager.query<IUserRepository>("app/user-repo");
 userRepo.repository.getUsers(0);
