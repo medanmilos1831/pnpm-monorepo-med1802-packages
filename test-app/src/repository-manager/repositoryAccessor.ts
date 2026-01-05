@@ -1,18 +1,13 @@
 import { applyMiddleware } from "./middleware";
-import type { Middleware } from "./types";
+import type { IRepositoryPlugin } from "./types";
 
 function createRepositoryAccessor<I extends Record<string, any>>(
-  definition: (infrastructure: I) => unknown,
   infrastructure: I,
-  config: {
-    middlewares?: Middleware[];
-    onConnect?: () => void;
-    onDisconnect?: () => void;
-  }
+  repositoryPlugin: IRepositoryPlugin<I, any>
 ) {
+  const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
   let repository = undefined as unknown;
   let connections = 0;
-  const { middlewares, onConnect, onDisconnect } = config;
   const obj = {
     get repository() {
       return repository;
@@ -22,7 +17,7 @@ function createRepositoryAccessor<I extends Record<string, any>>(
     },
     connect() {
       if (connections === 0) {
-        const rawRepository = definition(infrastructure);
+        const rawRepository = install(infrastructure);
         repository = middlewares
           ? applyMiddleware(rawRepository, middlewares)
           : rawRepository;

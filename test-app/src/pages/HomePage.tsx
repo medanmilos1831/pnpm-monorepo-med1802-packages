@@ -36,14 +36,6 @@ defineRepository({
     console.log("ON DISCONNECT");
   },
   middlewares: [],
-  // lifecycle: {
-  //   onConnect: () => {
-  //     console.log("ON CONNECT");
-  //   },
-  //   onDisconnect: () => {
-  //     console.log("ON DISCONNECT");
-  //   },
-  // },
 });
 
 let userRepo = manager.query<IUserRepository>("app/user-repo");
