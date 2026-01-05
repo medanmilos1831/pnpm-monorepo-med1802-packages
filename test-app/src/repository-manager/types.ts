@@ -1,16 +1,22 @@
-export type repositoryType<I = any, R = any> = (infrastructure: I) => R;
+export type repositoryType<I = any, R = any> = (
+  infrastructure: I,
+  ctx: any
+) => R;
 
 export interface IConfiguration {
   id: string;
   logging?: boolean;
 }
 
+export type queryRepositoryType<I = any, R = any> = (id: string) => {
+  repository: ReturnType<repositoryType<I, R>>;
+  disconnect(): void;
+};
+
 export interface IWorkspace<I = any, R = any> {
   defineRepository(repositoryPlugin: IRepositoryPlugin<I, R>): void;
-  queryRepository(id: string): {
-    repository: ReturnType<repositoryType<I, R>>;
-    disconnect(): void;
-  };
+  queryRepository: queryRepositoryType<I, R>;
+  createContext: <V = any>(config: IContext<V>) => void;
 }
 
 export interface IRepositoryInstance<R = any> {
@@ -32,4 +38,11 @@ export interface IRepositoryPlugin<I = any, R = any> {
   middlewares?: Middleware[];
   onConnect?: () => void;
   onDisconnect?: () => void;
+}
+
+export interface IContext<V = any> {
+  id: string;
+  value: V;
+  workspace: string;
+  create: (workspaceId: string) => void;
 }

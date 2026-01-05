@@ -3,9 +3,12 @@ import { createRepositoryAccessor } from "./repositoryAccessor";
 import { createStore } from "./store";
 import type {
   IConfiguration,
+  IContext,
   IRepositoryInstance,
   IRepositoryPlugin,
+  IWorkspace,
 } from "./types";
+import type { queryRepositoryType } from "./types";
 
 function createWorkspace<I extends Record<string, any>>(
   infrastructure: I,
@@ -17,6 +20,8 @@ function createWorkspace<I extends Record<string, any>>(
   };
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
+  const contextStore = createStore<IContext[]>();
+  contextStore.setState("stack", []);
   function hasRepository(id: string) {
     return store.hasState(id);
   }
@@ -36,7 +41,16 @@ function createWorkspace<I extends Record<string, any>>(
       () => {
         store.setState(
           id,
-          createRepositoryAccessor(infrastructure, repositoryPlugin)
+          createRepositoryAccessor(
+            infrastructure,
+            repositoryPlugin,
+            (id: any) => {
+              const value = contextStore.getState("stack")!;
+              console.log("VALUE", value);
+              let result = value.filter((item: any) => item.id === id);
+              return result[0]?.value;
+            }
+          )
         );
       },
       {
@@ -76,9 +90,23 @@ function createWorkspace<I extends Record<string, any>>(
     };
   }
 
+  function createContext<V = any>(config: IContext<V>) {
+    const stack = contextStore.getState("stack");
+    if (!stack) {
+      throw new Error("Context stack not found");
+    }
+    try {
+      stack.push(config);
+      config.create(config.workspace);
+    } finally {
+      // stack.pop();
+    }
+  }
+
   return {
     defineRepository,
     queryRepository,
+    createContext,
   };
 }
 

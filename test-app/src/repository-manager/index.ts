@@ -1,5 +1,5 @@
 import { createStore } from "./store";
-import type { IConfiguration, IWorkspace } from "./types";
+import type { IConfiguration, IContext, IWorkspace } from "./types";
 import { createWorkspace } from "./workspace";
 
 const repositoryManager = () => {
@@ -26,6 +26,11 @@ const repositoryManager = () => {
         R
       >["queryRepository"];
       return queryRepository(repositoryId);
+    },
+    createContext<V = any>(config: IContext<V>) {
+      const workspace = store.getState(config.workspace)!;
+      // console.log("CREATE CONTEXT", workspace);
+      workspace.createContext<V>(config);
     },
   };
 };

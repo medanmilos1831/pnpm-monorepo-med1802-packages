@@ -16,21 +16,23 @@ const infrastructure = {
   },
 };
 const { defineRepository } = manager.workspace(infrastructure, {
-  id: "app",
+  id: "app-workspace",
   logging: false,
 });
 
 defineRepository<IUserRepository>({
   id: "user-repo",
-  install(infrastructure) {
+  install(infrastructure, ctx) {
     return {
       getUsers(id: number) {
-        infrastructure.someHttpsModule.get();
+        const value = ctx("contextid");
+        console.log("VALUE", value, id);
+        // infrastructure.someHttpsModule.get();
       },
     };
   },
   onConnect: () => {
-    console.log("ON CONNECT");
+    // console.log("ON CONNECT");
   },
   onDisconnect: () => {
     console.log("ON DISCONNECT");
@@ -38,8 +40,28 @@ defineRepository<IUserRepository>({
   middlewares: [],
 });
 
-let userRepo = manager.query<IUserRepository>("app/user-repo");
-userRepo.repository.getUsers(2);
+manager.createContext({
+  id: "contextid",
+  value: "some-context-value",
+  workspace: "app-workspace",
+  create(workspace: any) {
+    // manager.createContext({
+    //   id: "contextid2",
+    //   value: "some-context-value2",
+    //   workspace: "app-workspace",
+    //   create(workspace) {
+    //     let userRepo = manager.query<IUserRepository>(workspace + "/user-repo");
+    //     userRepo.repository.getUsers(1);
+    //   },
+    // });
+    let userRepo = manager.query<IUserRepository>(workspace + "/user-repo");
+    userRepo.repository.getUsers(1);
+  },
+});
+
+// let userRepo = manager.query<IUserRepository>("app-workspace/user-repo");
+// userRepo.repository.getUsers(3);
+
 const HomePage = () => {
   return <></>;
 };

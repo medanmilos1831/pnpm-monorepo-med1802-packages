@@ -3,7 +3,8 @@ import type { IRepositoryPlugin } from "./types";
 
 function createRepositoryAccessor<I extends Record<string, any>>(
   infrastructure: I,
-  repositoryPlugin: IRepositoryPlugin<I, any>
+  repositoryPlugin: IRepositoryPlugin<I, any>,
+  contextGetter: any
 ) {
   const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
   let repository = undefined as unknown;
@@ -17,7 +18,7 @@ function createRepositoryAccessor<I extends Record<string, any>>(
     },
     connect() {
       if (connections === 0) {
-        const rawRepository = install(infrastructure);
+        const rawRepository = install(infrastructure, contextGetter);
         repository = middlewares
           ? applyMiddleware(rawRepository, middlewares)
           : rawRepository;
