@@ -20,7 +20,7 @@ const { defineRepository } = manager.workspace(infrastructure, {
   logging: false,
 });
 
-defineRepository({
+defineRepository<IUserRepository>({
   id: "user-repo",
   install(infrastructure) {
     return {
@@ -39,7 +39,7 @@ defineRepository({
 });
 
 let userRepo = manager.query<IUserRepository>("app/user-repo");
-userRepo.repository.getUsers(0);
+userRepo.repository.getUsers(2);
 const HomePage = () => {
   return <></>;
 };

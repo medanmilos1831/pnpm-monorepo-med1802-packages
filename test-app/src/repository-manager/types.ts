@@ -20,21 +20,11 @@ export interface IRepositoryInstance<R = any> {
   connections: number;
 }
 
-export interface ILifeCycle {
-  onConnect?: () => void;
-  onDisconnect?: () => void;
-}
-
 export type Middleware = (
   method: string,
   args: any[],
   next: (...nextArgs: any[]) => any
 ) => any;
-
-export interface IRepositoryConfig {
-  lifecycle?: ILifeCycle;
-  middlewares?: Middleware[];
-}
 
 export interface IRepositoryPlugin<I = any, R = any> {
   id: string;

@@ -17,14 +17,19 @@ function createWorkspace<I extends Record<string, any>>(
   };
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
-  const hasRepository = (id: string) => store.hasState(id);
-  const allRepositories = () =>
-    Array.from(store.getEntries()).map(([id, repository]) => ({
+  function hasRepository(id: string) {
+    return store.hasState(id);
+  }
+  function allRepositories() {
+    return Array.from(store.getEntries()).map(([id, repository]) => ({
       repository: id,
       connections: repository.connections,
     }));
+  }
 
-  const defineRepository = (repositoryPlugin: IRepositoryPlugin<I, any>) => {
+  function defineRepository<R = any>(
+    repositoryPlugin: IRepositoryPlugin<I, R>
+  ) {
     const { id } = repositoryPlugin;
     if (hasRepository(id)) return;
     logger.log(
@@ -46,9 +51,9 @@ function createWorkspace<I extends Record<string, any>>(
         },
       }
     );
-  };
+  }
 
-  const queryRepository = (id: string) => {
+  function queryRepository(id: string) {
     const entity = store.getState(id);
     if (!entity) {
       throw new Error(`Repository "${id}" not found`);
@@ -69,7 +74,7 @@ function createWorkspace<I extends Record<string, any>>(
         entity.disconnect();
       },
     };
-  };
+  }
 
   return {
     defineRepository,
