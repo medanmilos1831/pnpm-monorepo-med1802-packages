@@ -5,7 +5,8 @@ import {
   type IContextConfig,
   type IRepositoryInstance,
 } from "./modules";
-import { createLogger, createStore } from "./infrastructure";
+import { createContext, createLogger, createStore } from "./infrastructure";
+import { useCtx } from "./infrastructure/context/context";
 
 function createWorkspace<I extends Record<string, any>>(
   infrastructure: I,
@@ -18,7 +19,33 @@ function createWorkspace<I extends Record<string, any>>(
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
   const contextStore = createStore<IContextConfig<any>[]>();
-  contextStore.setState("stack", []);
+  const userContext = createContext({
+    id: "user-context",
+    value: "DEFAULT USER CONTEXT VALUE",
+  });
+  const companyContext = createContext({
+    id: "company-context",
+    value: "company-context-value",
+  });
+  userContext.provider({
+    value: "***** USER PROVIDER VALUE *****",
+    children: () => {
+      companyContext.provider({
+        value: "***** COMPANY PROVIDER VALUE *****",
+        children: () => {
+          const user = useCtx(userContext);
+          const company = useCtx(companyContext);
+          console.log("user", user);
+          console.log("company", company);
+          // console.log("USER CONTEXT VALUE", userContext.currentValue);
+          // console.log("COMPANY CONTEXT VALUE", companyContext.currentValue);
+        },
+      });
+    },
+  });
+  // const user = useCtx(userContext);
+  // console.log("dsdsdsdsd", user);
+  // contextStore.setState("stack", []);
   const repositoryServices = createRepositoryModule({
     store,
     logger,
