@@ -1,23 +1,11 @@
 import { createRepositoryAccessor } from "./repositoryAccessor";
-import type { IContextConfig } from "../context/types";
-import type {
-  IRepositoryInstance,
-  IRepositoryPlugin,
-  repositoryType,
-} from "./types";
-import type { createStore, createLogger } from "../../infrastructure";
+import type { IRepositoryPlugin, repositoryType } from "./types";
+import { useScope } from "../../infrastructure";
+import { repositoryScope } from "../../providers";
 
-function createRepositoryModule<I extends Record<string, any>>({
-  store,
-  logger,
-  infrastructure,
-  contextStore,
-}: {
-  store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;
-  logger: ReturnType<typeof createLogger>;
-  infrastructure: I;
-  contextStore: ReturnType<typeof createStore<IContextConfig<any>[]>>;
-}) {
+function createRepositoryModule<I extends Record<string, any>>() {
+  const { store, logger, infrastructure, contextStore } =
+    useScope(repositoryScope);
   function hasRepository(id: string) {
     return store.hasState(id);
   }
@@ -37,15 +25,7 @@ function createRepositoryModule<I extends Record<string, any>>({
       () => {
         store.setState(
           id,
-          createRepositoryAccessor(
-            infrastructure,
-            repositoryPlugin,
-            (id: string) => {
-              const value = contextStore.getState("stack")!;
-              let result = value.filter((item: any) => item.id === id);
-              return result[result.length - 1]?.value as C;
-            }
-          )
+          createRepositoryAccessor(infrastructure, repositoryPlugin)
         );
       },
       {

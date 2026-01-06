@@ -25,12 +25,13 @@ const { defineRepository, createContext, queryRepository } = manager.workspace(
 
 defineRepository<IUserRepository, string>({
   id: "user-repo",
-  install(infrastructure, ctx) {
+  install(infrastructure) {
     return {
       getUsers(params: string) {
-        const value = ctx("contextid");
-        console.log("CONTEXT VALUE", value);
         console.log("PARAMS", params);
+        // const value = ctx("contextid");
+        // console.log("CONTEXT VALUE", value);
+        // console.log("PARAMS", params);
       },
     };
   },
@@ -43,10 +44,10 @@ defineRepository<IUserRepository, string>({
   middlewares: [],
 });
 
-const context = createContext<string>({
-  id: "contextid",
-  value: "CONTEXT VALUE",
-});
+// const context = createContext<string>({
+//   id: "contextid",
+//   value: "CONTEXT VALUE",
+// });
 
 // context.provider({
 //   value: "PROVIDER VALUE 1",
@@ -56,8 +57,8 @@ const context = createContext<string>({
 //   },
 // });
 
-// let userRepo = queryRepository<IUserRepository>("user-repo");
-// userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
+let userRepo = queryRepository<IUserRepository>("user-repo");
+userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
 
 const HomePage = () => {
   return <></>;

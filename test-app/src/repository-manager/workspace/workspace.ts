@@ -7,6 +7,7 @@ import {
 } from "./modules";
 import { createScope, createLogger, createStore } from "./infrastructure";
 import { useScope } from "./infrastructure/scope/scope";
+import { repositoryScope } from "./providers";
 
 function createWorkspace<I extends Record<string, any>>(
   infrastructure: I,
@@ -19,37 +20,25 @@ function createWorkspace<I extends Record<string, any>>(
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
   const contextStore = createStore<IContextConfig<any>[]>();
-  const userContext = createScope("***** DEFAULT USER VALUE *****");
-  const companyContext = createScope<string>(
-    "***** DEFAULT COMPANY VALUE *****"
-  );
-  userContext.provider({
-    value: "***** OVERRIDE *****",
-    children: () => {
-      companyContext.provider({
-        value: "***** COMPANY PROVIDER VALUE *****",
-        children: () => {
-          const user = useScope(userContext);
-          const company = useScope(companyContext);
-          console.log("user", user);
-          console.log("company", company);
-        },
-      });
+  let repositoryModule: ReturnType<typeof createRepositoryModule>;
+  repositoryScope.provider({
+    value: {
+      store,
+      logger,
+      infrastructure,
+      contextStore,
     },
-  });
-  const repositoryServices = createRepositoryModule({
-    store,
-    logger,
-    infrastructure,
-    contextStore,
+    children: () => {
+      repositoryModule = createRepositoryModule();
+    },
   });
   const contextServices = createContextModule({
     contextStore,
   });
 
   return {
-    defineRepository: repositoryServices.defineRepository,
-    queryRepository: repositoryServices.queryRepository,
+    defineRepository: repositoryModule!.defineRepository,
+    queryRepository: repositoryModule!.queryRepository,
     createContext: contextServices.createContext,
   };
 }

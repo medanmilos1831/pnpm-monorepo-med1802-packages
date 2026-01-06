@@ -1,20 +1,5 @@
-import { createContext } from "vm";
+import { createScope } from "../infrastructure";
 
-// const repositoryProvider = () => {
-//   const zika = createContext({
-//     id: "repository-provider",
-//     value: {
-//       nesto: 1,
-//     },
-//   });
-//   return zika;
-// };
+const repositoryScope = createScope<any>(undefined);
 
-const zika = createContext({
-  id: "repository-provider",
-  value: {
-    nesto: 1,
-  },
-});
-const zikaProvider = zika.provider;
-export { zikaProvider };
+export { repositoryScope };

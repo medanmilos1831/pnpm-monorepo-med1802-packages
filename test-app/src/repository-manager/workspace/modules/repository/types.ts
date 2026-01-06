@@ -1,7 +1,4 @@
-export type repositoryType<I = any, R = any> = (
-  infrastructure: I,
-  ctx: any
-) => R;
+export type repositoryType<I = any, R = any> = (infrastructure: I) => R;
 
 export interface IRepositoryPlugin<I = any, R = any> {
   id: string;
