@@ -1,7 +1,7 @@
 import type { IConfiguration } from "../types";
 import {
-  createContextServices,
-  createRepositoryServices,
+  createRepositoryModule,
+  createContextModule,
   type IContextConfig,
   type IRepositoryInstance,
 } from "./modules";
@@ -19,13 +19,13 @@ function createWorkspace<I extends Record<string, any>>(
   const store = createStore<IRepositoryInstance<any>>();
   const contextStore = createStore<IContextConfig<any>[]>();
   contextStore.setState("stack", []);
-  const repositoryServices = createRepositoryServices({
+  const repositoryServices = createRepositoryModule({
     store,
     logger,
     infrastructure,
     contextStore,
   });
-  const contextServices = createContextServices({
+  const contextServices = createContextModule({
     contextStore,
   });
 

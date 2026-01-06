@@ -1,7 +1,7 @@
 import type { createStore } from "../../infrastructure";
 import type { IContextConfig, IContextProviderOptions } from "./types";
 
-function createContextServices({
+function createContextModule({
   contextStore,
 }: {
   contextStore: ReturnType<typeof createStore<IContextConfig<any>[]>>;
@@ -27,4 +27,4 @@ function createContextServices({
     createContext,
   };
 }
-export { createContextServices };
+export { createContextModule };
