@@ -4,6 +4,6 @@ export interface IContextConfig<V = any> {
 }
 
 export interface IContextProviderOptions<V = any> {
-  value?: V;
+  value: V;
   children: () => void;
 }

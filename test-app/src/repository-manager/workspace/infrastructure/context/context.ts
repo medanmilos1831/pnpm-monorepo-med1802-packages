@@ -5,27 +5,25 @@ function createContext<V = any>(config: IContextConfig<V>) {
   const store = createStore<IContextConfig<any>[]>();
   store.setState("stack", []);
   const stack = store.getState("stack");
-  let _currentValue: any = null;
+  let _defaultValue = config.value;
   function provider(options: IContextProviderOptions) {
     const { value, children } = options;
-    _currentValue = value;
-    // console.log("RUN PROVIDER AFTER OVERRIDE", currentValue);
     const stack = store.getState("stack");
     if (!stack) {
       throw new Error("Context stack not found");
     }
     try {
+      stack.push(value ? { ...config, value } : config);
       children();
     } finally {
+      stack.pop();
     }
-    // try {
-    //   stack.push(value ? { ...config, value } : config);
-    //   // console.log("stack", stack);
   }
   return {
     provider,
     get currentValue() {
-      return _currentValue;
+      let last = stack?.length ? stack[stack.length - 1] : null;
+      return last?.value ? last.value : _defaultValue;
     },
   };
 }
