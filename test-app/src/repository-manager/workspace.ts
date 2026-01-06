@@ -3,7 +3,6 @@ import { createRepositoryAccessor } from "./repositoryAccessor";
 import { createStore } from "./store";
 import type {
   IConfiguration,
-  IContext,
   IContextConfig,
   IContextProviderOptions,
   IRepositoryInstance,
