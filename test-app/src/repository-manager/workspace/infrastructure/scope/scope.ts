@@ -1,20 +1,15 @@
 import { createStore } from "../store";
-import type { IContextProviderOptions } from "./types";
+import type { IScope, IScopeProviderOptions } from "./types";
 
-interface IContext<V = any> {
-  provider(options: IContextProviderOptions<V>): void;
-  get currentValue(): V;
-}
-
-function createContext<V = any>(defaultValue: V): IContext<V> {
+function createScope<V = any>(defaultValue: V): IScope<V> {
   const store = createStore<V[]>();
   store.setState("stack", []);
   const stack = store.getState("stack");
-  function provider(options: IContextProviderOptions) {
+  function provider(options: IScopeProviderOptions) {
     const { value, children } = options;
     const stack = store.getState("stack");
     if (!stack) {
-      throw new Error("Context stack not found");
+      throw new Error("Scope stack not found");
     }
     try {
       stack.push(value ? value : defaultValue);
@@ -31,7 +26,7 @@ function createContext<V = any>(defaultValue: V): IContext<V> {
     },
   };
 }
-function useCtx<V = any>(ctx: IContext<V>) {
+function useScope<V = any>(ctx: IScope<V>) {
   return ctx.currentValue;
 }
-export { createContext, useCtx };
+export { createScope, useScope };

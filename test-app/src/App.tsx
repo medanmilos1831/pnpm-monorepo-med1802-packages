@@ -1,11 +1,11 @@
 import { HomePage } from "./pages/HomePage";
 import { createContext, useContext } from "react";
 import { repositoryManager } from "@med1802/repository-manager";
-let E = createContext(2);
+// let E = createContext(2);
 // console.log("EEEEE", E);
 function App() {
-  const r = useContext(E);
-  console.log("eeee", useContext);
+  // const r = useContext(E);
+  // console.log("eeee", useContext);
   return (
     <div
       style={{

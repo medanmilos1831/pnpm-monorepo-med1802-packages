@@ -5,8 +5,8 @@ import {
   type IContextConfig,
   type IRepositoryInstance,
 } from "./modules";
-import { createContext, createLogger, createStore } from "./infrastructure";
-import { useCtx } from "./infrastructure/context/context";
+import { createScope, createLogger, createStore } from "./infrastructure";
+import { useScope } from "./infrastructure/scope/scope";
 
 function createWorkspace<I extends Record<string, any>>(
   infrastructure: I,
@@ -19,8 +19,8 @@ function createWorkspace<I extends Record<string, any>>(
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
   const contextStore = createStore<IContextConfig<any>[]>();
-  const userContext = createContext("***** DEFAULT USER VALUE *****");
-  const companyContext = createContext<string>(
+  const userContext = createScope("***** DEFAULT USER VALUE *****");
+  const companyContext = createScope<string>(
     "***** DEFAULT COMPANY VALUE *****"
   );
   userContext.provider({
@@ -29,18 +29,14 @@ function createWorkspace<I extends Record<string, any>>(
       companyContext.provider({
         value: "***** COMPANY PROVIDER VALUE *****",
         children: () => {
-          const user = useCtx(userContext);
-          const company = useCtx(companyContext);
-          // console.log("user", user);
-          // console.log("company", company);
+          const user = useScope(userContext);
+          const company = useScope(companyContext);
+          console.log("user", user);
+          console.log("company", company);
         },
       });
     },
   });
-  // const user = useCtx(userContext);
-  // const company = useCtx(companyContext);
-  // console.log("OUT OF USER CONTEXT", user);
-  // console.log("OUT OF COMPANY CONTEXT", company);
   const repositoryServices = createRepositoryModule({
     store,
     logger,

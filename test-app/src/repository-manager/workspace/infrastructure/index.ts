@@ -1,3 +1,3 @@
 export { createStore } from "./store";
 export { createLogger } from "./logger";
-export { createContext } from "./context";
+export { createScope } from "./scope";
