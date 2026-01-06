@@ -1,6 +1,6 @@
-import { createStore } from "./store";
-import type { IConfiguration, IContext, IWorkspace } from "./types";
+import type { IConfiguration, IWorkspace } from "./types";
 import { createWorkspace } from "./workspace";
+import { createStore } from "./workspace/infrastructure";
 
 const repositoryManager = () => {
   const store = createStore<IWorkspace<any>>();
@@ -10,7 +10,7 @@ const repositoryManager = () => {
       config: IConfiguration
     ) {
       const workspace = createWorkspace(infrastructure, config);
-      store.setState(config.id, workspace);
+      store.setState(config.id, workspace as any);
       return {
         defineRepository: workspace.defineRepository,
         createContext: workspace.createContext,

@@ -1,32 +1,29 @@
-import { createLogger } from "./logger";
 import { createRepositoryAccessor } from "./repositoryAccessor";
-import { createStore } from "./store";
+import type { IContextConfig } from "../../../types";
+import type { createStore } from "../../infrastructure";
+import type { createLogger } from "../../infrastructure/logger";
 import type {
-  IConfiguration,
-  IContextConfig,
-  IContextProviderOptions,
   IRepositoryInstance,
   IRepositoryPlugin,
   repositoryType,
 } from "./types";
 
-function createWorkspace<I extends Record<string, any>>(
-  infrastructure: I,
-  config: IConfiguration
-) {
-  const defaultConfig: IConfiguration = {
-    id: config.id,
-    logging: config.logging ?? false,
-  };
-  const logger = createLogger(defaultConfig);
-  const store = createStore<IRepositoryInstance<any>>();
-  const contextStore = createStore<IContextConfig<any>[]>();
-  contextStore.setState("stack", []);
+function createRepositoryServices<I extends Record<string, any>>({
+  store,
+  logger,
+  infrastructure,
+  contextStore,
+}: {
+  store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;
+  logger: ReturnType<typeof createLogger>;
+  infrastructure: I;
+  contextStore: ReturnType<typeof createStore<IContextConfig<any>[]>>;
+}) {
   function hasRepository(id: string) {
     return store.hasState(id);
   }
   function allRepositories() {
-    return Array.from(store.getEntries()).map(([id, repository]) => ({
+    return Array.from(store.getEntries()).map(([id, repository]: any) => ({
       repository: id,
       connections: repository.connections,
     }));
@@ -88,30 +85,12 @@ function createWorkspace<I extends Record<string, any>>(
       },
     };
   }
-
-  function createContext<V = any>(config: IContextConfig<V>) {
-    return {
-      provider(options: IContextProviderOptions) {
-        const { value, children } = options;
-        const stack = contextStore.getState("stack");
-        if (!stack) {
-          throw new Error("Context stack not found");
-        }
-        try {
-          stack.push(value ? { ...config, value } : config);
-          children();
-        } finally {
-          stack.pop();
-        }
-      },
-    };
-  }
-
   return {
-    defineRepository,
     queryRepository,
-    createContext,
+    defineRepository,
+    hasRepository,
+    allRepositories,
   };
 }
 
-export { createWorkspace };
+export { createRepositoryServices };
