@@ -48,16 +48,16 @@ const context = createContext<string>({
   value: "CONTEXT VALUE",
 });
 
-context.provider({
-  value: "PROVIDER VALUE 1",
-  children: () => {
-    let userRepo = queryRepository<IUserRepository>("user-repo");
-    userRepo.repository.getUsers("*****IN CONTEXT 1*****");
-  },
-});
+// context.provider({
+//   value: "PROVIDER VALUE 1",
+//   children: () => {
+//     let userRepo = queryRepository<IUserRepository>("user-repo");
+//     userRepo.repository.getUsers("*****IN CONTEXT 1*****");
+//   },
+// });
 
-let userRepo = queryRepository<IUserRepository>("user-repo");
-userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
+// let userRepo = queryRepository<IUserRepository>("user-repo");
+// userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
 
 const HomePage = () => {
   return <></>;
