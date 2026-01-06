@@ -1,8 +1,13 @@
 import { createStore } from "../store";
-import type { IContextConfig, IContextProviderOptions } from "./types";
+import type { IContextProviderOptions } from "./types";
 
-function createContext<V = any>(defaultValue: V) {
-  const store = createStore<IContextConfig<any>[]>();
+interface IContext<V = any> {
+  provider(options: IContextProviderOptions<V>): void;
+  get currentValue(): V;
+}
+
+function createContext<V = any>(defaultValue: V): IContext<V> {
+  const store = createStore<V[]>();
   store.setState("stack", []);
   const stack = store.getState("stack");
   function provider(options: IContextProviderOptions) {
@@ -26,7 +31,7 @@ function createContext<V = any>(defaultValue: V) {
     },
   };
 }
-function useCtx(ctx: ReturnType<typeof createContext>) {
+function useCtx<V = any>(ctx: IContext<V>) {
   return ctx.currentValue;
 }
 export { createContext, useCtx };
