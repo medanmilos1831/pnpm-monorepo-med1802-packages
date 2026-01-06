@@ -37,15 +37,10 @@ function createWorkspace<I extends Record<string, any>>(
           const company = useCtx(companyContext);
           console.log("user", user);
           console.log("company", company);
-          // console.log("USER CONTEXT VALUE", userContext.currentValue);
-          // console.log("COMPANY CONTEXT VALUE", companyContext.currentValue);
         },
       });
     },
   });
-  // const user = useCtx(userContext);
-  // console.log("dsdsdsdsd", user);
-  // contextStore.setState("stack", []);
   const repositoryServices = createRepositoryModule({
     store,
     logger,
