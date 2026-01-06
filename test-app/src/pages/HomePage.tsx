@@ -40,23 +40,15 @@ defineRepository<IUserRepository>({
   middlewares: [],
 });
 
-manager.createContext({
+const context = manager.createContext({
   id: "contextid",
-  value: "some-context-value",
+  value: "CONTEXT VALUE",
   workspace: "app-workspace",
-  create(workspace: any) {
-    // manager.createContext({
-    //   id: "contextid2",
-    //   value: "some-context-value2",
-    //   workspace: "app-workspace",
-    //   create(workspace) {
-    //     let userRepo = manager.query<IUserRepository>(workspace + "/user-repo");
-    //     userRepo.repository.getUsers(1);
-    //   },
-    // });
-    let userRepo = manager.query<IUserRepository>(workspace + "/user-repo");
-    userRepo.repository.getUsers(1);
-  },
+});
+
+context.provider("PROVIDER VALUE", () => {
+  let userRepo = manager.query<IUserRepository>("app-workspace/user-repo");
+  userRepo.repository.getUsers(3);
 });
 
 // let userRepo = manager.query<IUserRepository>("app-workspace/user-repo");

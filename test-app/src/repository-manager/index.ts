@@ -30,7 +30,7 @@ const repositoryManager = () => {
     createContext<V = any>(config: IContext<V>) {
       const workspace = store.getState(config.workspace)!;
       // console.log("CREATE CONTEXT", workspace);
-      workspace.createContext<V>(config);
+      return workspace.createContext<V>(config);
     },
   };
 };

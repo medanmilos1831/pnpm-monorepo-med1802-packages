@@ -16,7 +16,11 @@ export type queryRepositoryType<I = any, R = any> = (id: string) => {
 export interface IWorkspace<I = any, R = any> {
   defineRepository(repositoryPlugin: IRepositoryPlugin<I, R>): void;
   queryRepository: queryRepositoryType<I, R>;
-  createContext: <V = any>(config: IContext<V>) => void;
+  createContext: <V = any>(
+    config: IContext<V>
+  ) => {
+    provider(value: any, create: (value: any) => void): void;
+  };
 }
 
 export interface IRepositoryInstance<R = any> {
@@ -44,5 +48,4 @@ export interface IContext<V = any> {
   id: string;
   value: V;
   workspace: string;
-  create: (workspaceId: string) => void;
 }

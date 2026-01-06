@@ -46,8 +46,8 @@ function createWorkspace<I extends Record<string, any>>(
             repositoryPlugin,
             (id: any) => {
               const value = contextStore.getState("stack")!;
-              console.log("VALUE", value);
               let result = value.filter((item: any) => item.id === id);
+              console.log("RESULT", result[0]?.value);
               return result[0]?.value;
             }
           )
@@ -91,16 +91,23 @@ function createWorkspace<I extends Record<string, any>>(
   }
 
   function createContext<V = any>(config: IContext<V>) {
-    const stack = contextStore.getState("stack");
-    if (!stack) {
-      throw new Error("Context stack not found");
-    }
-    try {
-      stack.push(config);
-      config.create(config.workspace);
-    } finally {
-      // stack.pop();
-    }
+    return {
+      provider(value: any, create: (value: any) => void) {
+        const stack = contextStore.getState("stack");
+        if (!stack) {
+          throw new Error("Context stack not found");
+        }
+        try {
+          if (value) {
+            config.value = value;
+          }
+          stack.push(config);
+          create(config.workspace);
+        } finally {
+          stack.pop();
+        }
+      },
+    };
   }
 
   return {
