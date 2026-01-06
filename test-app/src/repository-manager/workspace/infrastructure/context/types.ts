@@ -1,5 +1,4 @@
 export interface IContextConfig<V = any> {
-  id: string;
   value?: V;
 }
 

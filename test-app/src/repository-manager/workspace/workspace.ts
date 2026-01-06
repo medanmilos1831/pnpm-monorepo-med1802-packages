@@ -19,14 +19,8 @@ function createWorkspace<I extends Record<string, any>>(
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
   const contextStore = createStore<IContextConfig<any>[]>();
-  const userContext = createContext({
-    id: "user-context",
-    value: "***** DEFAULT USER VALUE *****",
-  });
-  const companyContext = createContext({
-    id: "company-context",
-    value: "***** DEFAULT COMPANY VALUE *****",
-  });
+  const userContext = createContext("***** DEFAULT USER VALUE *****");
+  const companyContext = createContext("***** DEFAULT COMPANY VALUE *****");
   userContext.provider({
     value: "***** OVERRIDE *****",
     children: () => {
@@ -35,16 +29,16 @@ function createWorkspace<I extends Record<string, any>>(
         children: () => {
           const user = useCtx(userContext);
           const company = useCtx(companyContext);
-          // console.log("user", user);
-          // console.log("company", company);
+          console.log("user", user);
+          console.log("company", company);
         },
       });
     },
   });
   const user = useCtx(userContext);
   const company = useCtx(companyContext);
-  // console.log("OUT OF USER CONTEXT", user);
-  // console.log("OUT OF COMPANY CONTEXT", company);
+  console.log("OUT OF USER CONTEXT", user);
+  console.log("OUT OF COMPANY CONTEXT", company);
   const repositoryServices = createRepositoryModule({
     store,
     logger,
