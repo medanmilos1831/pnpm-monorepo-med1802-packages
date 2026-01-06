@@ -1,7 +1,7 @@
 import { repositoryManager } from "../repository-manager";
 
 interface IUserRepository {
-  getUsers(id: number): void;
+  getUsers(id: string): void;
 }
 
 const manager = repositoryManager();
@@ -15,19 +15,22 @@ const infrastructure = {
     },
   },
 };
-const { defineRepository } = manager.workspace(infrastructure, {
-  id: "app-workspace",
-  logging: false,
-});
+const { defineRepository, createContext, queryRepository } = manager.workspace(
+  infrastructure,
+  {
+    id: "app-workspace",
+    logging: false,
+  }
+);
 
-defineRepository<IUserRepository>({
+defineRepository<IUserRepository, string>({
   id: "user-repo",
   install(infrastructure, ctx) {
     return {
-      getUsers(id: number) {
+      getUsers(params: string) {
         const value = ctx("contextid");
-        console.log("VALUE", value, id);
-        // infrastructure.someHttpsModule.get();
+        console.log("CONTEXT VALUE", value);
+        console.log("PARAMS", params);
       },
     };
   },
@@ -40,19 +43,24 @@ defineRepository<IUserRepository>({
   middlewares: [],
 });
 
-const context = manager.createContext({
+const context = createContext<string>({
   id: "contextid",
   value: "CONTEXT VALUE",
-  workspace: "app-workspace",
 });
 
-context.provider("PROVIDER VALUE", () => {
-  let userRepo = manager.query<IUserRepository>("app-workspace/user-repo");
-  userRepo.repository.getUsers(3);
+context.provider("PROVIDER VALUE 1", () => {
+  // console.log("PROVIDER VALUE 1");
+  context.provider("PROVIDER VALUE 2", () => {
+    // console.log("PROVIDER VALUE 2");
+    let userRepo = queryRepository<IUserRepository>("user-repo");
+    userRepo.repository.getUsers("*****IN CONTEXT 2*****");
+  });
+  let userRepo = queryRepository<IUserRepository>("user-repo");
+  userRepo.repository.getUsers("*****IN CONTEXT 1*****");
 });
 
-// let userRepo = manager.query<IUserRepository>("app-workspace/user-repo");
-// userRepo.repository.getUsers(3);
+let userRepo = queryRepository<IUserRepository>("user-repo");
+userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
 
 const HomePage = () => {
   return <></>;

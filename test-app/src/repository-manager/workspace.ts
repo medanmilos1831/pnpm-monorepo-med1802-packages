@@ -4,11 +4,11 @@ import { createStore } from "./store";
 import type {
   IConfiguration,
   IContext,
+  IContextConfig,
   IRepositoryInstance,
   IRepositoryPlugin,
-  IWorkspace,
+  repositoryType,
 } from "./types";
-import type { queryRepositoryType } from "./types";
 
 function createWorkspace<I extends Record<string, any>>(
   infrastructure: I,
@@ -20,7 +20,7 @@ function createWorkspace<I extends Record<string, any>>(
   };
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
-  const contextStore = createStore<IContext[]>();
+  const contextStore = createStore<IContextConfig<any>[]>();
   contextStore.setState("stack", []);
   function hasRepository(id: string) {
     return store.hasState(id);
@@ -32,7 +32,7 @@ function createWorkspace<I extends Record<string, any>>(
     }));
   }
 
-  function defineRepository<R = any>(
+  function defineRepository<R = any, C = any>(
     repositoryPlugin: IRepositoryPlugin<I, R>
   ) {
     const { id } = repositoryPlugin;
@@ -44,11 +44,10 @@ function createWorkspace<I extends Record<string, any>>(
           createRepositoryAccessor(
             infrastructure,
             repositoryPlugin,
-            (id: any) => {
+            (id: string) => {
               const value = contextStore.getState("stack")!;
               let result = value.filter((item: any) => item.id === id);
-              console.log("RESULT", result[0]?.value);
-              return result[0]?.value;
+              return result[result.length - 1]?.value as C;
             }
           )
         );
@@ -67,7 +66,7 @@ function createWorkspace<I extends Record<string, any>>(
     );
   }
 
-  function queryRepository(id: string) {
+  function queryRepository<R = any>(id: string) {
     const entity = store.getState(id);
     if (!entity) {
       throw new Error(`Repository "${id}" not found`);
@@ -83,26 +82,23 @@ function createWorkspace<I extends Record<string, any>>(
     });
     const { repository } = entity;
     return {
-      repository,
+      repository: repository as ReturnType<repositoryType<I, R>>,
       disconnect() {
         entity.disconnect();
       },
     };
   }
 
-  function createContext<V = any>(config: IContext<V>) {
+  function createContext<V = any>(config: IContextConfig<V>) {
     return {
-      provider(value: any, create: (value: any) => void) {
+      provider(value: V, create: () => void) {
         const stack = contextStore.getState("stack");
         if (!stack) {
           throw new Error("Context stack not found");
         }
         try {
-          if (value) {
-            config.value = value;
-          }
-          stack.push(config);
-          create(config.workspace);
+          stack.push(value ? { ...config, value } : config);
+          create();
         } finally {
           stack.pop();
         }

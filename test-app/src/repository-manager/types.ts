@@ -8,19 +8,15 @@ export interface IConfiguration {
   logging?: boolean;
 }
 
-export type queryRepositoryType<I = any, R = any> = (id: string) => {
-  repository: ReturnType<repositoryType<I, R>>;
-  disconnect(): void;
-};
-
 export interface IWorkspace<I = any, R = any> {
   defineRepository(repositoryPlugin: IRepositoryPlugin<I, R>): void;
-  queryRepository: queryRepositoryType<I, R>;
-  createContext: <V = any>(
-    config: IContext<V>
-  ) => {
-    provider(value: any, create: (value: any) => void): void;
+  queryRepository<I = any, R = any>(
+    id: string
+  ): {
+    repository: ReturnType<repositoryType<I, R>>;
+    disconnect(): void;
   };
+  createContext: IContext;
 }
 
 export interface IRepositoryInstance<R = any> {
@@ -44,8 +40,15 @@ export interface IRepositoryPlugin<I = any, R = any> {
   onDisconnect?: () => void;
 }
 
-export interface IContext<V = any> {
+export interface IContextConfig<V = any> {
   id: string;
   value: V;
-  workspace: string;
+}
+
+export interface IContext {
+  createContext<V = any>(
+    config: IContextConfig<V>
+  ): {
+    provider(value: V, create: () => void): void;
+  };
 }
