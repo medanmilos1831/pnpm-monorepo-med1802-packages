@@ -5,6 +5,7 @@ import type {
   IConfiguration,
   IContext,
   IContextConfig,
+  IContextProviderOptions,
   IRepositoryInstance,
   IRepositoryPlugin,
   repositoryType,
@@ -91,14 +92,15 @@ function createWorkspace<I extends Record<string, any>>(
 
   function createContext<V = any>(config: IContextConfig<V>) {
     return {
-      provider(value: V, create: () => void) {
+      provider(options: IContextProviderOptions) {
+        const { value, children } = options;
         const stack = contextStore.getState("stack");
         if (!stack) {
           throw new Error("Context stack not found");
         }
         try {
           stack.push(value ? { ...config, value } : config);
-          create();
+          children();
         } finally {
           stack.pop();
         }

@@ -42,13 +42,18 @@ export interface IRepositoryPlugin<I = any, R = any> {
 
 export interface IContextConfig<V = any> {
   id: string;
-  value: V;
+  value?: V;
+}
+
+export interface IContextProviderOptions<V = any> {
+  value?: V;
+  children: () => void;
 }
 
 export interface IContext {
   createContext<V = any>(
     config: IContextConfig<V>
   ): {
-    provider(value: V, create: () => void): void;
+    provider(options: IContextProviderOptions<V>): void;
   };
 }

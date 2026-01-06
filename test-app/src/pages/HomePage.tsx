@@ -48,15 +48,12 @@ const context = createContext<string>({
   value: "CONTEXT VALUE",
 });
 
-context.provider("PROVIDER VALUE 1", () => {
-  // console.log("PROVIDER VALUE 1");
-  context.provider("PROVIDER VALUE 2", () => {
-    // console.log("PROVIDER VALUE 2");
+context.provider({
+  value: "PROVIDER VALUE 1",
+  children: () => {
     let userRepo = queryRepository<IUserRepository>("user-repo");
-    userRepo.repository.getUsers("*****IN CONTEXT 2*****");
-  });
-  let userRepo = queryRepository<IUserRepository>("user-repo");
-  userRepo.repository.getUsers("*****IN CONTEXT 1*****");
+    userRepo.repository.getUsers("*****IN CONTEXT 1*****");
+  },
 });
 
 let userRepo = queryRepository<IUserRepository>("user-repo");
