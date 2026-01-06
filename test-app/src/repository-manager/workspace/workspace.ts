@@ -4,7 +4,7 @@ import {
   createRepositoryServices,
   type IContextConfig,
   type IRepositoryInstance,
-} from "./core";
+} from "./modules";
 import { createLogger, createStore } from "./infrastructure";
 
 function createWorkspace<I extends Record<string, any>>(

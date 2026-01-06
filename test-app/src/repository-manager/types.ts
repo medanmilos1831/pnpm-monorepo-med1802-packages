@@ -1,8 +1,8 @@
-import type { IContext } from "./workspace/core";
+import type { IContext } from "./workspace/modules";
 import type {
   IRepositoryPlugin,
   repositoryType,
-} from "./workspace/core/repository/types";
+} from "./workspace/modules/repository/types";
 
 export interface IConfiguration {
   id: string;

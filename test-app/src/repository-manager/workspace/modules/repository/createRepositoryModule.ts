@@ -1,14 +1,13 @@
 import { createRepositoryAccessor } from "./repositoryAccessor";
-import type { IContextConfig } from "../../../types";
-import type { createStore } from "../../infrastructure";
-import type { createLogger } from "../../infrastructure/logger";
+import type { IContextConfig } from "../context/types";
 import type {
   IRepositoryInstance,
   IRepositoryPlugin,
   repositoryType,
 } from "./types";
+import type { createStore, createLogger } from "../../infrastructure";
 
-function createRepositoryServices<I extends Record<string, any>>({
+function createRepositoryModule<I extends Record<string, any>>({
   store,
   logger,
   infrastructure,
@@ -88,9 +87,7 @@ function createRepositoryServices<I extends Record<string, any>>({
   return {
     queryRepository,
     defineRepository,
-    hasRepository,
-    allRepositories,
   };
 }
 
-export { createRepositoryServices };
+export { createRepositoryModule };
