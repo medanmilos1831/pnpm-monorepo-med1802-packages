@@ -1,4 +1,4 @@
-# 🔄 Repository Manager v3
+# 🔄 Repository Manager
 
 A lightweight, type-safe repository manager with dependency injection, scope management, lifecycle management, and multi-workspace support for TypeScript/JavaScript applications.
 
