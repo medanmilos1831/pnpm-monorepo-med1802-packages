@@ -15,20 +15,25 @@ const infrastructure = {
     },
   },
 };
-const { defineRepository, createContext, queryRepository } = manager.workspace(
-  infrastructure,
-  {
+const { defineRepository, createScope, queryRepository, useScope } =
+  manager.workspace(infrastructure, {
     id: "app-workspace",
     logging: false,
-  }
-);
+  });
 
-defineRepository<IUserRepository, string>({
+const userScope = createScope({
+  fname: "Milos",
+});
+
+defineRepository({
   id: "user-repo",
-  install(infrastructure) {
+  install(infrastructure, uScope) {
     return {
       getUsers(params: string) {
-        console.log("PARAMS", params);
+        // console.log("PARAMS", params);
+        // console.log("USE SCOPE", useScope);
+        const value = uScope(userScope);
+        // console.log("VALUE", value);
         // const value = ctx("contextid");
         // console.log("CONTEXT VALUE", value);
         // console.log("PARAMS", params);
@@ -44,6 +49,16 @@ defineRepository<IUserRepository, string>({
   middlewares: [],
 });
 
+userScope.provider({
+  value: {
+    fname: "MARKO",
+  },
+  children() {
+    let userRepo = queryRepository<IUserRepository>("user-repo");
+    userRepo.repository.getUsers("*****IN CONTEXT*****");
+  },
+});
+
 // const context = createContext<string>({
 //   id: "contextid",
 //   value: "CONTEXT VALUE",
@@ -57,8 +72,8 @@ defineRepository<IUserRepository, string>({
 //   },
 // });
 
-let userRepo = queryRepository<IUserRepository>("user-repo");
-userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
+// let userRepo = queryRepository<IUserRepository>("user-repo");
+// userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
 
 const HomePage = () => {
   return <></>;

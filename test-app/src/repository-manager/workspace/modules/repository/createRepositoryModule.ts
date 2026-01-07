@@ -3,9 +3,8 @@ import type { IRepositoryPlugin, repositoryType } from "./types";
 import { useScope } from "../../infrastructure";
 import { repositoryScope } from "../../providers";
 
-function createRepositoryModule<I extends Record<string, any>>() {
-  const { store, logger, infrastructure, contextStore } =
-    useScope(repositoryScope);
+function createRepositoryModule<I>() {
+  const { store, logger, infrastructure } = useScope(repositoryScope);
   function hasRepository(id: string) {
     return store.hasState(id);
   }
@@ -16,7 +15,7 @@ function createRepositoryModule<I extends Record<string, any>>() {
     }));
   }
 
-  function defineRepository<R = any, C = any>(
+  function defineRepository<R = any>(
     repositoryPlugin: IRepositoryPlugin<I, R>
   ) {
     const { id } = repositoryPlugin;

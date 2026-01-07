@@ -1,4 +1,9 @@
-export type repositoryType<I = any, R = any> = (infrastructure: I) => R;
+import type { IUseScope } from "../../infrastructure/scope";
+
+export type repositoryType<I = any, R = any> = (
+  infrastructure: I,
+  useScope: IUseScope<any>
+) => R;
 
 export interface IRepositoryPlugin<I = any, R = any> {
   id: string;

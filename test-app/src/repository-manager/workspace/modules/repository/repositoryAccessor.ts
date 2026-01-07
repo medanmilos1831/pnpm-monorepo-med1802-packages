@@ -1,7 +1,8 @@
+import { useScope } from "../../infrastructure";
 import { applyMiddleware } from "./middleware";
 import type { IRepositoryPlugin } from "./types";
 
-function createRepositoryAccessor<I extends Record<string, any>>(
+function createRepositoryAccessor<I>(
   infrastructure: I,
   repositoryPlugin: IRepositoryPlugin<I, any>
 ) {
@@ -17,7 +18,7 @@ function createRepositoryAccessor<I extends Record<string, any>>(
     },
     connect() {
       if (connections === 0) {
-        const rawRepository = install(infrastructure);
+        const rawRepository = install(infrastructure, useScope);
         repository = middlewares
           ? applyMiddleware(rawRepository, middlewares)
           : rawRepository;
