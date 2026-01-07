@@ -1,8 +1,8 @@
-import type { IUseScope } from "../../infrastructure/scope";
+import type { useScope } from "../../infrastructure/scope";
 
 export type repositoryType<I = any, R = any> = (
   infrastructure: I,
-  useScope: IUseScope<any>
+  getScope: typeof useScope
 ) => R;
 
 export interface IRepositoryPlugin<I = any, R = any> {

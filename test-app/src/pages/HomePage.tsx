@@ -24,19 +24,17 @@ const { defineRepository, createScope, queryRepository, useScope } =
 const userScope = createScope({
   fname: "Milos",
 });
+const companyScope = createScope({
+  name: "Company Name",
+});
 
 defineRepository({
   id: "user-repo",
-  install(infrastructure, uScope) {
+  install(infrastructure, useScope) {
     return {
       getUsers(params: string) {
-        // console.log("PARAMS", params);
-        // console.log("USE SCOPE", useScope);
-        const value = uScope(userScope);
-        // console.log("VALUE", value);
-        // const value = ctx("contextid");
-        // console.log("CONTEXT VALUE", value);
-        // console.log("PARAMS", params);
+        const value = useScope(companyScope);
+        console.log("VALUE", value);
       },
     };
   },

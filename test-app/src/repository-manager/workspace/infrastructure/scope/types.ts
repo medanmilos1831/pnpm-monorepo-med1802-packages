@@ -7,7 +7,3 @@ export interface IScopeProviderOptions<V = any> {
   value: V;
   children: () => void;
 }
-
-export interface IUseScope<V> {
-  (ctx: IScope<V>): V;
-}
