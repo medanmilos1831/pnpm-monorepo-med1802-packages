@@ -1,4 +1,4 @@
-import type { IConfiguration } from "./types";
+import type { IConfiguration } from "./workspace/types";
 import { createWorkspace } from "./workspace";
 import { createStore } from "./workspace/infrastructure";
 import type { IScope } from "./workspace/infrastructure/scope";
