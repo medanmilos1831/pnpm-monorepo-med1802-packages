@@ -1,42 +1,30 @@
-import { createLogger } from "./logger";
 import { createRepositoryAccessor } from "./repositoryAccessor";
-import { createStore } from "./store";
-import type {
-  IConfiguration,
-  ILifeCycle,
-  IRepositoryConfig,
-  IRepositoryInstance,
-  repositoryType,
-} from "./types";
+import type { IRepositoryPlugin, repositoryType } from "./types";
+import { useScope } from "../../infrastructure";
+import { repositoryScope } from "../../providers";
 
-function createWorkspace<I extends Record<string, any>>(
-  infrastructure: I,
-  config: IConfiguration
-) {
-  const defaultConfig: IConfiguration = {
-    id: config.id,
-    logging: config.logging ?? false,
-  };
-  const logger = createLogger(defaultConfig);
-  const store = createStore<IRepositoryInstance<any>>();
-  const hasRepository = (id: string) => store.hasState(id);
-  const allRepositories = () =>
-    Array.from(store.getEntries()).map(([id, repository]) => ({
+function createRepositoryModule<I>() {
+  const { store, logger, infrastructure } = useScope(repositoryScope);
+  function hasRepository(id: string) {
+    return store.hasState(id);
+  }
+  function allRepositories() {
+    return Array.from(store.getEntries()).map(([id, repository]: any) => ({
       repository: id,
       connections: repository.connections,
     }));
+  }
 
-  const defineRepository = (
-    id: string,
-    repository: repositoryType<I, any>,
-    config?: IRepositoryConfig
-  ) => {
+  function defineRepository<R = any>(
+    repositoryPlugin: IRepositoryPlugin<I, R>
+  ) {
+    const { id } = repositoryPlugin;
     if (hasRepository(id)) return;
     logger.log(
       () => {
         store.setState(
           id,
-          createRepositoryAccessor(repository, infrastructure, config)
+          createRepositoryAccessor(infrastructure, repositoryPlugin)
         );
       },
       {
@@ -51,9 +39,9 @@ function createWorkspace<I extends Record<string, any>>(
         },
       }
     );
-  };
+  }
 
-  const queryRepository = (id: string) => {
+  function queryRepository<R = any>(id: string) {
     const entity = store.getState(id);
     if (!entity) {
       throw new Error(`Repository "${id}" not found`);
@@ -69,17 +57,16 @@ function createWorkspace<I extends Record<string, any>>(
     });
     const { repository } = entity;
     return {
-      repository,
+      repository: repository as ReturnType<repositoryType<I, R>>,
       disconnect() {
         entity.disconnect();
       },
     };
-  };
-
+  }
   return {
-    defineRepository,
     queryRepository,
+    defineRepository,
   };
 }
 
-export { createWorkspace };
+export { createRepositoryModule };

@@ -1,9 +1,6 @@
 import type { Middleware } from "./types";
 
-export function applyMiddleware(
-  repository: any,
-  middlewares: Middleware[]
-) {
+export function applyMiddleware(repository: any, middlewares: Middleware[]) {
   if (!middlewares || middlewares.length === 0) {
     return repository;
   }
@@ -38,4 +35,3 @@ export function applyMiddleware(
     },
   });
 }
-
