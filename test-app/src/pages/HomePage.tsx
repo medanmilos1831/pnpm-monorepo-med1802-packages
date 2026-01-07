@@ -15,11 +15,13 @@ const infrastructure = {
     },
   },
 };
-const { defineRepository, createScope, queryRepository, useScope } =
-  manager.workspace(infrastructure, {
+const { defineRepository, createScope, queryRepository } = manager.workspace(
+  infrastructure,
+  {
     id: "app-workspace",
     logging: false,
-  });
+  }
+);
 
 const userScope = createScope({
   fname: "Milos",
@@ -30,7 +32,8 @@ const companyScope = createScope({
 
 defineRepository({
   id: "user-repo",
-  install(infrastructure, useScope) {
+  install({ instance }) {
+    const { infrastructure, useScope } = instance;
     return {
       getUsers(params: string) {
         const value = useScope(companyScope);

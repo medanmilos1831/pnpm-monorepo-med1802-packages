@@ -1,9 +1,11 @@
 import type { useScope } from "../../infrastructure/scope";
 
-export type repositoryType<I = any, R = any> = (
-  infrastructure: I,
-  getScope: typeof useScope
-) => R;
+export type repositoryType<I = any, R = any> = (obj: {
+  instance: {
+    infrastructure: I;
+    useScope: typeof useScope;
+  };
+}) => R;
 
 export interface IRepositoryPlugin<I = any, R = any> {
   id: string;

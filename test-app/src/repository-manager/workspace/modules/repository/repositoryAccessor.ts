@@ -18,7 +18,9 @@ function createRepositoryAccessor<I>(
     },
     connect() {
       if (connections === 0) {
-        const rawRepository = install(infrastructure, useScope);
+        const rawRepository = install({
+          instance: { infrastructure, useScope },
+        });
         repository = middlewares
           ? applyMiddleware(rawRepository, middlewares)
           : rawRepository;

@@ -12,7 +12,6 @@ const repositoryManager = () => {
         defineRepository: workspace.defineRepository,
         queryRepository: workspace.queryRepository,
         createScope: workspace.createScope,
-        useScope: workspace.useScope,
       };
     },
   };
