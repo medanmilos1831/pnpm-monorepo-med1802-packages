@@ -1,6 +1,7 @@
 import type { IConfiguration } from "./types";
 import { createWorkspace } from "./workspace";
 import { createStore } from "./workspace/infrastructure";
+import type { IScope } from "./workspace/infrastructure/scope";
 
 const repositoryManager = () => {
   const store = createStore<ReturnType<typeof createWorkspace>>();
@@ -11,7 +12,9 @@ const repositoryManager = () => {
       return {
         defineRepository: workspace.defineRepository,
         queryRepository: workspace.queryRepository,
-        createScope: workspace.createScope,
+        createScope: workspace.createScope as unknown as <V = any>(
+          defaultValue: V
+        ) => IScope<V>,
       };
     },
   };
