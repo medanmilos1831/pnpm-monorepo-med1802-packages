@@ -622,11 +622,3 @@ try {
   console.error("Scope error:", error);
 }
 ```
-
-## 📝 License
-
-MIT
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
