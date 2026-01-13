@@ -1,32 +1,29 @@
+import { createScope, useScope } from "./infrastructure";
+import { createRepositoryModule } from "./modules";
+import { repositoryProvider } from "./providers";
 import type { IConfiguration } from "./types";
-import { createRepositoryModule, type IRepositoryInstance } from "./modules";
-import {
-  createScope,
-  createLogger,
-  createStore,
-  useScope,
-} from "./infrastructure";
-import { repositoryScope } from "./providers";
 
 function createWorkspace<I>(infrastructure: I, config: IConfiguration) {
-  const defaultConfig: IConfiguration = {
-    id: config.id,
-    logging: config.logging ?? false,
+  let repositoryModule = {
+    defineRepository: null,
+    queryRepository: null,
+    setDefineRepository(params: any) {
+      this.defineRepository = params;
+    },
+    setQueryRepository(params: any) {
+      this.queryRepository = params;
+    },
   };
-  const logger = createLogger(defaultConfig);
-  const store = createStore<IRepositoryInstance<any>>();
-  let repositoryModule!: ReturnType<typeof createRepositoryModule<I>>;
-  repositoryScope.provider({
-    value: {
-      store,
-      logger,
+  repositoryProvider(
+    {
+      config,
       infrastructure,
+      repositoryModule,
     },
-    children: () => {
-      repositoryModule = createRepositoryModule<I>();
-    },
-  });
-
+    () => {
+      createRepositoryModule<I>();
+    }
+  );
   return {
     defineRepository: repositoryModule.defineRepository,
     queryRepository: repositoryModule.queryRepository,
