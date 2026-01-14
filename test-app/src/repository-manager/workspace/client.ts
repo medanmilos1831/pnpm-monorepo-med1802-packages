@@ -1,8 +1,11 @@
-import { createRepository } from "./repository";
-import type { IRepositoryPlugin, repositoryType } from "./types";
+import {
+  createRepository,
+  type IRepositoryPlugin,
+  type repositoryType,
+} from "../core";
 import { workspace } from "../workspace";
 
-function createRepositoryClient<I>() {
+function createWorkspaceClient<I>() {
   const { store, logger, infrastructure } = workspace<I>();
   function hasRepository(id: string) {
     return store.hasState(id);
@@ -65,4 +68,4 @@ function createRepositoryClient<I>() {
   };
 }
 
-export { createRepositoryClient };
+export { createWorkspaceClient };

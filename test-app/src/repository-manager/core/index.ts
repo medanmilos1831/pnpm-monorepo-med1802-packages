@@ -1,2 +1,2 @@
-export * from "./createRepositoryClient";
+export * from "./repository";
 export * from "./types";
