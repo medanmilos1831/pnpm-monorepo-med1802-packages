@@ -10,17 +10,11 @@ import type { IConfiguration } from "./types";
 
 const workspaceScope = createScope<any>(undefined);
 
-const createWorkspace = (
-  params: {
-    config: IConfiguration;
-    infrastructure: any;
-  },
-  child: () => void
-) => {
-  const { config, infrastructure } = params;
-  const defaultConfig: IConfiguration = {
-    id: config.id,
-    logging: config.logging ?? false,
+function createWorkspace(params: IConfiguration, child: () => void) {
+  const { id, logging, infrastructure } = params;
+  const defaultConfig: Omit<IConfiguration, "infrastructure"> = {
+    id,
+    logging: logging ?? false,
   };
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
@@ -34,7 +28,7 @@ const createWorkspace = (
       child();
     }
   );
-};
+}
 
 const workspace = () => {
   const context = useScope(workspaceScope);

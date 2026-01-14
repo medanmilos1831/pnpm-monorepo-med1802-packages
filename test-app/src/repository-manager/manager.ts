@@ -1,19 +1,13 @@
 import { createRepositoryModule } from "./repository";
-import { createWorkspace, type IConfiguration } from "./workspace";
+import { createWorkspace as mount, type IConfiguration } from "./workspace";
 
 const repositoryManager = () => {
   return {
-    createWorkspace<I>(infrastructure: I, config: IConfiguration) {
+    createWorkspace<I>(config: IConfiguration<I>) {
       let client: ReturnType<typeof createRepositoryModule<I>> = undefined!;
-      createWorkspace(
-        {
-          config,
-          infrastructure,
-        },
-        () => {
-          client = createRepositoryModule<I>();
-        }
-      );
+      mount(config, () => {
+        client = createRepositoryModule<I>();
+      });
       return client;
     },
   };

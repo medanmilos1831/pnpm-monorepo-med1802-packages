@@ -19,13 +19,11 @@ const infrastructure = {
     },
   },
 };
-const { defineRepository, queryRepository } = manager.createWorkspace(
+const { defineRepository, queryRepository } = manager.createWorkspace({
+  id: "app-workspace",
+  logging: false,
   infrastructure,
-  {
-    id: "app-workspace",
-    logging: false,
-  }
-);
+});
 defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
@@ -45,9 +43,10 @@ defineRepository<IUserRepository>({
   middlewares: [],
 });
 
-const workspaceTwo = manager.createWorkspace(infrastructure, {
+const workspaceTwo = manager.createWorkspace({
   id: "app-two-workspace",
   logging: false,
+  infrastructure,
 });
 
 workspaceTwo.defineRepository<ICompanyRepository>({
