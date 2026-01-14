@@ -66,36 +66,10 @@ workspaceTwo.defineRepository<ICompanyRepository>({
   },
 });
 
-// userScope.provider({
-//   value: {
-//     fname: "MARKO",
-//   },
-//   children() {
-//     let userRepo = queryRepository<IUserRepository>("user-repo");
-//     userRepo.repository.getUsers("*****IN CONTEXT*****");
-//   },
-// });
-
-// const context = createContext<string>({
-//   id: "contextid",
-//   value: "CONTEXT VALUE",
-// });
-
-// context.provider({
-//   value: "PROVIDER VALUE 1",
-//   children: () => {
-//     let userRepo = queryRepository<IUserRepository>("user-repo");
-//     userRepo.repository.getUsers("*****IN CONTEXT 1*****");
-//   },
-// });
-
 let userRepo = queryRepository<IUserRepository>("user-repo");
 let userRepoTwo = queryRepository<IUserRepository>("user-repo");
-// let companyRepo =
-//   workspaceTwo.queryRepository<ICompanyRepository>("company-repo");
 userRepo.repository.getUsers(123);
 userRepoTwo.repository.getUsers(321);
-// companyRepo.repository.getCompanies(544534);
 
 const HomePage = () => {
   return <></>;
