@@ -4,24 +4,14 @@ import { repositoryProvider } from "./providers";
 import type { IConfiguration } from "./types";
 
 function createWorkspace<I>(infrastructure: I, config: IConfiguration) {
-  let repositoryModule = {
-    defineRepository: null,
-    queryRepository: null,
-    setDefineRepository(params: any) {
-      this.defineRepository = params;
-    },
-    setQueryRepository(params: any) {
-      this.queryRepository = params;
-    },
-  };
+  let repositoryModule!: ReturnType<typeof createRepositoryModule<I>>;
   repositoryProvider(
     {
       config,
       infrastructure,
-      repositoryModule,
     },
     () => {
-      createRepositoryModule<I>();
+      repositoryModule = createRepositoryModule<I>();
     }
   );
   return {

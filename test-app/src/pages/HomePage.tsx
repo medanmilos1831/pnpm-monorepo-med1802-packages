@@ -1,7 +1,7 @@
 import { repositoryManager } from "../repository-manager";
 
 interface IUserRepository {
-  getUsers(id: string): void;
+  getUsers(id: number): void;
 }
 
 const manager = repositoryManager();
@@ -30,14 +30,13 @@ const companyScope = createScope({
   name: "Company Name",
 });
 
-defineRepository({
+defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
     const { infrastructure, useScope } = instance;
     return {
-      getUsers(params: string) {
-        const value = useScope(companyScope);
-        console.log("VALUE", value);
+      getUsers(params) {
+        console.log("GET USERS", params);
       },
     };
   },
@@ -50,15 +49,15 @@ defineRepository({
   middlewares: [],
 });
 
-userScope.provider({
-  value: {
-    fname: "MARKO",
-  },
-  children() {
-    let userRepo = queryRepository<IUserRepository>("user-repo");
-    userRepo.repository.getUsers("*****IN CONTEXT*****");
-  },
-});
+// userScope.provider({
+//   value: {
+//     fname: "MARKO",
+//   },
+//   children() {
+//     let userRepo = queryRepository<IUserRepository>("user-repo");
+//     userRepo.repository.getUsers("*****IN CONTEXT*****");
+//   },
+// });
 
 // const context = createContext<string>({
 //   id: "contextid",
@@ -73,8 +72,8 @@ userScope.provider({
 //   },
 // });
 
-// let userRepo = queryRepository<IUserRepository>("user-repo");
-// userRepo.repository.getUsers("*****OUT OF CONTEXT*****");
+let userRepo = queryRepository<IUserRepository>("user-repo");
+userRepo.repository.getUsers(123);
 
 const HomePage = () => {
   return <></>;

@@ -1,5 +1,5 @@
 import { createStore } from "../store";
-import type { IScope, IScopeProviderOptions } from "./types";
+import type { IScope } from "./types";
 
 function createScope<V = any>(
   defaultValue: V
@@ -7,14 +7,13 @@ function createScope<V = any>(
   const store = createStore<V[]>();
   store.setState("stack", []);
   const stack = store.getState("stack");
-  function provider(options: IScopeProviderOptions) {
-    const { value, children } = options;
+  function provider(initialValue: V, children: () => void) {
     const stack = store.getState("stack");
     if (!stack) {
       throw new Error("Scope stack not found");
     }
     try {
-      stack.push(value ? value : defaultValue);
+      stack.push(initialValue ? initialValue : defaultValue);
       children();
     } finally {
       stack.pop();

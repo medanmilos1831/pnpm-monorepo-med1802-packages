@@ -13,26 +13,26 @@ const repositoryProvider = (
   params: {
     config: IConfiguration;
     infrastructure: any;
-    repositoryModule: any;
   },
   child: () => void
 ) => {
-  const { config, infrastructure, repositoryModule } = params;
+  const { config, infrastructure } = params;
   const defaultConfig: IConfiguration = {
     id: config.id,
     logging: config.logging ?? false,
   };
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
-  repositoryScope.provider({
-    value: {
+  repositoryScope.provider(
+    {
       store,
       logger,
       infrastructure,
-      repositoryModule,
     },
-    children: child,
-  });
+    () => {
+      child();
+    }
+  );
 };
 
 const consumeRepositoryProvider = () => {

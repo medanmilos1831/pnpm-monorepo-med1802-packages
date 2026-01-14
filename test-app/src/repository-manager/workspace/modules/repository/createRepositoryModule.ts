@@ -4,8 +4,7 @@ import { useScope } from "../../infrastructure";
 import { repositoryScope } from "../../providers";
 
 function createRepositoryModule<I>() {
-  const { store, logger, infrastructure, repositoryModule } =
-    useScope(repositoryScope);
+  const { store, logger, infrastructure } = useScope(repositoryScope);
   function hasRepository(id: string) {
     return store.hasState(id);
   }
@@ -64,8 +63,10 @@ function createRepositoryModule<I>() {
       },
     };
   }
-  repositoryModule.setQueryRepository(queryRepository);
-  repositoryModule.setDefineRepository(defineRepository);
+  return {
+    defineRepository,
+    queryRepository,
+  };
 }
 
 export { createRepositoryModule };
