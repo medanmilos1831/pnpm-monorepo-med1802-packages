@@ -40,7 +40,12 @@ defineRepository<IUserRepository>({
   onDisconnect: () => {
     console.log("ON DISCONNECT");
   },
-  middlewares: [],
+  middlewares: [
+    (method, params, next) => {
+      console.log("MIDDLEWARE", method, params);
+      return next();
+    },
+  ],
 });
 
 const workspaceTwo = manager.createWorkspace({
@@ -85,10 +90,12 @@ workspaceTwo.defineRepository<ICompanyRepository>({
 // });
 
 let userRepo = queryRepository<IUserRepository>("user-repo");
-let companyRepo =
-  workspaceTwo.queryRepository<ICompanyRepository>("company-repo");
+let userRepoTwo = queryRepository<IUserRepository>("user-repo");
+// let companyRepo =
+//   workspaceTwo.queryRepository<ICompanyRepository>("company-repo");
 userRepo.repository.getUsers(123);
-companyRepo.repository.getCompanies(544534);
+userRepoTwo.repository.getUsers(321);
+// companyRepo.repository.getCompanies(544534);
 
 const HomePage = () => {
   return <></>;
