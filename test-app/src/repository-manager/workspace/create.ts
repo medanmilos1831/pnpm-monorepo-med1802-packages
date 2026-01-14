@@ -8,9 +8,15 @@ import type { IRepositoryInstance } from "../repository";
 
 import type { IConfiguration } from "./types";
 
-const workspaceScope = createScope<any>(undefined);
+interface IWorkspaceContext<I = any> {
+  store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;
+  logger: ReturnType<typeof createLogger>;
+  infrastructure: I;
+}
 
-function createWorkspace(params: IConfiguration, child: () => void) {
+const workspaceScope = createScope<IWorkspaceContext | undefined>(undefined);
+
+function createWorkspace<I>(params: IConfiguration<I>, child: () => void) {
   const { id, logging, infrastructure } = params;
   const defaultConfig: Omit<IConfiguration, "infrastructure"> = {
     id,
@@ -30,9 +36,9 @@ function createWorkspace(params: IConfiguration, child: () => void) {
   );
 }
 
-const workspace = () => {
-  const context = useScope(workspaceScope);
+function workspace<I>() {
+  const context = useScope<IWorkspaceContext<I>>(workspaceScope)!;
   return context;
-};
+}
 
 export { createWorkspace, workspace };

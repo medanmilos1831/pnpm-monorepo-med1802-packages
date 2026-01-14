@@ -3,7 +3,6 @@ import type { useScope } from "../infrastructure/scope";
 export type repositoryType<I = any, R = any> = (obj: {
   instance: {
     infrastructure: I;
-    useScope: typeof useScope;
   };
 }) => R;
 

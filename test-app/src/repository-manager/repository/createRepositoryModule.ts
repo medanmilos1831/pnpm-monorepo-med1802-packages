@@ -3,7 +3,7 @@ import type { IRepositoryPlugin, repositoryType } from "./types";
 import { workspace } from "../workspace";
 
 function createRepositoryModule<I>() {
-  const { store, logger, infrastructure } = workspace();
+  const { store, logger, infrastructure } = workspace<I>();
   function hasRepository(id: string) {
     return store.hasState(id);
   }

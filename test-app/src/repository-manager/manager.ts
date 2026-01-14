@@ -5,7 +5,7 @@ const repositoryManager = () => {
   return {
     createWorkspace<I>(config: IConfiguration<I>) {
       let client: ReturnType<typeof createRepositoryModule<I>> = undefined!;
-      mount(config, () => {
+      mount<I>(config, () => {
         client = createRepositoryModule<I>();
       });
       return client;

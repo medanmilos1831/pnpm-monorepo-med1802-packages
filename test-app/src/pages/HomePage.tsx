@@ -27,7 +27,7 @@ const { defineRepository, queryRepository } = manager.createWorkspace({
 defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
-    const { infrastructure, useScope } = instance;
+    const { infrastructure } = instance;
     return {
       getUsers(params) {
         console.log("GET USERS", params);
@@ -52,7 +52,7 @@ const workspaceTwo = manager.createWorkspace({
 workspaceTwo.defineRepository<ICompanyRepository>({
   id: "company-repo",
   install({ instance }) {
-    const { infrastructure, useScope } = instance;
+    const { infrastructure } = instance;
     return {
       getCompanies(params) {
         console.log("GET COMPANIES", params);
