@@ -4,7 +4,7 @@ import {
   createStore,
   useScope,
 } from "../infrastructure";
-import type { IRepositoryInstance } from "../repository";
+import type { IRepositoryInstance } from "../core";
 
 import type { IConfiguration } from "./types";
 

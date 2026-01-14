@@ -1,8 +1,8 @@
-import { createRepositoryAccessor } from "./repositoryAccessor";
+import { createRepository } from "./repository";
 import type { IRepositoryPlugin, repositoryType } from "./types";
 import { workspace } from "../workspace";
 
-function createRepositoryModule<I>() {
+function createRepositoryClient<I>() {
   const { store, logger, infrastructure } = workspace<I>();
   function hasRepository(id: string) {
     return store.hasState(id);
@@ -21,10 +21,7 @@ function createRepositoryModule<I>() {
     if (hasRepository(id)) return;
     logger.log(
       () => {
-        store.setState(
-          id,
-          createRepositoryAccessor(infrastructure, repositoryPlugin)
-        );
+        store.setState(id, createRepository(infrastructure, repositoryPlugin));
       },
       {
         type: "repository.define",
@@ -68,4 +65,4 @@ function createRepositoryModule<I>() {
   };
 }
 
-export { createRepositoryModule };
+export { createRepositoryClient };

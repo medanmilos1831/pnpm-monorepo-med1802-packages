@@ -1,15 +1,14 @@
-import { useScope } from "../infrastructure";
 import { applyMiddleware } from "./middleware";
 import type { IRepositoryPlugin } from "./types";
 
-function createRepositoryAccessor<I>(
+function createRepository<I>(
   infrastructure: I,
   repositoryPlugin: IRepositoryPlugin<I, any>
 ) {
   const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
   let repository = undefined as unknown;
   let connections = 0;
-  const obj = {
+  return {
     get repository() {
       return repository;
     },
@@ -19,7 +18,7 @@ function createRepositoryAccessor<I>(
     connect() {
       if (connections === 0) {
         const rawRepository = install({
-          instance: { infrastructure, useScope },
+          instance: { infrastructure },
         });
         repository = middlewares
           ? applyMiddleware(rawRepository, middlewares)
@@ -41,8 +40,6 @@ function createRepositoryAccessor<I>(
       }
     },
   };
-
-  return obj;
 }
 
-export { createRepositoryAccessor };
+export { createRepository };
