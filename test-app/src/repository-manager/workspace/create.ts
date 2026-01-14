@@ -10,7 +10,7 @@ import type { IConfiguration } from "./types";
 
 const workspaceScope = createScope<any>(undefined);
 
-const mountWorkspace = (
+const createWorkspace = (
   params: {
     config: IConfiguration;
     infrastructure: any;
@@ -41,4 +41,4 @@ const workspace = () => {
   return context;
 };
 
-export { mountWorkspace, workspace };
+export { createWorkspace, workspace };
