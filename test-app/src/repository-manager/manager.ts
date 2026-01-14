@@ -1,20 +1,25 @@
-import type { IConfiguration } from "./workspace/types";
 import { createWorkspace } from "./workspace";
 import { createStore } from "./workspace/infrastructure";
-import type { IScope } from "./workspace/infrastructure/scope";
+import { createRepositoryModule } from "./workspace/modules";
+import { repositoryProvider } from "./workspace/providers";
+import type { IConfiguration } from "./workspace/types";
 
 const repositoryManager = () => {
   const store = createStore<ReturnType<typeof createWorkspace>>();
   return {
     workspace<I>(infrastructure: I, config: IConfiguration) {
-      const workspace = createWorkspace<I>(infrastructure, config);
-      store.setState(config.id, workspace);
+      repositoryProvider(
+        {
+          config,
+          infrastructure,
+        },
+        () => {
+          store.setState(config.id, createRepositoryModule<I>());
+        }
+      );
       return {
-        defineRepository: workspace.defineRepository,
-        queryRepository: workspace.queryRepository,
-        createScope: workspace.createScope as unknown as <V = any>(
-          defaultValue: V
-        ) => IScope<V>,
+        defineRepository: store.getState(config.id)!.defineRepository,
+        queryRepository: store.getState(config.id)!.queryRepository,
       };
     },
   };
