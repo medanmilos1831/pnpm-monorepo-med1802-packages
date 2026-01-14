@@ -4,6 +4,10 @@ interface IUserRepository {
   getUsers(id: number): void;
 }
 
+interface ICompanyRepository {
+  getCompanies(id: number): void;
+}
+
 const manager = repositoryManager();
 const infrastructure = {
   someHttpsModule: {
@@ -41,6 +45,23 @@ defineRepository<IUserRepository>({
   middlewares: [],
 });
 
+const workspaceTwo = manager.workspace(infrastructure, {
+  id: "app-two-workspace",
+  logging: false,
+});
+
+workspaceTwo.defineRepository<ICompanyRepository>({
+  id: "company-repo",
+  install({ instance }) {
+    const { infrastructure, useScope } = instance;
+    return {
+      getCompanies(params) {
+        console.log("GET COMPANIES", params);
+      },
+    };
+  },
+});
+
 // userScope.provider({
 //   value: {
 //     fname: "MARKO",
@@ -65,7 +86,10 @@ defineRepository<IUserRepository>({
 // });
 
 let userRepo = queryRepository<IUserRepository>("user-repo");
+let companyRepo =
+  workspaceTwo.queryRepository<ICompanyRepository>("company-repo");
 userRepo.repository.getUsers(123);
+companyRepo.repository.getCompanies(544534);
 
 const HomePage = () => {
   return <></>;
