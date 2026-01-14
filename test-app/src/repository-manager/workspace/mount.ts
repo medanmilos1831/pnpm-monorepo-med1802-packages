@@ -3,14 +3,14 @@ import {
   createScope,
   createStore,
   useScope,
-} from "../../infrastructure";
+} from "../infrastructure";
 import type { IRepositoryInstance } from "../repository";
 
-import type { IConfiguration } from "../types";
+import type { IConfiguration } from "./types";
 
-const repositoryScope = createScope<any>(undefined);
+const workspaceScope = createScope<any>(undefined);
 
-const repositoryProvider = (
+const mountWorkspace = (
   params: {
     config: IConfiguration;
     infrastructure: any;
@@ -24,7 +24,7 @@ const repositoryProvider = (
   };
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
-  repositoryScope.provider(
+  workspaceScope.provider(
     {
       store,
       logger,
@@ -36,9 +36,9 @@ const repositoryProvider = (
   );
 };
 
-const consumeRepositoryProvider = () => {
-  const context = useScope(repositoryScope);
+const workspace = () => {
+  const context = useScope(workspaceScope);
   return context;
 };
 
-export { repositoryScope, repositoryProvider, consumeRepositoryProvider };
+export { mountWorkspace, workspace };

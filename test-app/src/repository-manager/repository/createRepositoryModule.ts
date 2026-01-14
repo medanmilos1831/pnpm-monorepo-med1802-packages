@@ -1,10 +1,9 @@
 import { createRepositoryAccessor } from "./repositoryAccessor";
 import type { IRepositoryPlugin, repositoryType } from "./types";
-import { useScope } from "../../infrastructure";
-import { repositoryScope } from "../providers";
+import { workspace } from "../workspace";
 
 function createRepositoryModule<I>() {
-  const { store, logger, infrastructure } = useScope(repositoryScope);
+  const { store, logger, infrastructure } = workspace();
   function hasRepository(id: string) {
     return store.hasState(id);
   }

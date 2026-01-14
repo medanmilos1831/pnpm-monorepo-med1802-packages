@@ -1,4 +1,4 @@
-import type { IConfiguration } from "../types";
+import type { IConfiguration } from "../workspace/types";
 
 const createLogger = (config: IConfiguration) => {
   const { logging } = config;

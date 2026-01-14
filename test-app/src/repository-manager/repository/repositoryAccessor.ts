@@ -1,4 +1,4 @@
-import { useScope } from "../../infrastructure";
+import { useScope } from "../infrastructure";
 import { applyMiddleware } from "./middleware";
 import type { IRepositoryPlugin } from "./types";
 

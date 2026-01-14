@@ -1,15 +1,12 @@
 import { createStore } from "./infrastructure";
-import {
-  createRepositoryModule,
-  repositoryProvider,
-  type IConfiguration,
-} from "./workspace";
+import { createRepositoryModule } from "./repository";
+import { mountWorkspace, type IConfiguration } from "./workspace";
 
 const repositoryManager = () => {
   const store = createStore<ReturnType<typeof createRepositoryModule>>();
   return {
     workspace<I>(infrastructure: I, config: IConfiguration) {
-      repositoryProvider(
+      mountWorkspace(
         {
           config,
           infrastructure,
