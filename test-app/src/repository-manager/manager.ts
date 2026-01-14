@@ -1,11 +1,12 @@
-import { createWorkspace } from "./workspace";
-import { createStore } from "./workspace/infrastructure";
-import { createRepositoryModule } from "./workspace/modules";
-import { repositoryProvider } from "./workspace/providers";
-import type { IConfiguration } from "./workspace/types";
+import { createStore } from "./infrastructure";
+import {
+  createRepositoryModule,
+  repositoryProvider,
+  type IConfiguration,
+} from "./workspace";
 
 const repositoryManager = () => {
-  const store = createStore<ReturnType<typeof createWorkspace>>();
+  const store = createStore<ReturnType<typeof createRepositoryModule>>();
   return {
     workspace<I>(infrastructure: I, config: IConfiguration) {
       repositoryProvider(
@@ -17,9 +18,10 @@ const repositoryManager = () => {
           store.setState(config.id, createRepositoryModule<I>());
         }
       );
+      const { defineRepository, queryRepository } = store.getState(config.id)!;
       return {
-        defineRepository: store.getState(config.id)!.defineRepository,
-        queryRepository: store.getState(config.id)!.queryRepository,
+        defineRepository,
+        queryRepository,
       };
     },
   };

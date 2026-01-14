@@ -3,8 +3,9 @@ import {
   createScope,
   createStore,
   useScope,
-} from "../infrastructure";
-import type { IRepositoryInstance } from "../modules";
+} from "../../infrastructure";
+import type { IRepositoryInstance } from "../repository";
+
 import type { IConfiguration } from "../types";
 
 const repositoryScope = createScope<any>(undefined);

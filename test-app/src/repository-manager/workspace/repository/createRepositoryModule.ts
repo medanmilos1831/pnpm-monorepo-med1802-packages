@@ -1,7 +1,7 @@
 import { createRepositoryAccessor } from "./repositoryAccessor";
 import type { IRepositoryPlugin, repositoryType } from "./types";
 import { useScope } from "../../infrastructure";
-import { repositoryScope } from "../../providers";
+import { repositoryScope } from "../providers";
 
 function createRepositoryModule<I>() {
   const { store, logger, infrastructure } = useScope(repositoryScope);
