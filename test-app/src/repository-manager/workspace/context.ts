@@ -16,7 +16,10 @@ interface IWorkspaceContext<I = any> {
 
 const workspaceScope = createScope<IWorkspaceContext | undefined>(undefined);
 
-function createWorkspace<I>(params: IConfiguration<I>, child: () => void) {
+function createWorkspaceContext<I>(
+  params: IConfiguration<I>,
+  child: () => void
+) {
   const { id, logging, infrastructure } = params;
   const defaultConfig: Omit<IConfiguration, "infrastructure"> = {
     id,
@@ -41,4 +44,4 @@ function workspace<I>() {
   return context;
 }
 
-export { createWorkspace, workspace };
+export { createWorkspaceContext, workspace };
