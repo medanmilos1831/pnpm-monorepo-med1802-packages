@@ -15,21 +15,13 @@ const infrastructure = {
     },
   },
 };
-const { defineRepository, createScope, queryRepository } = manager.workspace(
+const { defineRepository, queryRepository } = manager.workspace(
   infrastructure,
   {
     id: "app-workspace",
     logging: false,
   }
 );
-
-const userScope = createScope({
-  fname: "Milos",
-});
-const companyScope = createScope({
-  name: "Company Name",
-});
-
 defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
