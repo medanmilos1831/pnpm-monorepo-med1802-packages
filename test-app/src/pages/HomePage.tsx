@@ -28,11 +28,11 @@ defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
     const { infrastructure, broker } = instance;
-    const { connect, run, disconnect } = broker.subscribeNew({
+    const { connect, run, disconnect } = broker.subscribe({
       scope: "user-repo",
       eventName: "userLoggedIn",
     });
-    const some = broker.subscribeNew({
+    const some = broker.subscribe({
       scope: "user-repo",
       eventName: "userLoggedIn",
     });
@@ -49,13 +49,13 @@ defineRepository<IUserRepository>({
       console.log("RUN 3");
     });
     some.run(() => {
-      console.log("kita RUN 1");
+      console.log("some RUN 1");
     });
     some.run(() => {
-      console.log("kita RUN 2");
+      console.log("some RUN 2");
     });
     some.run(() => {
-      console.log("kita RUN 3");
+      console.log("some RUN 3");
     });
 
     // disconnect();

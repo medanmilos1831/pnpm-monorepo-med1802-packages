@@ -5,13 +5,7 @@ export interface IBroker {
     eventName: string;
     payload?: any;
   }) => void;
-  subscribe: (params: {
-    scope: string;
-    eventName: string;
-    callback: (payload: any) => void;
-    fromBeginning?: boolean;
-  }) => void;
-  subscribeNew: any;
+  subscribe: any;
 }
 export type repositoryType<I = any, R = any> = (obj: {
   instance: {
