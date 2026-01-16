@@ -50,57 +50,102 @@ function createBroker(): IBroker {
       if (!eventSources[params.scope][params.eventName]) {
         createEventSource(params.scope, params.eventName);
       }
-      eventSources[params.scope][params.eventName].record.push({
+      const item: any = {
         id: createId(params.scope, params.eventName),
         event: {
           eventName: params.eventName,
           payload: params.payload,
         },
-        ack: false,
         executed() {
-          this.ack = true;
           observer.dispatch({
             scope: params.scope,
             eventName: params.eventName,
-            payload: params.payload,
+            payload: this.createEventObject(),
           });
         },
-      });
+        createEventObject() {
+          return {
+            data: params.payload,
+            source: params.source,
+            eventName: params.eventName,
+          };
+        },
+        getEventSource() {
+          return params;
+        },
+      };
+      eventSources[params.scope][params.eventName].record.push(item);
       if (eventSources[params.scope][params.eventName].consumers.length > 0) {
-        observer.dispatch({
-          scope: params.scope,
-          eventName: params.eventName,
-          payload: params.payload,
-        });
+        item.executed();
 
-        return;
-      }
-
-      if (eventSources[params.scope][params.eventName].consumers.length === 0) {
         return;
       }
     },
     subscribe(params) {
+      const def = {
+        fromBeginning: false,
+        ...params,
+      };
       if (!eventSources[params.scope][params.eventName]) {
         createEventSource(params.scope, params.eventName);
       }
       const unsubscribed = observer.subscribe({
         scope: params.scope,
         eventName: params.eventName,
-        callback: (payload) => {
-          params.callback(payload);
+        callback: (event) => {
+          params.callback(event.payload);
         },
       });
       eventSources[params.scope][params.eventName].consumers.push(unsubscribed);
       if (eventSources[params.scope][params.eventName].record.length > 0) {
-        eventSources[params.scope][params.eventName].record.forEach(
-          (record: any) => {
-            if (record.ack) return;
-            params.callback(record.event.payload);
-          }
-        );
+        if (def.fromBeginning) {
+          eventSources[params.scope][params.eventName].record.forEach(
+            (record: any) => {
+              if (record.ack) {
+                params.callback(record.createEventObject());
+                return;
+              }
+              record.executed();
+            }
+          );
+          return;
+        }
+        eventSources[params.scope][params.eventName].record[
+          eventSources[params.scope][params.eventName].record.length - 1
+        ].executed();
       }
       return unsubscribed;
+    },
+    subscribeNew(params: any) {
+      if (!eventSources[params.scope][params.eventName]) {
+        createEventSource(params.scope, params.eventName);
+      }
+
+      let _connected = false;
+
+      let obj = {
+        get isConnected() {
+          return _connected;
+        },
+        connect() {
+          _connected = true;
+        },
+        run(callback: any) {
+          if (!_connected) return;
+          observer.subscribe({
+            scope: params.scope,
+            eventName: params.eventName,
+            callback: (event) => {
+              callback();
+            },
+          });
+        },
+        disconnect() {
+          _connected = false;
+        },
+      };
+      eventSources[params.scope][params.eventName].consumers.push(obj);
+      return obj;
     },
   };
 }

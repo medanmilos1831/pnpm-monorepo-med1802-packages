@@ -28,15 +28,56 @@ defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
     const { infrastructure, broker } = instance;
-    setTimeout(() => {
-      broker.subscribe({
-        scope: "user-repo",
-        eventName: "userLoggedIn",
-        callback: (payload) => {
-          console.log("SUBSCRIBED after", payload);
-        },
-      });
-    }, 1000);
+    const { connect, run, disconnect } = broker.subscribeNew({
+      scope: "user-repo",
+      eventName: "userLoggedIn",
+    });
+    const some = broker.subscribeNew({
+      scope: "user-repo",
+      eventName: "userLoggedIn",
+    });
+    connect();
+    some.connect();
+    run(() => {
+      console.log("RUN 1");
+    });
+    run(() => {
+      console.log("RUN 2");
+    });
+    disconnect();
+    run(() => {
+      console.log("RUN 3");
+    });
+    some.run(() => {
+      console.log("kita RUN 1");
+    });
+    some.run(() => {
+      console.log("kita RUN 2");
+    });
+    some.run(() => {
+      console.log("kita RUN 3");
+    });
+
+    // disconnect();
+    // setTimeout(() => {
+    //   broker.subscribe({
+    //     fromBeginning: true,
+    //     scope: "user-repo",
+    //     eventName: "userLoggedIn",
+    //     callback: (payload) => {
+    //       console.log("SUBSCRIBED after", payload);
+    //     },
+    //   });
+    // }, 1000);
+
+    // setTimeout(() => {
+    //   broker.publish({
+    //     scope: "user-repo",
+    //     source: "user-repo",
+    //     eventName: "userLoggedIn",
+    //     payload: { userId: 2 },
+    //   });
+    // }, 2000);
 
     // broker.subscribe({
     //   scope: "user-repo",
@@ -55,7 +96,7 @@ defineRepository<IUserRepository>({
     return {
       getUsers(params) {
         // console.log("GET USERS", params);
-        new Array(3).fill(0).forEach(() => {
+        new Array(1).fill(0).forEach(() => {
           broker.publish({
             scope: "user-repo",
             source: "user-repo",

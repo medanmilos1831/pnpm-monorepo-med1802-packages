@@ -9,7 +9,9 @@ export interface IBroker {
     scope: string;
     eventName: string;
     callback: (payload: any) => void;
+    fromBeginning?: boolean;
   }) => void;
+  subscribeNew: any;
 }
 export type repositoryType<I = any, R = any> = (obj: {
   instance: {
