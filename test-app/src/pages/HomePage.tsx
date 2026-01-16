@@ -38,8 +38,8 @@ defineRepository<IUserRepository>({
     });
     connect();
     some.connect();
-    run(() => {
-      console.log("RUN 1");
+    run((payload: any) => {
+      console.log("RUN 1", payload);
     });
     run(() => {
       console.log("RUN 2");

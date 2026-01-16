@@ -81,41 +81,6 @@ function createBroker(): IBroker {
         return;
       }
     },
-    // subscribe(params) {
-    //   const def = {
-    //     fromBeginning: false,
-    //     ...params,
-    //   };
-    //   if (!eventSources[params.scope][params.eventName]) {
-    //     createEventSource(params.scope, params.eventName);
-    //   }
-    //   const unsubscribed = observer.subscribe({
-    //     scope: params.scope,
-    //     eventName: params.eventName,
-    //     callback: (event) => {
-    //       params.callback(event.payload);
-    //     },
-    //   });
-    //   eventSources[params.scope][params.eventName].consumers.push(unsubscribed);
-    //   if (eventSources[params.scope][params.eventName].record.length > 0) {
-    //     if (def.fromBeginning) {
-    //       eventSources[params.scope][params.eventName].record.forEach(
-    //         (record: any) => {
-    //           if (record.ack) {
-    //             params.callback(record.createEventObject());
-    //             return;
-    //           }
-    //           record.executed();
-    //         }
-    //       );
-    //       return;
-    //     }
-    //     eventSources[params.scope][params.eventName].record[
-    //       eventSources[params.scope][params.eventName].record.length - 1
-    //     ].executed();
-    //   }
-    //   return unsubscribed;
-    // },
     subscribe(params: any) {
       if (!eventSources[params.scope][params.eventName]) {
         createEventSource(params.scope, params.eventName);
@@ -136,7 +101,7 @@ function createBroker(): IBroker {
             scope: params.scope,
             eventName: params.eventName,
             callback: (event) => {
-              callback();
+              callback(event.payload);
             },
           });
         },
