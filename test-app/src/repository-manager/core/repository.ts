@@ -3,7 +3,8 @@ import type { IRepositoryPlugin } from "./types";
 
 function createRepository<I>(
   infrastructure: I,
-  repositoryPlugin: IRepositoryPlugin<I, any>
+  repositoryPlugin: IRepositoryPlugin<I, any>,
+  broker: any
 ) {
   const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
   let repository = undefined as unknown;
@@ -18,7 +19,7 @@ function createRepository<I>(
     connect() {
       if (connections === 0) {
         const rawRepository = install({
-          instance: { infrastructure },
+          instance: { infrastructure, broker },
         });
         repository = middlewares
           ? applyMiddleware(rawRepository, middlewares)

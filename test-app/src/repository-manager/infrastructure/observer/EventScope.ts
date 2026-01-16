@@ -1,7 +1,6 @@
 class EventScope extends EventTarget {
   scopeName: string;
   subScopes: Map<string, EventScope> = new Map();
-  lastEventPayloads: Map<string, any> = new Map();
 
   constructor(scopeName: string) {
     super();
@@ -23,8 +22,6 @@ class EventScope extends EventTarget {
     eventName: string;
     payload?: any;
   }) => {
-    this.lastEventPayloads.set(eventName, payload);
-
     const event = new CustomEvent(eventName, {
       detail: {
         payload,
@@ -33,11 +30,6 @@ class EventScope extends EventTarget {
     this.dispatchEvent(event);
   };
   subscribe = (eventName: string, callback: (e: any) => void) => {
-    if (this.lastEventPayloads.has(eventName)) {
-      const lastPayload = this.lastEventPayloads.get(eventName);
-      callback(this.formatEventData(eventName, lastPayload));
-    }
-
     const callbackWrapper = (e: any) => {
       callback(this.formatEventData(eventName, e.detail.payload));
     };

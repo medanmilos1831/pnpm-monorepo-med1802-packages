@@ -1,8 +1,20 @@
-import type { useScope } from "../infrastructure/scope";
-
+export interface IBroker {
+  publish: (params: {
+    scope: string;
+    source: string;
+    eventName: string;
+    payload?: any;
+  }) => void;
+  subscribe: (params: {
+    scope: string;
+    eventName: string;
+    callback: (payload: any) => void;
+  }) => void;
+}
 export type repositoryType<I = any, R = any> = (obj: {
   instance: {
     infrastructure: I;
+    broker: IBroker;
   };
 }) => R;
 
