@@ -28,82 +28,40 @@ defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
     const { infrastructure, broker } = instance;
-    const { connect, run, disconnect } = broker.subscribe({
-      scope: "user-repo",
-      eventName: "userLoggedIn",
-    });
-    const some = broker.subscribe({
-      scope: "user-repo",
-      eventName: "userLoggedIn",
-    });
-    connect();
-    some.connect();
-    run((payload: any) => {
-      console.log("RUN 1", payload);
-    });
-    run(() => {
-      console.log("RUN 2");
-    });
-    disconnect();
-    run(() => {
-      console.log("RUN 3");
-    });
-    some.run(() => {
-      console.log("some RUN 1");
-    });
-    some.run(() => {
-      console.log("some RUN 2");
-    });
-    some.run(() => {
-      console.log("some RUN 3");
-    });
-
-    // disconnect();
-    // setTimeout(() => {
-    //   broker.subscribe({
-    //     fromBeginning: true,
-    //     scope: "user-repo",
-    //     eventName: "userLoggedIn",
-    //     callback: (payload) => {
-    //       console.log("SUBSCRIBED after", payload);
-    //     },
-    //   });
-    // }, 1000);
-
-    // setTimeout(() => {
-    //   broker.publish({
-    //     scope: "user-repo",
-    //     source: "user-repo",
-    //     eventName: "userLoggedIn",
-    //     payload: { userId: 2 },
-    //   });
-    // }, 2000);
-
-    // broker.subscribe({
-    //   scope: "user-repo",
-    //   eventName: "userLoggedIn",
-    //   callback: (payload) => {
-    //     console.log("before", payload);
+    let status = "resume";
+    // const subscribeOne = broker.consumer({
+    //   topic: "user-repo",
+    //   callback: (message: any) => {
+    //     console.log("SUBSCRIBED ONE", message);
     //   },
     // });
-    // broker.subscribe({
-    //   scope: "user-repo",
-    //   eventName: "userLoggedIn",
-    //   callback: (payload) => {
-    //     console.log("SUBSCRIBED", payload);
-    //   },
-    // });
+    setTimeout(() => {
+      const subscribeOne = broker.consumer({
+        topic: "user-repo",
+        callback: (message: any) => {
+          console.log("SUBSCRIBED ONE", message);
+        },
+      });
+    }, 1000);
     return {
       getUsers(params) {
         // console.log("GET USERS", params);
-        new Array(1).fill(0).forEach(() => {
+        new Array(5).fill(0).forEach(() => {
           broker.publish({
-            scope: "user-repo",
-            source: "user-repo",
-            eventName: "userLoggedIn",
+            topic: "user-repo",
+            source: "from-method",
             payload: { userId: 1 },
           });
         });
+        // setTimeout(() => {
+        //   new Array(1).fill(0).forEach(() => {
+        //     broker.publish({
+        //       topic: "user-repo",
+        //       source: "from-method",
+        //       payload: { userId: 2 },
+        //     });
+        //   });
+        // }, 5000);
       },
     };
   },
