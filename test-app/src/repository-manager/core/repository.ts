@@ -1,11 +1,11 @@
-import type { createScopedObserver } from "../infrastructure";
+import type { scopedObserverType } from "../infrastructure";
 import { applyMiddleware } from "./middleware";
 import type { IRepositoryPlugin } from "./types";
 
 function createRepository<I>(
   infrastructure: I,
   repositoryPlugin: IRepositoryPlugin<I, any>,
-  observer: ReturnType<typeof createScopedObserver>
+  observer: scopedObserverType
 ) {
   const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
   let repository = undefined as unknown;
