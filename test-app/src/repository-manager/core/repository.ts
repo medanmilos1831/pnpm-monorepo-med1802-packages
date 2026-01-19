@@ -10,6 +10,7 @@ function createRepository<I>(
   const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
   let repository = undefined as unknown;
   let connections = 0;
+  let subscriptions: any = [];
   return {
     get repository() {
       return repository;
@@ -24,14 +25,36 @@ function createRepository<I>(
             infrastructure,
             observer: (() => {
               return {
-                dispatch: (eventName: string, payload: any) => {
-                  console.log("DISPATCH", eventName, payload);
+                dispatch: ({ scope, payload }: any) => {
+                  if (scope === repositoryPlugin.id) {
+                    console.warn("WARNING: DISPATCHING TO SELF");
+                    return;
+                  }
+                  observer.dispatch({
+                    scope,
+                    eventName: "dispatch",
+                    payload: {
+                      data: payload,
+                      source: repositoryPlugin.id,
+                    },
+                  });
                 },
-                subscribe: (
-                  eventName: string,
-                  callback: (payload: any) => void
-                ) => {
-                  console.log("SUBSCRIBE", eventName, callback);
+                subscribe: (callback: (payload: any) => void) => {
+                  if (subscriptions.length > 0) {
+                    console.warn("WARNING: SUBSCRIBED ALREADY");
+                    return;
+                  }
+                  const unsubscribe = observer.subscribe({
+                    scope: repositoryPlugin.id,
+                    eventName: "dispatch",
+                    callback({ payload }: any) {
+                      callback({
+                        data: payload.data,
+                        source: payload.source,
+                      });
+                    },
+                  });
+                  subscriptions.push(unsubscribe);
                 },
               };
             })(),
@@ -51,6 +74,8 @@ function createRepository<I>(
       connections -= 1;
       if (connections === 0) {
         repository = undefined;
+        subscriptions.forEach((unsubscribe: any) => unsubscribe());
+        subscriptions = [];
         if (onDisconnect) {
           onDisconnect();
         }

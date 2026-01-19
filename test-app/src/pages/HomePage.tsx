@@ -30,17 +30,18 @@ defineRepository<IUserRepository>({
     const { infrastructure, observer } = instance;
     return {
       getUsers(params) {
-        console.log("GET USERS", params);
-        console.log("OBSERVER", observer);
-        observer.dispatch("company-repo", { userId: 123 });
+        observer.dispatch({
+          scope: "company-repo",
+          payload: { userId: 123 },
+        });
       },
     };
   },
   onConnect: () => {
-    console.log("ON CONNECT USER REPO");
+    // console.log("ON CONNECT USER REPO");
   },
   onDisconnect: () => {
-    console.log("ON DISCONNECT");
+    // console.log("ON DISCONNECT");
   },
   middlewares: [],
 });
@@ -49,15 +50,19 @@ defineRepository<ICompanyRepository>({
   id: "company-repo",
   install({ instance }) {
     const { infrastructure, observer } = instance;
-    observer.subscribe("user-repo", (payload: any) => {
-      console.log("SUBSCRIBED USER REPO", payload);
-    });
-    return {
-      getCompanies(params) {},
+    let obj: ICompanyRepository = {
+      getCompanies(params) {
+        console.log("GET COMPANIES", params);
+      },
     };
+    observer.subscribe((payload: any) => {
+      console.log("SUBSCRIBED COMPANY REPO", payload);
+      // obj.getCompanies(payload.data);
+    });
+    return obj;
   },
   onConnect: () => {
-    console.log("ON CONNECT COMPANY REPO");
+    // console.log("ON CONNECT COMPANY REPO");
   },
   onDisconnect: () => {
     console.log("ON DISCONNECT");
