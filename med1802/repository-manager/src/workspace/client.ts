@@ -1,10 +1,12 @@
-import { createRepositoryAccessor } from "./repositoryAccessor";
-import type { IRepositoryPlugin, repositoryType } from "./types";
-import { useScope } from "../../infrastructure";
-import { repositoryScope } from "../../providers";
+import {
+  createRepository,
+  type IRepositoryPlugin,
+  type repositoryType,
+} from "../core";
+import { workspace } from "../workspace";
 
-function createRepositoryModule<I>() {
-  const { store, logger, infrastructure } = useScope(repositoryScope);
+function createWorkspaceClient<I>() {
+  const { store, logger, infrastructure, observer } = workspace<I>();
   function hasRepository(id: string) {
     return store.hasState(id);
   }
@@ -24,7 +26,7 @@ function createRepositoryModule<I>() {
       () => {
         store.setState(
           id,
-          createRepositoryAccessor(infrastructure, repositoryPlugin)
+          createRepository(infrastructure, repositoryPlugin, observer)
         );
       },
       {
@@ -64,9 +66,9 @@ function createRepositoryModule<I>() {
     };
   }
   return {
-    queryRepository,
     defineRepository,
+    queryRepository,
   };
 }
 
-export { createRepositoryModule };
+export { createWorkspaceClient };

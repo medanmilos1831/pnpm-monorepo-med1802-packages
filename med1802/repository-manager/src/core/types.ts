@@ -1,9 +1,9 @@
-import type { useScope } from "../../infrastructure/scope";
+import type { IObserver } from "../workspace";
 
 export type repositoryType<I = any, R = any> = (obj: {
   instance: {
     infrastructure: I;
-    useScope: typeof useScope;
+    observer: IObserver;
   };
 }) => R;
 
