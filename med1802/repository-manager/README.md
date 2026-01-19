@@ -157,7 +157,7 @@ defineRepository({
   id: "notification-repo",
   install({ instance }) {
     const { observer } = instance;
-    
+
     // Subscribe to user events
     observer.subscribe((payload) => {
       if (payload.type === "user.created") {
@@ -165,7 +165,7 @@ defineRepository({
         // Send welcome email, etc.
       }
     });
-    
+
     return {
       // repository methods...
     };
@@ -238,12 +238,12 @@ defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
     const { infrastructure, observer } = instance;
-    
+
     // Subscribe to events
     observer.subscribe((payload) => {
       console.log("Event received:", payload);
     });
-    
+
     return {
       async createUser(user) {
         const result = await infrastructure.httpClient.post("/users", user);
@@ -336,12 +336,14 @@ observer.subscribe((payload) => {
 The built-in observer system enables decoupled communication between repositories:
 
 **Benefits:**
+
 - **Loose Coupling** - Repositories don't need to know about each other
 - **Scalability** - Easy to add new listeners without modifying existing code
 - **Event Sourcing** - Track all events in your system
 - **Side Effects** - Handle cross-cutting concerns (logging, analytics, notifications)
 
 **When to Use:**
+
 - Cross-repository notifications
 - Audit logging
 - Analytics tracking
@@ -386,7 +388,7 @@ defineRepository({
   id: "notification-repo",
   install({ instance }) {
     const { observer, infrastructure } = instance;
-    
+
     observer.subscribe((payload) => {
       if (payload.type === "user.created") {
         infrastructure.emailService.send({
@@ -398,7 +400,7 @@ defineRepository({
         console.log("User deleted:", payload.message.userId);
       }
     });
-    
+
     return {
       // notification methods...
     };
@@ -410,13 +412,13 @@ defineRepository({
   id: "analytics-repo",
   install({ instance }) {
     const { observer } = instance;
-    
+
     observer.subscribe((payload) => {
       if (payload.type === "user.created") {
         console.log("Track new user:", payload.message);
       }
     });
-    
+
     return {
       // analytics methods...
     };
@@ -564,134 +566,6 @@ defineRepository({
 - **Error Handling** - Centralized error handling and retry logic
 - **Authentication** - Check permissions before execution
 
-### Real-World Example: E-Commerce System
-
-```typescript
-// Infrastructure
-const infrastructure = {
-  httpClient: {
-    get: async (url) => fetch(url).then((r) => r.json()),
-    post: async (url, data) =>
-      fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data),
-      }).then((r) => r.json()),
-  },
-  emailService: {
-    send: async (email) => console.log("Sending email:", email),
-  },
-  cache: new Map(),
-};
-
-// Create workspace
-const { defineRepository, queryRepository } = manager.createWorkspace({
-  id: "ecommerce",
-  infrastructure,
-  logging: true,
-});
-
-// Order repository
-defineRepository({
-  id: "order-repo",
-  install({ instance }) {
-    const { infrastructure, observer } = instance;
-    return {
-      async createOrder(order) {
-        const result = await infrastructure.httpClient.post("/api/orders", order);
-        
-        // Notify other systems
-        observer.dispatch({
-          type: "order.created",
-          repositoryId: "order-repo",
-          message: result,
-        });
-        
-        return result;
-      },
-      async cancelOrder(orderId) {
-        await infrastructure.httpClient.post(`/api/orders/${orderId}/cancel`);
-        
-        observer.dispatch({
-          type: "order.cancelled",
-          repositoryId: "order-repo",
-          message: { orderId },
-        });
-      },
-    };
-  },
-  onConnect: () => console.log("Order repo connected"),
-  onDisconnect: () => console.log("Order repo disconnected"),
-});
-
-// Inventory repository (listens to order events)
-defineRepository({
-  id: "inventory-repo",
-  install({ instance }) {
-    const { infrastructure, observer } = instance;
-    
-    observer.subscribe((payload) => {
-      if (payload.type === "order.created") {
-        console.log("Reducing inventory for order:", payload.message.id);
-        // Reduce stock levels
-      }
-      if (payload.type === "order.cancelled") {
-        console.log("Restoring inventory for order:", payload.message.orderId);
-        // Restore stock levels
-      }
-    });
-    
-    return {
-      checkStock: async (productId) => {
-        return infrastructure.httpClient.get(`/api/inventory/${productId}`);
-      },
-    };
-  },
-});
-
-// Email notification repository (listens to order events)
-defineRepository({
-  id: "email-repo",
-  install({ instance }) {
-    const { infrastructure, observer } = instance;
-    
-    observer.subscribe((payload) => {
-      if (payload.type === "order.created") {
-        infrastructure.emailService.send({
-          to: payload.message.customerEmail,
-          subject: "Order Confirmation",
-          body: `Your order ${payload.message.id} has been received!`,
-        });
-      }
-      if (payload.type === "order.cancelled") {
-        infrastructure.emailService.send({
-          to: payload.message.customerEmail,
-          subject: "Order Cancelled",
-          body: `Your order ${payload.message.orderId} has been cancelled.`,
-        });
-      }
-    });
-    
-    return {
-      // email methods...
-    };
-  },
-});
-
-// Use the system
-const { repository: orderRepo, disconnect } = queryRepository("order-repo");
-
-await orderRepo.createOrder({
-  id: "ORD-123",
-  items: [{ productId: "PROD-1", quantity: 2 }],
-  customerEmail: "customer@example.com",
-});
-// This automatically:
-// - Reduces inventory (inventory-repo listener)
-// - Sends confirmation email (email-repo listener)
-
-disconnect();
-```
-
 ### Logging
 
 Enable logging to see connection lifecycle and events:
@@ -702,21 +576,6 @@ const { defineRepository } = manager.createWorkspace({
   infrastructure,
   logging: true, // Enables colored console output
 });
-
-// Console output will show:
-// repository.define (user-repo)
-// ┌─────────┬───────────┐
-// │ (index) │repository │
-// ├─────────┼───────────┤
-// │    0    │ user-repo │
-// └─────────┴───────────┘
-//
-// repository.connect (user-repo)
-// ┌─────────┬───────────┬─────────────┐
-// │ (index) │repository │ connections │
-// ├─────────┼───────────┼─────────────┤
-// │    0    │ user-repo │      1      │
-// └─────────┴───────────┴─────────────┘
 ```
 
 ## 🏗️ Design Patterns
@@ -730,37 +589,3 @@ This library implements several design patterns:
 - **Observer Pattern** - Event-driven communication between repositories
 - **Workspace Pattern** - Clean API for managing dependencies and lifecycle
 - **Pub/Sub Pattern** - Repositories can publish and subscribe to events
-
-## ⚠️ Error Handling
-
-```typescript
-// Repository not found
-try {
-  const { repository } = queryRepository("non-existent-repo");
-} catch (error) {
-  console.error(error.message); // Repository "non-existent-repo" not found
-}
-
-// Observer error handling
-defineRepository({
-  id: "user-repo",
-  install({ instance }) {
-    const { observer } = instance;
-    
-    observer.subscribe((payload) => {
-      try {
-        if (payload.type === "user.created") {
-          // Handle event
-          processUser(payload.message);
-        }
-      } catch (error) {
-        console.error("Event handling error:", error);
-      }
-    });
-    
-    return {
-      // repository methods...
-    };
-  },
-});
-```
