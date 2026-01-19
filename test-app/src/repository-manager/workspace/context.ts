@@ -7,7 +7,7 @@ import {
 } from "../infrastructure";
 import type { IRepositoryInstance } from "../core";
 
-import type { IConfiguration } from "./types";
+import type { IConfiguration } from "./types/configuration.types";
 
 interface IWorkspaceContext<I = any> {
   store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;

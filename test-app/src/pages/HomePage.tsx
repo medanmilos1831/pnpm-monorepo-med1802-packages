@@ -28,11 +28,15 @@ defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
     const { infrastructure, observer } = instance;
+
     return {
       getUsers(params) {
-        observer.dispatch({
-          scope: "company-repo",
-          payload: { userId: 123 },
+        observer.dispatch<{
+          userId: number;
+        }>({
+          type: "getUsers",
+          repositoryId: "company-repo",
+          message: { userId: 1 },
         });
       },
     };
@@ -55,8 +59,10 @@ defineRepository<ICompanyRepository>({
         console.log("GET COMPANIES", params);
       },
     };
-    observer.subscribe((payload: any) => {
-      console.log("SUBSCRIBED COMPANY REPO", payload);
+    observer.subscribe<{
+      userId: number;
+    }>((data) => {
+      console.log("SUBSCRIBED COMPANY REPO", data);
       // obj.getCompanies(payload.data);
     });
     return obj;
@@ -70,8 +76,8 @@ defineRepository<ICompanyRepository>({
   middlewares: [],
 });
 
-let userRepo = queryRepository<IUserRepository>("user-repo");
 let companyRepo = queryRepository<ICompanyRepository>("company-repo");
+let userRepo = queryRepository<IUserRepository>("user-repo");
 // let userRepoTwo = queryRepository<IUserRepository>("user-repo");
 userRepo.repository.getUsers(123);
 // userRepoTwo.repository.getUsers(321);

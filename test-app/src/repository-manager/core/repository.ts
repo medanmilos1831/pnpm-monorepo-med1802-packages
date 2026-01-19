@@ -10,7 +10,7 @@ function createRepository<I>(
   const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
   let repository = undefined as unknown;
   let connections = 0;
-  let subscriptions: any = [];
+  let subscriptions: (() => void)[] = [];
   return {
     get repository() {
       return repository;
@@ -25,21 +25,22 @@ function createRepository<I>(
             infrastructure,
             observer: (() => {
               return {
-                dispatch: ({ scope, payload }: any) => {
-                  if (scope === repositoryPlugin.id) {
+                dispatch: ({ repositoryId, type, message }) => {
+                  if (repository === repositoryPlugin.id) {
                     console.warn("WARNING: DISPATCHING TO SELF");
                     return;
                   }
                   observer.dispatch({
-                    scope,
+                    scope: repositoryId,
                     eventName: "dispatch",
                     payload: {
-                      data: payload,
+                      type,
+                      message,
                       source: repositoryPlugin.id,
                     },
                   });
                 },
-                subscribe: (callback: (payload: any) => void) => {
+                subscribe: (handler) => {
                   if (subscriptions.length > 0) {
                     console.warn("WARNING: SUBSCRIBED ALREADY");
                     return;
@@ -47,10 +48,12 @@ function createRepository<I>(
                   const unsubscribe = observer.subscribe({
                     scope: repositoryPlugin.id,
                     eventName: "dispatch",
-                    callback({ payload }: any) {
-                      callback({
-                        data: payload.data,
-                        source: payload.source,
+                    callback({ payload }) {
+                      const { type, message, source } = payload;
+                      handler({
+                        type,
+                        message: message ?? undefined,
+                        source,
                       });
                     },
                   });
@@ -74,7 +77,7 @@ function createRepository<I>(
       connections -= 1;
       if (connections === 0) {
         repository = undefined;
-        subscriptions.forEach((unsubscribe: any) => unsubscribe());
+        subscriptions.forEach((unsubscribe) => unsubscribe());
         subscriptions = [];
         if (onDisconnect) {
           onDisconnect();
