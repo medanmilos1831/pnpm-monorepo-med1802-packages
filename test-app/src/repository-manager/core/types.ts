@@ -1,11 +1,6 @@
-export interface IBroker {
-  publish: (params: { topic: string; payload?: any; source?: string }) => void;
-  consumer: any;
-}
 export type repositoryType<I = any, R = any> = (obj: {
   instance: {
     infrastructure: I;
-    broker: IBroker;
   };
 }) => R;
 

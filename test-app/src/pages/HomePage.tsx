@@ -27,42 +27,9 @@ const { defineRepository, queryRepository } = manager.createWorkspace({
 defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
-    const { infrastructure, broker } = instance;
-    let status = "resume";
-    // const subscribeOne = broker.consumer({
-    //   topic: "user-repo",
-    //   callback: (message: any) => {
-    //     console.log("SUBSCRIBED ONE", message);
-    //   },
-    // });
-    setTimeout(() => {
-      const subscribeOne = broker.consumer({
-        topic: "user-repo",
-        callback: (message: any) => {
-          console.log("SUBSCRIBED ONE", message);
-        },
-      });
-    }, 1000);
+    const { infrastructure } = instance;
     return {
-      getUsers(params) {
-        // console.log("GET USERS", params);
-        new Array(5).fill(0).forEach(() => {
-          broker.publish({
-            topic: "user-repo",
-            source: "from-method",
-            payload: { userId: 1 },
-          });
-        });
-        // setTimeout(() => {
-        //   new Array(1).fill(0).forEach(() => {
-        //     broker.publish({
-        //       topic: "user-repo",
-        //       source: "from-method",
-        //       payload: { userId: 2 },
-        //     });
-        //   });
-        // }, 5000);
-      },
+      getUsers(params) {},
     };
   },
   onConnect: () => {
