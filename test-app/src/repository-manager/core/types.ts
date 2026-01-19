@@ -1,6 +1,9 @@
+import type { createScopedObserver } from "../infrastructure";
+
 export type repositoryType<I = any, R = any> = (obj: {
   instance: {
     infrastructure: I;
+    observer: any;
   };
 }) => R;
 

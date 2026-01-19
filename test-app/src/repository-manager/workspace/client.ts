@@ -6,7 +6,7 @@ import {
 import { workspace } from "../workspace";
 
 function createWorkspaceClient<I>() {
-  const { store, logger, infrastructure } = workspace<I>();
+  const { store, logger, infrastructure, observer } = workspace<I>();
   function hasRepository(id: string) {
     return store.hasState(id);
   }
@@ -24,7 +24,10 @@ function createWorkspaceClient<I>() {
     if (hasRepository(id)) return;
     logger.log(
       () => {
-        store.setState(id, createRepository(infrastructure, repositoryPlugin));
+        store.setState(
+          id,
+          createRepository(infrastructure, repositoryPlugin, observer)
+        );
       },
       {
         type: "repository.define",

@@ -27,13 +27,37 @@ const { defineRepository, queryRepository } = manager.createWorkspace({
 defineRepository<IUserRepository>({
   id: "user-repo",
   install({ instance }) {
-    const { infrastructure } = instance;
+    const { infrastructure, observer } = instance;
     return {
-      getUsers(params) {},
+      getUsers(params) {
+        console.log("GET USERS", params);
+        console.log("OBSERVER", observer);
+        observer.dispatch("company-repo", { userId: 123 });
+      },
     };
   },
   onConnect: () => {
-    // console.log("ON CONNECT");
+    console.log("ON CONNECT USER REPO");
+  },
+  onDisconnect: () => {
+    console.log("ON DISCONNECT");
+  },
+  middlewares: [],
+});
+
+defineRepository<ICompanyRepository>({
+  id: "company-repo",
+  install({ instance }) {
+    const { infrastructure, observer } = instance;
+    observer.subscribe("user-repo", (payload: any) => {
+      console.log("SUBSCRIBED USER REPO", payload);
+    });
+    return {
+      getCompanies(params) {},
+    };
+  },
+  onConnect: () => {
+    console.log("ON CONNECT COMPANY REPO");
   },
   onDisconnect: () => {
     console.log("ON DISCONNECT");
@@ -42,6 +66,7 @@ defineRepository<IUserRepository>({
 });
 
 let userRepo = queryRepository<IUserRepository>("user-repo");
+let companyRepo = queryRepository<ICompanyRepository>("company-repo");
 // let userRepoTwo = queryRepository<IUserRepository>("user-repo");
 userRepo.repository.getUsers(123);
 // userRepoTwo.repository.getUsers(321);

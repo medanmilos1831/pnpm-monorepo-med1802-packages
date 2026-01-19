@@ -1,6 +1,7 @@
 import {
   createLogger,
   createScope,
+  createScopedObserver,
   createStore,
   useScope,
 } from "../infrastructure";
@@ -11,6 +12,7 @@ import type { IConfiguration } from "./types";
 interface IWorkspaceContext<I = any> {
   store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;
   logger: ReturnType<typeof createLogger>;
+  observer: ReturnType<typeof createScopedObserver>;
   infrastructure: I;
 }
 
@@ -27,10 +29,19 @@ function createWorkspaceContext<I>(
   };
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
+  const observer = createScopedObserver([
+    {
+      scope: "user-repo",
+    },
+    {
+      scope: "company-repo",
+    },
+  ]);
   workspaceScope.provider(
     {
       store,
       logger,
+      observer,
       infrastructure,
     },
     () => {
