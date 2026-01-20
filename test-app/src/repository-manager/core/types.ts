@@ -1,15 +1,15 @@
 import type { IObserver } from "../workspace";
 
-export type repositoryType<I = any, R = any> = (obj: {
+export type repositoryType<D = any, R = any> = (obj: {
   instance: {
-    infrastructure: I;
+    dependencies: D;
     observer: IObserver;
   };
 }) => R;
 
-export interface IRepositoryPlugin<I = any, R = any> {
+export interface IRepositoryPlugin<D = any, R = any> {
   id: string;
-  install: repositoryType<I, R>;
+  install: repositoryType<D, R>;
   middlewares?: Middleware[];
   onConnect?: () => void;
   onDisconnect?: () => void;

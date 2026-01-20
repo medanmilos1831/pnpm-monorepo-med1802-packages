@@ -9,7 +9,7 @@ interface ICompanyRepository {
 }
 
 const manager = repositoryManager();
-const infrastructure = {
+const dependencies = {
   someHttpsModule: {
     get() {
       console.log("GET");
@@ -22,13 +22,13 @@ const infrastructure = {
 const { queryRepository } = manager.createWorkspace({
   id: "app-workspace",
   logging: false,
-  infrastructure,
-  repositories: () => {
+  dependencies,
+  plugins: () => {
     return [
       {
         id: "user-repo",
         install({ instance }): IUserRepository {
-          const { infrastructure, observer } = instance;
+          const { dependencies, observer } = instance;
 
           return {
             getUsers(params) {

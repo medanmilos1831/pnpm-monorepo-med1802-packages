@@ -6,31 +6,30 @@ import {
   useScope,
 } from "../infrastructure";
 import type { IRepositoryInstance, IRepositoryPlugin } from "../core";
+import type { IConfiguration } from "./types";
 
-import type { IConfiguration } from "./types/configuration.types";
-
-interface IWorkspaceContext<I = any> {
+interface IWorkspaceContext<D = any> {
   store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;
   logger: ReturnType<typeof createLogger>;
   observer: ReturnType<typeof createScopedObserver>;
-  infrastructure: I;
-  repositories: IRepositoryPlugin<I, any>[];
+  dependencies: D;
+  plugins: IRepositoryPlugin<D, any>[];
 }
 
-const workspaceScope = createScope<IWorkspaceContext | undefined>(undefined);
+const workspaceScope = createScope<IWorkspaceContext<any> | undefined>(
+  undefined
+);
 
-function createWorkspaceContext<I>(
-  params: IConfiguration<I>,
+function createWorkspaceContext<D = any>(
+  params: IConfiguration<D>,
   child: () => void
 ) {
-  const { id, logging, infrastructure, repositories } = params;
-  const defaultConfig: Omit<IConfiguration, "infrastructure" | "repositories"> =
-    {
-      id,
-      logging: logging ?? false,
-    };
-  console.log("REPOSITORIES", repositories());
-  const repos = repositories();
+  const { id, logging, dependencies, plugins } = params;
+  const defaultConfig: Omit<IConfiguration, "dependencies" | "plugins"> = {
+    id,
+    logging: logging ?? false,
+  };
+  const repos = plugins();
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
   const observer = createScopedObserver(
@@ -41,8 +40,8 @@ function createWorkspaceContext<I>(
       store,
       logger,
       observer,
-      infrastructure,
-      repositories: repos,
+      plugins: repos,
+      dependencies,
     },
     () => {
       child();

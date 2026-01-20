@@ -2,9 +2,9 @@ import type { scopedObserverType } from "../infrastructure";
 import { applyMiddleware } from "./middleware";
 import type { IRepositoryPlugin } from "./types";
 
-function createRepository<I>(
-  infrastructure: I,
-  repositoryPlugin: IRepositoryPlugin<I, any>,
+function createRepository<D>(
+  dependencies: D,
+  repositoryPlugin: IRepositoryPlugin<D, any>,
   observer: scopedObserverType
 ) {
   const { install, middlewares, onConnect, onDisconnect } = repositoryPlugin;
@@ -22,7 +22,7 @@ function createRepository<I>(
       if (connections === 0) {
         const rawRepository = install({
           instance: {
-            infrastructure,
+            dependencies,
             observer: (() => {
               return {
                 dispatch: ({ repositoryId, type, message }) => {

@@ -1,15 +1,17 @@
 import type { IObserver } from "./observer.types";
 import type { Middleware } from "../../core";
 
-export interface IConfiguration<I = any> {
+export interface IRepositoryPlugin<D = any, R = any> {
+  id: string;
+  install(obj: { instance: { dependencies: D; observer: IObserver } }): R;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  middlewares?: Middleware[];
+}
+
+export interface IConfiguration<D = any> {
   id: string;
   logging?: boolean;
-  infrastructure: I;
-  repositories: () => {
-    id: string;
-    install(obj: { instance: { infrastructure: I; observer: IObserver } }): any;
-    onConnect?: () => void;
-    onDisconnect?: () => void;
-    middlewares?: Middleware[];
-  }[];
+  dependencies: D;
+  plugins: () => IRepositoryPlugin<D, any>[];
 }

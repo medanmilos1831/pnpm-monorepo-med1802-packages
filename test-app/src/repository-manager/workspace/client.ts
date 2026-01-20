@@ -6,9 +6,8 @@ import {
 import { workspace } from "../workspace";
 
 function createWorkspaceClient<I>() {
-  const { store, logger, infrastructure, observer, repositories } =
-    workspace<I>();
-  repositories.forEach((obj: any) => {
+  const { store, logger, dependencies, observer, plugins } = workspace<I>();
+  plugins.forEach((obj: any) => {
     defineRepository(obj);
   });
   function hasRepository(id: string) {
@@ -30,7 +29,7 @@ function createWorkspaceClient<I>() {
       () => {
         store.setState(
           id,
-          createRepository(infrastructure, repositoryPlugin, observer)
+          createRepository(dependencies, repositoryPlugin, observer)
         );
       },
       {
