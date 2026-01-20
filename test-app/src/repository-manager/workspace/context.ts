@@ -5,7 +5,7 @@ import {
   createStore,
   useScope,
 } from "../infrastructure";
-import type { IRepositoryInstance } from "../core";
+import type { IRepositoryInstance, IRepositoryPlugin } from "../core";
 
 import type { IConfiguration } from "./types/configuration.types";
 
@@ -14,6 +14,7 @@ interface IWorkspaceContext<I = any> {
   logger: ReturnType<typeof createLogger>;
   observer: ReturnType<typeof createScopedObserver>;
   infrastructure: I;
+  repositories: IRepositoryPlugin<I, any>[];
 }
 
 const workspaceScope = createScope<IWorkspaceContext | undefined>(undefined);
@@ -22,27 +23,26 @@ function createWorkspaceContext<I>(
   params: IConfiguration<I>,
   child: () => void
 ) {
-  const { id, logging, infrastructure } = params;
-  const defaultConfig: Omit<IConfiguration, "infrastructure"> = {
-    id,
-    logging: logging ?? false,
-  };
+  const { id, logging, infrastructure, repositories } = params;
+  const defaultConfig: Omit<IConfiguration, "infrastructure" | "repositories"> =
+    {
+      id,
+      logging: logging ?? false,
+    };
+  console.log("REPOSITORIES", repositories());
+  const repos = repositories();
   const logger = createLogger(defaultConfig);
   const store = createStore<IRepositoryInstance<any>>();
-  const observer = createScopedObserver([
-    {
-      scope: "user-repo",
-    },
-    {
-      scope: "company-repo",
-    },
-  ]);
+  const observer = createScopedObserver(
+    repos.map((repo) => ({ scope: repo.id }))
+  );
   workspaceScope.provider(
     {
       store,
       logger,
       observer,
       infrastructure,
+      repositories: repos,
     },
     () => {
       child();
