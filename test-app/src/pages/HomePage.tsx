@@ -32,7 +32,14 @@ const { queryRepository } = manager.createWorkspace({
 
           return {
             getUsers(params) {
-              console.log("NEW QUERY REPO", params);
+              console.log("GET USERS", params);
+              observer.dispatch<{
+                userId: number;
+              }>({
+                type: "getUsers",
+                repositoryId: "company-repo",
+                message: { userId: 1 },
+              });
             },
           };
         },
@@ -41,6 +48,29 @@ const { queryRepository } = manager.createWorkspace({
         },
         onDisconnect: () => {
           console.log("ON DISCONNECT USER REPO");
+        },
+        middlewares: [],
+      },
+      {
+        id: "company-repo",
+        install({ instance }): ICompanyRepository {
+          const { dependencies, observer } = instance;
+          observer.subscribe<{
+            userId: number;
+          }>((data) => {
+            console.log("SUBSCRIBED COMPANY REPO", data);
+          });
+          return {
+            getCompanies(params) {
+              console.log("GET COMPANIES", params);
+            },
+          };
+        },
+        onConnect: () => {
+          console.log("%cON CONNECT COMPANY REPO", "color: green");
+        },
+        onDisconnect: () => {
+          console.log("ON DISCONNECT COMPANY REPO");
         },
         middlewares: [],
       },
@@ -99,8 +129,10 @@ const { queryRepository } = manager.createWorkspace({
 //   middlewares: [],
 // });
 
-let x = queryRepository<IUserRepository>("user-repo");
-x.repository.getUsers(1);
+let userRepository = queryRepository<IUserRepository>("user-repo");
+let companyRepository = queryRepository<ICompanyRepository>("company-repo");
+userRepository.repository.getUsers(1);
+// companyRepository.repository.getCompanies(1);
 // console.log("X", x);
 
 const HomePage = () => {
