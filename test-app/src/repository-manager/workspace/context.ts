@@ -5,8 +5,8 @@ import {
   createStore,
   useScope,
 } from "../infrastructure";
-import type { IRepository, IPlugin } from "../types";
-import type { IWorkspaceConfig } from "../types";
+import type { IPlugin, IRepository, IWorkspaceConfig } from "../types";
+import { mountWorkspace } from "./mount";
 
 interface IWorkspaceContext<D = any> {
   store: ReturnType<typeof createStore<IRepository<any>>>;
@@ -44,6 +44,7 @@ function createWorkspaceContext<D = any>(
       dependencies,
     },
     () => {
+      mountWorkspace();
       child();
     }
   );
