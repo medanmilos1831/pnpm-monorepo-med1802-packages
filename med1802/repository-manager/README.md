@@ -4,13 +4,14 @@ A lightweight, type-safe repository manager with dependency injection, event-dri
 
 ## ✨ Features
 
-- ✅ **Dependency Injection** - Inject infrastructure dependencies into repositories
+- ✅ **Dependency Injection** - Inject dependencies into repositories
 - ✅ **Event-Driven Architecture** - Built-in observer pattern for inter-repository communication
+- ✅ **Plugin System** - Define repositories as plugins
 - ✅ **Lifecycle Management** - Automatic connection/disconnection with reference counting
 - ✅ **Multi-Workspace Support** - Manage multiple isolated workspaces with different dependencies
 - ✅ **Type Safety** - Full TypeScript support with generics
 - ✅ **Lazy Initialization** - Repository instances are created only when needed
-- ✅ **Workspace Pattern** - Clean API with `createWorkspace`
+- ✅ **Clean API** - Simple `createWorkspace` pattern
 - ✅ **Logging** - Built-in logging with colored console output
 - ✅ **Memory Efficient** - Automatic cleanup when no connections remain
 - ✅ **Middleware Support** - Intercept and modify repository method calls
@@ -36,8 +37,8 @@ interface IUserRepository {
 // Create manager instance
 const manager = repositoryManager();
 
-// Define infrastructure dependencies
-const infrastructure = {
+// Define dependencies
+const dependencies = {
   httpClient: {
     get: async (url: string) => fetch(url).then((r) => r.json()),
     post: async (url: string, data: any) =>
@@ -45,40 +46,40 @@ const infrastructure = {
   },
 };
 
-// Create workspace (entry point for all operations)
-const { defineRepository, queryRepository } = manager.createWorkspace({
+// Create workspace with plugins
+const { queryRepository } = manager.createWorkspace({
   id: "app",
   logging: true,
-  infrastructure,
-});
-
-// Define repository
-defineRepository<IUserRepository>({
-  id: "user-repo",
-  install({ instance }) {
-    const { infrastructure, observer } = instance;
-    return {
-      async getUsers() {
-        return infrastructure.httpClient.get("/api/users");
+  dependencies,
+  plugins: () => [
+    {
+      id: "user-repo",
+      install({ instance }): IUserRepository {
+        const { dependencies, observer } = instance;
+        return {
+          async getUsers() {
+            return dependencies.httpClient.get("/api/users");
+          },
+          async createUser(user) {
+            const result = await dependencies.httpClient.post("/api/users", user);
+            // Notify other repositories about new user
+            observer.dispatch({
+              type: "user.created",
+              repositoryId: "user-repo",
+              message: result,
+            });
+            return result;
+          },
+        };
       },
-      async createUser(user) {
-        const result = await infrastructure.httpClient.post("/api/users", user);
-        // Notify other repositories about new user
-        observer.dispatch({
-          type: "user.created",
-          repositoryId: "user-repo",
-          message: result,
-        });
-        return result;
+      onConnect: () => {
+        console.log("User repository initialized");
       },
-    };
-  },
-  onConnect: () => {
-    console.log("User repository initialized");
-  },
-  onDisconnect: () => {
-    console.log("User repository cleaned up");
-  },
+      onDisconnect: () => {
+        console.log("User repository cleaned up");
+      },
+    },
+  ],
 });
 
 // Query and use repository
@@ -111,19 +112,22 @@ workspace.queryRepository("repo-id");                   // Query repositories
 
 Workspace is the **entry point** for all operations. It encapsulates:
 
-- Infrastructure dependencies
-- Repository definitions
+- Dependencies (shared services/infrastructure)
+- Plugin definitions (repositories)
 - Observer system for events
 - Logging configuration
 
 ```typescript
-const { defineRepository, queryRepository } = manager.createWorkspace({
+const { queryRepository } = manager.createWorkspace({
   id: "app-workspace",
   logging: true,
-  infrastructure: {
+  dependencies: {
     httpClient: myHttpClient,
     cache: myCache,
   },
+  plugins: () => [
+    // Repository plugins defined here
+  ],
 });
 ```
 
@@ -132,44 +136,49 @@ const { defineRepository, queryRepository } = manager.createWorkspace({
 The built-in observer enables **event-driven inter-repository communication**:
 
 ```typescript
-// Define repository that dispatches events
-defineRepository({
-  id: "user-repo",
-  install({ instance }) {
-    const { observer } = instance;
-    return {
-      async createUser(user) {
-        const result = await saveUser(user);
-        // Notify other repositories
-        observer.dispatch({
-          type: "user.created",
-          repositoryId: "user-repo",
-          message: result,
-        });
-        return result;
+const { queryRepository } = manager.createWorkspace({
+  id: "app",
+  dependencies,
+  plugins: () => [
+    // Repository that dispatches events
+    {
+      id: "user-repo",
+      install({ instance }) {
+        const { observer } = instance;
+        return {
+          async createUser(user) {
+            const result = await saveUser(user);
+            // Notify other repositories
+            observer.dispatch({
+              type: "user.created",
+              repositoryId: "user-repo",
+              message: result,
+            });
+            return result;
+          },
+        };
       },
-    };
-  },
-});
-
-// Another repository can subscribe to these events
-defineRepository({
-  id: "notification-repo",
-  install({ instance }) {
-    const { observer } = instance;
-
-    // Subscribe to user events
-    observer.subscribe((payload) => {
-      if (payload.type === "user.created") {
-        console.log("New user:", payload.message);
-        // Send welcome email, etc.
-      }
-    });
-
-    return {
-      // repository methods...
-    };
-  },
+    },
+    // Repository that subscribes to events
+    {
+      id: "notification-repo",
+      install({ instance }) {
+        const { observer } = instance;
+        
+        // Subscribe to user events
+        observer.subscribe((payload) => {
+          if (payload.type === "user.created") {
+            console.log("New user:", payload.message);
+            // Send welcome email, etc.
+          }
+        });
+        
+        return {
+          // repository methods...
+        };
+      },
+    },
+  ],
 });
 ```
 
@@ -187,45 +196,53 @@ Creates a repository manager instance.
 const manager = repositoryManager();
 ```
 
-### `manager.createWorkspace<I>(config)`
+### `manager.createWorkspace<D>(config)`
 
-Creates a workspace with infrastructure dependencies.
+Creates a workspace with dependencies and plugins.
 
 **Parameters:**
 
-- `config: IConfiguration<I>`
+- `config: IWorkspaceConfig<D>`
   - `id: string` - Unique identifier for the workspace
-  - `infrastructure: I` - Infrastructure dependencies to inject into repositories
+  - `dependencies: D` - Dependencies to inject into repositories
+  - `plugins: () => IPlugin[]` - Function that returns array of repository plugins
   - `logging?: boolean` - Enable/disable logging (default: `false`)
 
 **Returns:** Object with workspace methods:
 
-- `defineRepository` - Define repositories
 - `queryRepository` - Query repositories
 
 **Example:**
 
 ```typescript
-const { defineRepository, queryRepository } = manager.createWorkspace({
+const { queryRepository } = manager.createWorkspace({
   id: "app",
-  infrastructure: {
+  dependencies: {
     httpClient: myHttpClient,
     database: myDb,
   },
+  plugins: () => [
+    {
+      id: "user-repo",
+      install({ instance }) {
+        // repository implementation
+      },
+    },
+  ],
   logging: true,
 });
 ```
 
-### `defineRepository<R>(config)`
+### Plugin Definition
 
-Defines a repository within the workspace.
+Defines a repository plugin within the workspace.
 
-**Parameters:**
+**Plugin Structure:**
 
-- `config: IRepositoryPlugin<I, R>`
+- `IPlugin<D, R>`
   - `id: string` - Unique identifier for the repository
   - `install: ({ instance }) => R` - Factory function that returns repository instance
-    - `instance.infrastructure` - Injected infrastructure
+    - `instance.dependencies` - Injected dependencies
     - `instance.observer` - Observer for event-driven communication
   - `onConnect?: () => void` - Called when repository is first connected
   - `onDisconnect?: () => void` - Called when repository is last disconnected
@@ -234,32 +251,34 @@ Defines a repository within the workspace.
 **Example:**
 
 ```typescript
-defineRepository<IUserRepository>({
-  id: "user-repo",
-  install({ instance }) {
-    const { infrastructure, observer } = instance;
-
-    // Subscribe to events
-    observer.subscribe((payload) => {
-      console.log("Event received:", payload);
-    });
-
-    return {
-      async createUser(user) {
-        const result = await infrastructure.httpClient.post("/users", user);
-        // Dispatch event
-        observer.dispatch({
-          type: "user.created",
-          repositoryId: "user-repo",
-          message: result,
-        });
-        return result;
-      },
-    };
+plugins: () => [
+  {
+    id: "user-repo",
+    install({ instance }): IUserRepository {
+      const { dependencies, observer } = instance;
+      
+      // Subscribe to events
+      observer.subscribe((payload) => {
+        console.log("Event received:", payload);
+      });
+      
+      return {
+        async createUser(user) {
+          const result = await dependencies.httpClient.post("/users", user);
+          // Dispatch event
+          observer.dispatch({
+            type: "user.created",
+            repositoryId: "user-repo",
+            message: result,
+          });
+          return result;
+        },
+      };
+    },
+    onConnect: () => console.log("Connected"),
+    onDisconnect: () => console.log("Disconnected"),
   },
-  onConnect: () => console.log("Connected"),
-  onDisconnect: () => console.log("Disconnected"),
-});
+]
 ```
 
 ### `queryRepository<R>(id)`
@@ -356,73 +375,80 @@ The built-in observer system enables decoupled communication between repositorie
 Repositories can communicate through the observer system:
 
 ```typescript
-// User repository dispatches events
-defineRepository({
-  id: "user-repo",
-  install({ instance }) {
-    const { infrastructure, observer } = instance;
-    return {
-      async createUser(user) {
-        const result = await infrastructure.httpClient.post("/users", user);
-        observer.dispatch({
-          type: "user.created",
-          repositoryId: "user-repo",
-          message: result,
-        });
-        return result;
+const { queryRepository } = manager.createWorkspace({
+  id: "app",
+  dependencies: {
+    httpClient: myHttpClient,
+    emailService: myEmailService,
+  },
+  plugins: () => [
+    // User repository dispatches events
+    {
+      id: "user-repo",
+      install({ instance }) {
+        const { dependencies, observer } = instance;
+        return {
+          async createUser(user) {
+            const result = await dependencies.httpClient.post("/users", user);
+            observer.dispatch({
+              type: "user.created",
+              repositoryId: "user-repo",
+              message: result,
+            });
+            return result;
+          },
+          async deleteUser(userId) {
+            await dependencies.httpClient.delete(`/users/${userId}`);
+            observer.dispatch({
+              type: "user.deleted",
+              repositoryId: "user-repo",
+              message: { userId },
+            });
+          },
+        };
       },
-      async deleteUser(userId) {
-        await infrastructure.httpClient.delete(`/users/${userId}`);
-        observer.dispatch({
-          type: "user.deleted",
-          repositoryId: "user-repo",
-          message: { userId },
+    },
+    // Notification repository subscribes to user events
+    {
+      id: "notification-repo",
+      install({ instance }) {
+        const { observer, dependencies } = instance;
+
+        observer.subscribe((payload) => {
+          if (payload.type === "user.created") {
+            dependencies.emailService.send({
+              to: payload.message.email,
+              subject: "Welcome!",
+            });
+          }
+          if (payload.type === "user.deleted") {
+            console.log("User deleted:", payload.message.userId);
+          }
         });
+
+        return {
+          // notification methods...
+        };
       },
-    };
-  },
-});
+    },
+    // Analytics repository also subscribes
+    {
+      id: "analytics-repo",
+      install({ instance }) {
+        const { observer } = instance;
 
-// Notification repository subscribes to user events
-defineRepository({
-  id: "notification-repo",
-  install({ instance }) {
-    const { observer, infrastructure } = instance;
-
-    observer.subscribe((payload) => {
-      if (payload.type === "user.created") {
-        infrastructure.emailService.send({
-          to: payload.message.email,
-          subject: "Welcome!",
+        observer.subscribe((payload) => {
+          if (payload.type === "user.created") {
+            console.log("Track new user:", payload.message);
+          }
         });
-      }
-      if (payload.type === "user.deleted") {
-        console.log("User deleted:", payload.message.userId);
-      }
-    });
 
-    return {
-      // notification methods...
-    };
-  },
-});
-
-// Analytics repository also subscribes
-defineRepository({
-  id: "analytics-repo",
-  install({ instance }) {
-    const { observer } = instance;
-
-    observer.subscribe((payload) => {
-      if (payload.type === "user.created") {
-        console.log("Track new user:", payload.message);
-      }
-    });
-
-    return {
-      // analytics methods...
-    };
-  },
+        return {
+          // analytics methods...
+        };
+      },
+    },
+  ],
 });
 ```
 
@@ -434,26 +460,30 @@ Create multiple isolated workspaces with different dependencies:
 // API workspace
 const apiWorkspace = manager.createWorkspace({
   id: "api",
-  infrastructure: {
+  dependencies: {
     httpClient: apiClient,
     cache: redisCache,
   },
+  plugins: () => [
+    // API repository plugins
+  ],
   logging: true,
 });
 
 // Database workspace
 const dbWorkspace = manager.createWorkspace({
   id: "database",
-  infrastructure: {
+  dependencies: {
     db: postgresClient,
     logger: winstonLogger,
   },
+  plugins: () => [
+    // Database repository plugins
+  ],
   logging: false,
 });
 
 // Each workspace has isolated repositories and observers
-apiWorkspace.defineRepository({...});
-dbWorkspace.defineRepository({...});
 ```
 
 ### TypeScript Best Practices
@@ -461,8 +491,8 @@ dbWorkspace.defineRepository({...});
 Define clear interfaces for type safety:
 
 ```typescript
-// Infrastructure interface
-interface IInfrastructure {
+// Dependencies interface
+interface IDependencies {
   httpClient: IHttpClient;
   cache: ICache;
   logger: ILogger;
@@ -474,30 +504,29 @@ interface IUserRepository {
   createUser(user: User): Promise<User>;
 }
 
-// Workspace with typed infrastructure
-const { defineRepository, queryRepository } =
-  manager.createWorkspace<IInfrastructure>({
-    id: "app",
-    infrastructure,
-    logging: true,
-  });
-
-// Repository with typed interface
-defineRepository<IUserRepository>({
-  id: "user-repo",
-  install({ instance }) {
-    const { infrastructure } = instance;
-    return {
-      async getUsers() {
-        // TypeScript knows infrastructure type
-        return infrastructure.httpClient.get("/users");
+// Workspace with typed dependencies
+const { queryRepository } = manager.createWorkspace<IDependencies>({
+  id: "app",
+  dependencies,
+  plugins: () => [
+    {
+      id: "user-repo",
+      install({ instance }): IUserRepository {
+        const { dependencies } = instance;
+        return {
+          async getUsers() {
+            // TypeScript knows dependencies type
+            return dependencies.httpClient.get("/users");
+          },
+          async createUser(user) {
+            // TypeScript validates User type
+            return dependencies.httpClient.post("/users", user);
+          },
+        };
       },
-      async createUser(user) {
-        // TypeScript validates User type
-        return infrastructure.httpClient.post("/users", user);
-      },
-    };
-  },
+    },
+  ],
+  logging: true,
 });
 
 // Query with typed repository
@@ -546,14 +575,19 @@ const cacheMiddleware: Middleware = (method, args, next) => {
   return result;
 };
 
-defineRepository({
-  id: "user-repo",
-  install({ instance }) {
-    return {
-      getUsers: () => instance.infrastructure.httpClient.get("/users"),
-    };
-  },
-  middlewares: [loggingMiddleware, cacheMiddleware],
+const { queryRepository } = manager.createWorkspace({
+  dependencies,
+  plugins: () => [
+    {
+      id: "user-repo",
+      install({ instance }) {
+        return {
+          getUsers: () => instance.dependencies.httpClient.get("/users"),
+        };
+      },
+      middlewares: [loggingMiddleware, cacheMiddleware],
+    },
+  ],
 });
 ```
 
@@ -571,9 +605,12 @@ defineRepository({
 Enable logging to see connection lifecycle and events:
 
 ```typescript
-const { defineRepository } = manager.createWorkspace({
+const { queryRepository } = manager.createWorkspace({
   id: "app",
-  infrastructure,
+  dependencies,
+  plugins: () => [
+    // plugins here
+  ],
   logging: true, // Enables colored console output
 });
 ```

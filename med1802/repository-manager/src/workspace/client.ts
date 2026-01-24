@@ -1,46 +1,14 @@
-import {
-  createRepository,
-  type IRepositoryPlugin,
-  type repositoryType,
-} from "../core";
+import type { pluginType } from "../types";
 import { workspace } from "../workspace";
 
 function createWorkspaceClient<I>() {
-  const { store, logger, infrastructure, observer } = workspace<I>();
-  function hasRepository(id: string) {
-    return store.hasState(id);
-  }
+  const { store, logger } = workspace<I>();
+
   function allRepositories() {
     return Array.from(store.getEntries()).map(([id, repository]: any) => ({
       repository: id,
       connections: repository.connections,
     }));
-  }
-
-  function defineRepository<R = any>(
-    repositoryPlugin: IRepositoryPlugin<I, R>
-  ) {
-    const { id } = repositoryPlugin;
-    if (hasRepository(id)) return;
-    logger.log(
-      () => {
-        store.setState(
-          id,
-          createRepository(infrastructure, repositoryPlugin, observer)
-        );
-      },
-      {
-        type: "repository.define",
-        scope: id,
-        metadata() {
-          return {
-            repositories: allRepositories().map(({ repository }) => ({
-              repository,
-            })),
-          };
-        },
-      }
-    );
   }
 
   function queryRepository<R = any>(id: string) {
@@ -59,14 +27,13 @@ function createWorkspaceClient<I>() {
     });
     const { repository } = entity;
     return {
-      repository: repository as ReturnType<repositoryType<I, R>>,
+      repository: repository as ReturnType<pluginType<I, R>>,
       disconnect() {
         entity.disconnect();
       },
     };
   }
   return {
-    defineRepository,
     queryRepository,
   };
 }

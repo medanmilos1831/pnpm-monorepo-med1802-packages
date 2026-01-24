@@ -1,6 +1,8 @@
-import type { IConfiguration } from "../workspace";
+import type { IWorkspaceConfig } from "../types";
 
-const createLogger = (config: Omit<IConfiguration, "infrastructure">) => {
+const createLogger = (
+  config: Omit<IWorkspaceConfig, "dependencies" | "plugins">
+) => {
   const { logging } = config;
   return {
     log: (
