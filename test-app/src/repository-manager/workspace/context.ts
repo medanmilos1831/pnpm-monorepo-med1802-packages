@@ -21,10 +21,10 @@ const workspaceScope = createScope<IWorkspaceContext<any> | undefined>(
 );
 
 function createWorkspaceContext<D = any>(
-  params: IWorkspaceConfig<D>,
+  config: IWorkspaceConfig<D>,
   child: () => void
 ) {
-  const { id, logging, dependencies, plugins } = params;
+  const { id, logging, dependencies, plugins } = config;
   const defaultConfig: Omit<IWorkspaceConfig, "dependencies" | "plugins"> = {
     id,
     logging: logging ?? false,

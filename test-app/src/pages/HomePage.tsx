@@ -4,8 +4,8 @@ interface IUserRepository {
   getUsers(id: number): void;
 }
 
-interface ICompanyRepository {
-  getCompanies(id: number): void;
+interface IContractRepository {
+  getContracts(id: number): void;
 }
 
 const manager = repositoryManager();
@@ -32,12 +32,11 @@ const { queryRepository } = manager.createWorkspace({
 
           return {
             getUsers(params) {
-              console.log("GET USERS", params);
               observer.dispatch<{
                 userId: number;
               }>({
                 type: "getUsers",
-                repositoryId: "company-repo",
+                repositoryId: "contract-repo",
                 message: { userId: 1 },
               });
             },
@@ -52,88 +51,35 @@ const { queryRepository } = manager.createWorkspace({
         middlewares: [],
       },
       {
-        id: "company-repo",
-        install({ instance }): ICompanyRepository {
+        id: "contract-repo",
+        install({ instance }): IContractRepository {
           const { dependencies, observer } = instance;
           observer.subscribe<{
-            userId: number;
+            contractId: number;
           }>((data) => {
-            console.log("SUBSCRIBED COMPANY REPO", data);
+            console.log("SUBSCRIBED CONTRACT REPO", data);
           });
           return {
-            getCompanies(params) {
-              console.log("GET COMPANIES", params);
+            getContracts(params) {
+              console.log("GET CONTRACTS", params);
             },
           };
         },
         onConnect: () => {
-          console.log("%cON CONNECT COMPANY REPO", "color: green");
+          console.log("%cON CONNECT CONTRACT REPO", "color: green");
         },
         onDisconnect: () => {
-          console.log("ON DISCONNECT COMPANY REPO");
+          console.log("ON DISCONNECT CONTRACT REPO");
         },
         middlewares: [],
       },
     ];
   },
 });
-// defineRepository<IUserRepository>({
-//   id: "user-repo",
-//   install({ instance }) {
-//     const { infrastructure, observer } = instance;
-
-//     return {
-//       getUsers(params) {
-//         observer.dispatch<{
-//           userId: number;
-//         }>({
-//           type: "getUsers",
-//           repositoryId: "company-repo",
-//           message: { userId: 1 },
-//         });
-//       },
-//     };
-//   },
-//   onConnect: () => {
-//     // console.log("ON CONNECT USER REPO");
-//   },
-//   onDisconnect: () => {
-//     // console.log("ON DISCONNECT");
-//   },
-//   middlewares: [],
-// });
-
-// defineRepository<ICompanyRepository>({
-//   id: "company-repo",
-//   install({ instance }) {
-//     const { infrastructure, observer } = instance;
-//     let obj: ICompanyRepository = {
-//       getCompanies(params) {
-//         console.log("GET COMPANIES", params);
-//       },
-//     };
-//     observer.subscribe<{
-//       userId: number;
-//     }>((data) => {
-//       console.log("SUBSCRIBED COMPANY REPO", data);
-//       // obj.getCompanies(payload.data);
-//     });
-//     return obj;
-//   },
-//   onConnect: () => {
-//     // console.log("ON CONNECT COMPANY REPO");
-//   },
-//   onDisconnect: () => {
-//     console.log("ON DISCONNECT");
-//   },
-//   middlewares: [],
-// });
 
 let userRepository = queryRepository<IUserRepository>("user-repo");
-let companyRepository = queryRepository<ICompanyRepository>("company-repo");
+let contractRepository = queryRepository<IContractRepository>("contract-repo");
 userRepository.repository.getUsers(1);
-// companyRepository.repository.getCompanies(1);
-// console.log("X", x);
 
 const HomePage = () => {
   return <></>;
