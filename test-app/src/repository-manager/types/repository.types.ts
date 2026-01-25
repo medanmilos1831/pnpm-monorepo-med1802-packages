@@ -1,4 +1,4 @@
-import type { IObserver } from "./observer.types";
+import type { IMessenger } from "./observer.types";
 
 export interface IRepositoryConfig<D = any, R = any> {
   id: string;
@@ -11,7 +11,7 @@ export interface IRepositoryConfig<D = any, R = any> {
 export type repositoryType<D = any, R = any> = (obj: {
   instance: {
     dependencies: D;
-    observer: IObserver;
+    messenger: IMessenger;
   };
 }) => R;
 

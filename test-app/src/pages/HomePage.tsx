@@ -28,11 +28,11 @@ const { queryRepository } = manager.createWorkspace({
       {
         id: "user-repo",
         install({ instance }): IUserRepository {
-          const { dependencies, observer } = instance;
+          const { dependencies, messenger } = instance;
 
           return {
             getUsers(params) {
-              observer.dispatch<{
+              messenger.dispatch<{
                 userId: number;
               }>({
                 type: "getUsers",
@@ -53,8 +53,8 @@ const { queryRepository } = manager.createWorkspace({
       {
         id: "contract-repo",
         install({ instance }): IContractRepository {
-          const { dependencies, observer } = instance;
-          observer.subscribe<{
+          const { dependencies, messenger } = instance;
+          messenger.subscribe<{
             contractId: number;
           }>((data) => {
             console.log("SUBSCRIBED CONTRACT REPO", data);

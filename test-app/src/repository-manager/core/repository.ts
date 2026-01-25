@@ -23,7 +23,7 @@ function createRepository<D>(
         const rawRepository = install({
           instance: {
             dependencies,
-            observer: (() => {
+            messenger: (() => {
               return {
                 dispatch: ({ repositoryId, type, message }) => {
                   if (repository === repositoryConfig.id) {
