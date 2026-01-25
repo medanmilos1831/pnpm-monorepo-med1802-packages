@@ -22,7 +22,7 @@ const workspaceScope = createScope<IWorkspaceContext<any> | undefined>(
   undefined
 );
 
-function createWorkspaceContext<D = any>(
+function workspaceProvider<D = any>(
   value: IWorkspaceContext<D>,
   child: () => void
 ) {
@@ -40,4 +40,4 @@ function workspace<I>() {
   return context;
 }
 
-export { createWorkspaceContext, workspace };
+export { workspaceProvider, workspace };
