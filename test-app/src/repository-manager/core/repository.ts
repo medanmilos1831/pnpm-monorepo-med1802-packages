@@ -1,13 +1,13 @@
 import type { scopedObserverType } from "../infrastructure";
-import type { IPlugin } from "../types";
+import type { IRepositoryConfig } from "../types";
 import { applyMiddleware } from "./middleware";
 
 function createRepository<D>(
   dependencies: D,
-  plugin: IPlugin<D, any>,
+  repositoryConfig: IRepositoryConfig<D, any>,
   observer: scopedObserverType
 ) {
-  const { install, middlewares, onConnect, onDisconnect } = plugin;
+  const { install, middlewares, onConnect, onDisconnect } = repositoryConfig;
   let repository = undefined as unknown;
   let connections = 0;
   let subscriptions: (() => void)[] = [];
@@ -26,7 +26,7 @@ function createRepository<D>(
             observer: (() => {
               return {
                 dispatch: ({ repositoryId, type, message }) => {
-                  if (repository === plugin.id) {
+                  if (repository === repositoryConfig.id) {
                     console.warn("WARNING: DISPATCHING TO SELF");
                     return;
                   }
@@ -36,7 +36,7 @@ function createRepository<D>(
                     payload: {
                       type,
                       message,
-                      source: plugin.id,
+                      source: repositoryConfig.id,
                     },
                   });
                 },
@@ -46,7 +46,7 @@ function createRepository<D>(
                     return;
                   }
                   const unsubscribe = observer.subscribe({
-                    scope: plugin.id,
+                    scope: repositoryConfig.id,
                     eventName: "dispatch",
                     callback({ payload }) {
                       const { type, message, source } = payload;

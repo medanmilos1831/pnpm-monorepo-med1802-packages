@@ -1,20 +1,20 @@
 import { createRepository } from "../core";
 import { createLogger, createScopedObserver, createStore } from "../infrastructure";
-import type { IRepository, IWorkspaceConfig } from "../types";
+import type { IRepositoryInstance, IWorkspaceConfig } from "../types";
 
 function mountWorkspace<D = any>(config: IWorkspaceConfig<D>){
-    const { id, logging, plugins } = config;
-    const defaultConfig: Omit<IWorkspaceConfig, "dependencies" | "plugins"> = {
+    const { id, logging, repositories } = config;
+    const defaultConfig: Omit<IWorkspaceConfig, "dependencies" | "repositories"> = {
         id,
         logging: logging ?? false,
     };
-    const repositories = plugins();
+    const items = repositories();
     const logger = createLogger(defaultConfig);
-    const store = createStore<IRepository<any>>();
+    const store = createStore<IRepositoryInstance<any>>();
     const observer = createScopedObserver(
-        repositories.map((repo) => ({ scope: repo.id }))
+        items.map((repo) => ({ scope: repo.id }))
     );
-    repositories.forEach((repo) => {
+    items.forEach((repo) => {
         const { id } = repo;
         if (store.hasState(id)) return;
         store.setState(id, createRepository(config.dependencies, repo, observer))

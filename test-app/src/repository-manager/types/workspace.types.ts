@@ -1,8 +1,8 @@
-import type { IPlugin } from "./repository.types";
+import type { IRepositoryConfig } from "./repository.types";
 
 export interface IWorkspaceConfig<D = any> {
   id: string;
   logging?: boolean;
   dependencies: D;
-  plugins: () => IPlugin<D, any>[];
+  repositories: () => IRepositoryConfig<D, any>[];
 }
