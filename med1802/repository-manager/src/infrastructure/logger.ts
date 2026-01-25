@@ -1,7 +1,7 @@
 import type { IWorkspaceConfig } from "../types";
 
 const createLogger = (
-  config: Omit<IWorkspaceConfig, "dependencies" | "plugins">
+  config: Omit<IWorkspaceConfig, "dependencies" | "repositories">
 ) => {
   const { logging } = config;
   return {

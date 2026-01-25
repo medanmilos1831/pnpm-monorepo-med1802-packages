@@ -1,18 +1,18 @@
-export type IObserverDispatch<P = any> = {
+export type IMessengerDispatch<P = any> = {
   type: string;
   repositoryId: string;
   message?: P;
 };
 
-export type IObserverSubscribePayload<P = any> = {
+export type IMessengerSubscribePayload<P = any> = {
   type: string;
   source: string;
   message: P;
 };
 
-export type IObserver = {
-  dispatch<P = any>(payload: IObserverDispatch<P>): void;
+export type IMessenger = {
+  dispatch<P = any>(payload: IMessengerDispatch<P>): void;
   subscribe<P = any>(
-    callback: (payload: IObserverSubscribePayload<P>) => void
+    callback: (payload: IMessengerSubscribePayload<P>) => void
   ): void;
 };

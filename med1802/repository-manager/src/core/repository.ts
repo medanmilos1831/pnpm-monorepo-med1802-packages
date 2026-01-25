@@ -1,13 +1,14 @@
 import type { scopedObserverType } from "../infrastructure";
-import type { IPlugin } from "../types";
+import type { IRepositoryConfig } from "../types";
+import { createMessenger } from "./messenger";
 import { applyMiddleware } from "./middleware";
 
 function createRepository<D>(
   dependencies: D,
-  plugin: IPlugin<D, any>,
+  repositoryConfig: IRepositoryConfig<D, any>,
   observer: scopedObserverType
 ) {
-  const { install, middlewares, onConnect, onDisconnect } = plugin;
+  const { install, middlewares, onConnect, onDisconnect } = repositoryConfig;
   let repository = undefined as unknown;
   let connections = 0;
   let subscriptions: (() => void)[] = [];
@@ -23,44 +24,11 @@ function createRepository<D>(
         const rawRepository = install({
           instance: {
             dependencies,
-            observer: (() => {
-              return {
-                dispatch: ({ repositoryId, type, message }) => {
-                  if (repository === plugin.id) {
-                    console.warn("WARNING: DISPATCHING TO SELF");
-                    return;
-                  }
-                  observer.dispatch({
-                    scope: repositoryId,
-                    eventName: "dispatch",
-                    payload: {
-                      type,
-                      message,
-                      source: plugin.id,
-                    },
-                  });
-                },
-                subscribe: (handler) => {
-                  if (subscriptions.length > 0) {
-                    console.warn("WARNING: SUBSCRIBED ALREADY");
-                    return;
-                  }
-                  const unsubscribe = observer.subscribe({
-                    scope: plugin.id,
-                    eventName: "dispatch",
-                    callback({ payload }) {
-                      const { type, message, source } = payload;
-                      handler({
-                        type,
-                        message: message ?? undefined,
-                        source,
-                      });
-                    },
-                  });
-                  subscriptions.push(unsubscribe);
-                },
-              };
-            })(),
+            messenger: createMessenger({
+              observer,
+              subscriptions,
+              repositoryConfig,
+            }),
           },
         });
         repository = middlewares

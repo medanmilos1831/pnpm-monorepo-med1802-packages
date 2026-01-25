@@ -1,24 +1,24 @@
-import type { IObserver } from "./observer.types";
+import type { IMessenger } from "./observer.types";
 
-export interface IPlugin<D = any, R = any> {
+export interface IRepositoryConfig<D = any, R = any> {
   id: string;
-  install: pluginType<D, R>;
+  install: repositoryType<D, R>;
   middlewares?: Middleware[];
   onConnect?: () => void;
   onDisconnect?: () => void;
 }
 
-export type pluginType<D = any, R = any> = (obj: {
+export type repositoryType<D = any, R = any> = (obj: {
   instance: {
     dependencies: D;
-    observer: IObserver;
+    messenger: IMessenger;
   };
 }) => R;
 
-export interface IRepository<R = any> {
+export interface IRepositoryInstance<R = any> {
   connect(): void;
   disconnect(): void;
-  repository: ReturnType<pluginType<any, R>> | undefined;
+  repository: ReturnType<repositoryType<any, R>> | undefined;
   connections: number;
 }
 

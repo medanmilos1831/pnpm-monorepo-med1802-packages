@@ -5,7 +5,7 @@ A lightweight, type-safe repository manager with dependency injection, event-dri
 ## ✨ Features
 
 - ✅ **Dependency Injection** - Inject dependencies into repositories
-- ✅ **Event-Driven Architecture** - Built-in observer pattern for inter-repository communication
+- ✅ **Event-Driven Architecture** - Built-in messenger pattern for inter-repository communication
 - ✅ **Plugin System** - Define repositories as plugins
 - ✅ **Lifecycle Management** - Automatic connection/disconnection with reference counting
 - ✅ **Multi-Workspace Support** - Manage multiple isolated workspaces with different dependencies
@@ -15,7 +15,7 @@ A lightweight, type-safe repository manager with dependency injection, event-dri
 - ✅ **Logging** - Built-in logging with colored console output
 - ✅ **Memory Efficient** - Automatic cleanup when no connections remain
 - ✅ **Middleware Support** - Intercept and modify repository method calls
-- ✅ **Scoped Observer** - Hierarchical event system for organized communication
+- ✅ **Fire and Forget Messaging** - Hierarchical event system for organized communication
 
 ## 📦 Installation
 
@@ -46,16 +46,16 @@ const dependencies = {
   },
 };
 
-// Create workspace with plugins
+// Create workspace with repositories
 const { queryRepository } = manager.createWorkspace({
   id: "app",
   logging: true,
   dependencies,
-  plugins: () => [
+  repositories: () => [
     {
       id: "user-repo",
       install({ instance }): IUserRepository {
-        const { dependencies, observer } = instance;
+        const { dependencies, messenger } = instance;
         return {
           async getUsers() {
             return dependencies.httpClient.get("/api/users");
@@ -63,7 +63,7 @@ const { queryRepository } = manager.createWorkspace({
           async createUser(user) {
             const result = await dependencies.httpClient.post("/api/users", user);
             // Notify other repositories about new user
-            observer.dispatch({
+            messenger.dispatch({
               type: "user.created",
               repositoryId: "user-repo",
               message: result,
@@ -101,10 +101,10 @@ Repository Manager follows a hierarchical pattern:
 const manager = repositoryManager();                    // Global manager
 const workspace = manager.createWorkspace({             // Workspace instance
   id: "app",
-  infrastructure,
-  logging: true
+  dependencies,
+  logging: true,
+  repositories: () => [...]                              // Define repositories
 });
-workspace.defineRepository({...});                      // Define repositories
 workspace.queryRepository("repo-id");                   // Query repositories
 ```
 
@@ -113,8 +113,8 @@ workspace.queryRepository("repo-id");                   // Query repositories
 Workspace is the **entry point** for all operations. It encapsulates:
 
 - Dependencies (shared services/infrastructure)
-- Plugin definitions (repositories)
-- Observer system for events
+- Repository definitions
+- Messenger system for events
 - Logging configuration
 
 ```typescript
@@ -125,31 +125,31 @@ const { queryRepository } = manager.createWorkspace({
     httpClient: myHttpClient,
     cache: myCache,
   },
-  plugins: () => [
-    // Repository plugins defined here
+  repositories: () => [
+    // Repository definitions here
   ],
 });
 ```
 
-### 3. Observer System
+### 3. Messenger System
 
-The built-in observer enables **event-driven inter-repository communication**:
+The built-in messenger enables **fire-and-forget inter-repository communication**:
 
 ```typescript
 const { queryRepository } = manager.createWorkspace({
   id: "app",
   dependencies,
-  plugins: () => [
+  repositories: () => [
     // Repository that dispatches events
     {
       id: "user-repo",
       install({ instance }) {
-        const { observer } = instance;
+        const { messenger } = instance;
         return {
           async createUser(user) {
             const result = await saveUser(user);
             // Notify other repositories
-            observer.dispatch({
+            messenger.dispatch({
               type: "user.created",
               repositoryId: "user-repo",
               message: result,
@@ -163,10 +163,10 @@ const { queryRepository } = manager.createWorkspace({
     {
       id: "notification-repo",
       install({ instance }) {
-        const { observer } = instance;
+        const { messenger } = instance;
         
         // Subscribe to user events
-        observer.subscribe((payload) => {
+        messenger.subscribe((payload) => {
           if (payload.type === "user.created") {
             console.log("New user:", payload.message);
             // Send welcome email, etc.
@@ -205,7 +205,7 @@ Creates a workspace with dependencies and plugins.
 - `config: IWorkspaceConfig<D>`
   - `id: string` - Unique identifier for the workspace
   - `dependencies: D` - Dependencies to inject into repositories
-  - `plugins: () => IPlugin[]` - Function that returns array of repository plugins
+  - `repositories: () => IRepositoryConfig[]` - Function that returns array of repository configs
   - `logging?: boolean` - Enable/disable logging (default: `false`)
 
 **Returns:** Object with workspace methods:
@@ -221,7 +221,7 @@ const { queryRepository } = manager.createWorkspace({
     httpClient: myHttpClient,
     database: myDb,
   },
-  plugins: () => [
+  repositories: () => [
     {
       id: "user-repo",
       install({ instance }) {
@@ -233,17 +233,17 @@ const { queryRepository } = manager.createWorkspace({
 });
 ```
 
-### Plugin Definition
+### Repository Definition
 
-Defines a repository plugin within the workspace.
+Defines a repository within the workspace.
 
-**Plugin Structure:**
+**Repository Structure:**
 
-- `IPlugin<D, R>`
+- `IRepositoryConfig<D, R>`
   - `id: string` - Unique identifier for the repository
   - `install: ({ instance }) => R` - Factory function that returns repository instance
     - `instance.dependencies` - Injected dependencies
-    - `instance.observer` - Observer for event-driven communication
+    - `instance.messenger` - Messenger for fire-and-forget communication
   - `onConnect?: () => void` - Called when repository is first connected
   - `onDisconnect?: () => void` - Called when repository is last disconnected
   - `middlewares?: Middleware[]` - Array of middleware functions
@@ -251,14 +251,14 @@ Defines a repository plugin within the workspace.
 **Example:**
 
 ```typescript
-plugins: () => [
+repositories: () => [
   {
     id: "user-repo",
     install({ instance }): IUserRepository {
-      const { dependencies, observer } = instance;
+      const { dependencies, messenger } = instance;
       
       // Subscribe to events
-      observer.subscribe((payload) => {
+      messenger.subscribe((payload) => {
         console.log("Event received:", payload);
       });
       
@@ -266,7 +266,7 @@ plugins: () => [
         async createUser(user) {
           const result = await dependencies.httpClient.post("/users", user);
           // Dispatch event
-          observer.dispatch({
+          messenger.dispatch({
             type: "user.created",
             repositoryId: "user-repo",
             message: result,
@@ -305,34 +305,34 @@ await repository.getUsers();
 disconnect();
 ```
 
-### `observer.dispatch<P>(payload)`
+### `messenger.dispatch<P>(payload)`
 
-Dispatch an event to notify other repositories.
+Dispatch an event to notify other repositories (fire-and-forget).
 
 **Parameters:**
 
-- `payload: IObserverDispatch<P>`
+- `payload: IMessengerDispatch<P>`
   - `type: string` - Event type identifier
-  - `repositoryId: string` - Source repository identifier
+  - `repositoryId: string` - Target repository identifier
   - `message?: P` - Optional payload data
 
 **Example:**
 
 ```typescript
-observer.dispatch({
+messenger.dispatch({
   type: "user.created",
-  repositoryId: "user-repo",
+  repositoryId: "notification-repo",
   message: { userId: "123", email: "user@example.com" },
 });
 ```
 
-### `observer.subscribe<P>(callback)`
+### `messenger.subscribe<P>(callback)`
 
 Subscribe to events from other repositories.
 
 **Parameters:**
 
-- `callback: (payload: IObserverSubscribePayload<P>) => void` - Callback function
+- `callback: (payload: IMessengerSubscribePayload<P>) => void` - Callback function
   - `payload.type: string` - Event type
   - `payload.source: string` - Source repository
   - `payload.message: P` - Event payload
@@ -340,7 +340,7 @@ Subscribe to events from other repositories.
 **Example:**
 
 ```typescript
-observer.subscribe((payload) => {
+messenger.subscribe((payload) => {
   if (payload.type === "user.created") {
     console.log("User created:", payload.message);
     console.log("From repository:", payload.source);
@@ -350,9 +350,9 @@ observer.subscribe((payload) => {
 
 ## 🎯 Advanced Usage
 
-### Observer System Benefits
+### Messenger System Benefits
 
-The built-in observer system enables decoupled communication between repositories:
+The built-in messenger system enables decoupled communication between repositories:
 
 **Benefits:**
 
@@ -372,7 +372,7 @@ The built-in observer system enables decoupled communication between repositorie
 
 ### Event-Driven Communication
 
-Repositories can communicate through the observer system:
+Repositories can communicate through the messenger system:
 
 ```typescript
 const { queryRepository } = manager.createWorkspace({
@@ -381,27 +381,27 @@ const { queryRepository } = manager.createWorkspace({
     httpClient: myHttpClient,
     emailService: myEmailService,
   },
-  plugins: () => [
+  repositories: () => [
     // User repository dispatches events
     {
       id: "user-repo",
       install({ instance }) {
-        const { dependencies, observer } = instance;
+        const { dependencies, messenger } = instance;
         return {
           async createUser(user) {
             const result = await dependencies.httpClient.post("/users", user);
-            observer.dispatch({
+            messenger.dispatch({
               type: "user.created",
-              repositoryId: "user-repo",
+              repositoryId: "notification-repo",
               message: result,
             });
             return result;
           },
           async deleteUser(userId) {
             await dependencies.httpClient.delete(`/users/${userId}`);
-            observer.dispatch({
+            messenger.dispatch({
               type: "user.deleted",
-              repositoryId: "user-repo",
+              repositoryId: "notification-repo",
               message: { userId },
             });
           },
@@ -412,9 +412,9 @@ const { queryRepository } = manager.createWorkspace({
     {
       id: "notification-repo",
       install({ instance }) {
-        const { observer, dependencies } = instance;
+        const { messenger, dependencies } = instance;
 
-        observer.subscribe((payload) => {
+        messenger.subscribe((payload) => {
           if (payload.type === "user.created") {
             dependencies.emailService.send({
               to: payload.message.email,
@@ -435,9 +435,9 @@ const { queryRepository } = manager.createWorkspace({
     {
       id: "analytics-repo",
       install({ instance }) {
-        const { observer } = instance;
+        const { messenger } = instance;
 
-        observer.subscribe((payload) => {
+        messenger.subscribe((payload) => {
           if (payload.type === "user.created") {
             console.log("Track new user:", payload.message);
           }
@@ -464,8 +464,8 @@ const apiWorkspace = manager.createWorkspace({
     httpClient: apiClient,
     cache: redisCache,
   },
-  plugins: () => [
-    // API repository plugins
+  repositories: () => [
+    // API repositories
   ],
   logging: true,
 });
@@ -477,13 +477,13 @@ const dbWorkspace = manager.createWorkspace({
     db: postgresClient,
     logger: winstonLogger,
   },
-  plugins: () => [
-    // Database repository plugins
+  repositories: () => [
+    // Database repositories
   ],
   logging: false,
 });
 
-// Each workspace has isolated repositories and observers
+// Each workspace has isolated repositories and messengers
 ```
 
 ### TypeScript Best Practices
@@ -508,7 +508,7 @@ interface IUserRepository {
 const { queryRepository } = manager.createWorkspace<IDependencies>({
   id: "app",
   dependencies,
-  plugins: () => [
+  repositories: () => [
     {
       id: "user-repo",
       install({ instance }): IUserRepository {
@@ -577,7 +577,7 @@ const cacheMiddleware: Middleware = (method, args, next) => {
 
 const { queryRepository } = manager.createWorkspace({
   dependencies,
-  plugins: () => [
+  repositories: () => [
     {
       id: "user-repo",
       install({ instance }) {
@@ -608,8 +608,8 @@ Enable logging to see connection lifecycle and events:
 const { queryRepository } = manager.createWorkspace({
   id: "app",
   dependencies,
-  plugins: () => [
-    // plugins here
+  repositories: () => [
+    // repositories here
   ],
   logging: true, // Enables colored console output
 });
@@ -623,6 +623,6 @@ This library implements several design patterns:
 - **Factory Pattern** - Repositories are created using factory functions
 - **Singleton Pattern** - Each repository is a singleton per workspace (with reference counting)
 - **Repository Pattern** - Abstracts data access logic
-- **Observer Pattern** - Event-driven communication between repositories
+- **Messenger Pattern** - Fire-and-forget communication between repositories
 - **Workspace Pattern** - Clean API for managing dependencies and lifecycle
 - **Pub/Sub Pattern** - Repositories can publish and subscribe to events
