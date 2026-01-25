@@ -2,14 +2,7 @@ import type { pluginType } from "../types";
 import { workspace } from "../workspace";
 
 function createWorkspaceClient<I>() {
-  const { store, logger } = workspace<I>();
-
-  function allRepositories() {
-    return Array.from(store.getEntries()).map(([id, repository]: any) => ({
-      repository: id,
-      connections: repository.connections,
-    }));
-  }
+  const { store, allRepositories, logger } = workspace<I>();
 
   function queryRepository<R = any>(id: string) {
     const entity = store.getState(id);

@@ -3,9 +3,9 @@ import {
   createScope,
   createScopedObserver,
   createStore,
-  useScope,
+  useScope
 } from "../infrastructure";
-import type { IPlugin, IRepository, IWorkspaceConfig } from "../types";
+import type { IRepository, IWorkspaceConfig } from "../types";
 import { mountWorkspace } from "./mount";
 
 interface IWorkspaceContext<D = any> {
@@ -13,7 +13,10 @@ interface IWorkspaceContext<D = any> {
   logger: ReturnType<typeof createLogger>;
   observer: ReturnType<typeof createScopedObserver>;
   dependencies: D;
-  plugins: IPlugin<D, any>[];
+  allRepositories: () => {
+    repository: string;
+    connections: number;
+  }[];
 }
 
 const workspaceScope = createScope<IWorkspaceContext<any> | undefined>(
@@ -24,27 +27,10 @@ function createWorkspaceContext<D = any>(
   config: IWorkspaceConfig<D>,
   child: () => void
 ) {
-  const { id, logging, dependencies, plugins } = config;
-  const defaultConfig: Omit<IWorkspaceConfig, "dependencies" | "plugins"> = {
-    id,
-    logging: logging ?? false,
-  };
-  const repos = plugins();
-  const logger = createLogger(defaultConfig);
-  const store = createStore<IRepository<any>>();
-  const observer = createScopedObserver(
-    repos.map((repo) => ({ scope: repo.id }))
-  );
+
   workspaceScope.provider(
-    {
-      store,
-      logger,
-      observer,
-      plugins: repos,
-      dependencies,
-    },
+    mountWorkspace<D>(config),
     () => {
-      mountWorkspace();
       child();
     }
   );
