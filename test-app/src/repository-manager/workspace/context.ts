@@ -5,10 +5,10 @@ import {
   createStore,
   useScope
 } from "../infrastructure";
-import type { IRepository } from "../types";
+import type { IRepositoryInstance } from "../types";
 
 interface IWorkspaceContext<D = any> {
-  store: ReturnType<typeof createStore<IRepository<any>>>;
+  store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;
   logger: ReturnType<typeof createLogger>;
   observer: ReturnType<typeof createScopedObserver>;
   dependencies: D;
