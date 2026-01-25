@@ -37,6 +37,7 @@ const { queryRepository } = manager.createWorkspace({
               }>({
                 type: "getUsers",
                 repositoryId: "contract-repo",
+                // repositoryId: 'user-repo',
                 message: { userId: 1 },
               });
             },

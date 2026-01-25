@@ -1,5 +1,6 @@
 import type { scopedObserverType } from "../infrastructure";
 import type { IRepositoryConfig } from "../types";
+import { createMessenger } from "./messenger";
 import { applyMiddleware } from "./middleware";
 
 function createRepository<D>(
@@ -23,44 +24,11 @@ function createRepository<D>(
         const rawRepository = install({
           instance: {
             dependencies,
-            messenger: (() => {
-              return {
-                dispatch: ({ repositoryId, type, message }) => {
-                  if (repository === repositoryConfig.id) {
-                    console.warn("WARNING: DISPATCHING TO SELF");
-                    return;
-                  }
-                  observer.dispatch({
-                    scope: repositoryId,
-                    eventName: "dispatch",
-                    payload: {
-                      type,
-                      message,
-                      source: repositoryConfig.id,
-                    },
-                  });
-                },
-                subscribe: (handler) => {
-                  if (subscriptions.length > 0) {
-                    console.warn("WARNING: SUBSCRIBED ALREADY");
-                    return;
-                  }
-                  const unsubscribe = observer.subscribe({
-                    scope: repositoryConfig.id,
-                    eventName: "dispatch",
-                    callback({ payload }) {
-                      const { type, message, source } = payload;
-                      handler({
-                        type,
-                        message: message ?? undefined,
-                        source,
-                      });
-                    },
-                  });
-                  subscriptions.push(unsubscribe);
-                },
-              };
-            })(),
+            messenger: createMessenger({
+              observer,
+              subscriptions,
+              repositoryConfig,
+            }),
           },
         });
         repository = middlewares
