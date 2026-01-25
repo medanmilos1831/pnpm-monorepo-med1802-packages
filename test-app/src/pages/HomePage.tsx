@@ -21,7 +21,7 @@ const dependencies = {
 };
 const { queryRepository } = manager.createWorkspace({
   id: "app-workspace",
-  logging: false,
+  logging: true,
   dependencies,
   repositories: () => {
     return [
