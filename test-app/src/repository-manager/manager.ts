@@ -4,8 +4,10 @@ import { createWorkspaceClient, mountWorkspace, workspaceProvider } from "./work
 const repositoryManager = () => {
   return {
     createWorkspace<D>(config: IWorkspaceConfig<D>) {
+      let workspace = mountWorkspace<any>(config);
       let client: ReturnType<typeof createWorkspaceClient<D>> = undefined!;
-      workspaceProvider<D>(mountWorkspace<any>(config), () => {
+
+      workspaceProvider<D>(workspace, () => {
         client = createWorkspaceClient<D>();
       });
       return client;
