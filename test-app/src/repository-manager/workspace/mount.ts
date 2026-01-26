@@ -3,9 +3,9 @@ import { createLogger, createScopedObserver, createStore } from "../infrastructu
 import type { IRepositoryConfig, IRepositoryInstance, IWorkspaceConfig } from "../types";
 
 function mountWorkspace<D = any>(config: IWorkspaceConfig<D>){
-    const { id, logging } = config;
+    const { id, logging, onMount } = config;
     let repositories: IRepositoryConfig<D, any>[] = [];
-    config.onMount({
+    onMount({
         useRepository<R>(repository: IRepositoryConfig<D, R>){
             repositories.push(repository);
         }
@@ -35,13 +35,6 @@ function mountWorkspace<D = any>(config: IWorkspaceConfig<D>){
                 connections: repository.connections,
             }));
         },
-        defineRepository<R = any>(
-            repository: IRepositoryConfig<D, R>
-          ) {
-            const { id } = repository;
-            if (store.hasState(id)) return;
-            createRepository(config.dependencies, repository, observer)
-          },
         dependencies: config.dependencies,
     }
 }
