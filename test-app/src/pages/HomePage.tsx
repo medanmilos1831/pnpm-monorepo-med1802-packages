@@ -23,39 +23,63 @@ const { queryRepository } = manager.createWorkspace({
   id: "app-workspace",
   logging: false,
   dependencies,
+  onMount({ useRepository }){
+    useRepository<IUserRepository>({
+      id: "user-repo",
+      install({ instance }) {
+        const { dependencies, messenger } = instance;
+        return {
+          getUsers(params) {
+            console.log("GET USERS", params);
+          },
+        };
+      },
+    });
+    useRepository<IContractRepository>({
+      id: "contract-repo",
+      install({ instance }) {
+        const { dependencies, messenger } = instance;
+        return {
+          getContracts(params) {
+            console.log("GET CONTRACTS", params);
+          },
+        };
+      },
+    });
+  }
 }, ({ useRepository }) => {
-  useRepository<IUserRepository>({
-    id: "user-repo",
-    install({ instance }) {
-      const { dependencies, messenger } = instance;
-      return {
-        getUsers(params) {
-          console.log("GET USERS", params);
-          messenger.dispatch({
-            type: "user.get",
-            repositoryId: "contract-repo",
-            message: 'kita'
+  // useRepository<IUserRepository>({
+  //   id: "user-repo",
+  //   install({ instance }) {
+  //     const { dependencies, messenger } = instance;
+  //     return {
+  //       getUsers(params) {
+  //         console.log("GET USERS", params);
+  //         messenger.dispatch({
+  //           type: "user.get",
+  //           repositoryId: "contract-repo",
+  //           message: 'kita'
             
-          });
-        },
-      };
-    },
-  });
-  useRepository<IContractRepository>({
-    id: "contract-repo",
-    subscribe(event, repo) {
-      console.log("SUBSCRIBE", event);
-      repo.getContracts(123);
-    },
-    install({ instance }) {
-      const { dependencies, messenger } = instance;
-      return {
-        getContracts(params) {
-          console.log("GET CONTRACTS", params);
-        },
-      };
-    },
-  });
+  //         });
+  //       },
+  //     };
+  //   },
+  // });
+  // useRepository<IContractRepository>({
+  //   id: "contract-repo",
+  //   subscribe(event, repo) {
+  //     console.log("SUBSCRIBE", event);
+  //     repo.getContracts(123);
+  //   },
+  //   install({ instance }) {
+  //     const { dependencies, messenger } = instance;
+  //     return {
+  //       getContracts(params) {
+  //         console.log("GET CONTRACTS", params);
+  //       },
+  //     };
+  //   },
+  // });
 });
 
 let userRepository = queryRepository<IUserRepository>("user-repo");
