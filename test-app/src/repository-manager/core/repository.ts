@@ -37,6 +37,22 @@ function createRepository<D>(
         if (onConnect) {
           onConnect();
         }
+        if(repositoryConfig.subscribe) {
+          const unsubscribe = observer.subscribe({
+            scope: repositoryConfig.id,
+            eventName: "dispatch",
+            callback({ payload }) {
+
+              const { type, message, source } = payload;
+              repositoryConfig.subscribe!({
+                type,
+                message: message ?? undefined,
+                source,
+              }, repository);
+            },
+          });
+          subscriptions.push(unsubscribe);
+        }
       }
       connections += 1;
     },

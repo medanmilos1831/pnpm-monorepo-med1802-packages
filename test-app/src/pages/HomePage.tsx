@@ -21,61 +21,41 @@ const dependencies = {
 };
 const { queryRepository } = manager.createWorkspace({
   id: "app-workspace",
-  logging: true,
+  logging: false,
   dependencies,
-  repositories: () => {
-    return [
-      {
-        id: "user-repo",
-        install({ instance }): IUserRepository {
-          const { dependencies, messenger } = instance;
-
-          return {
-            getUsers(params) {
-              messenger.dispatch<{
-                userId: number;
-              }>({
-                type: "getUsers",
-                repositoryId: "contract-repo",
-                // repositoryId: 'user-repo',
-                message: { userId: 1 },
-              });
-            },
-          };
-        },
-        onConnect: () => {
-          console.log("%cON CONNECT USER REPO", "color: green");
-        },
-        onDisconnect: () => {
-          console.log("ON DISCONNECT USER REPO");
-        },
-        middlewares: [],
-      },
-      {
-        id: "contract-repo",
-        install({ instance }): IContractRepository {
-          const { dependencies, messenger } = instance;
-          messenger.subscribe<{
-            contractId: number;
-          }>((data) => {
-            console.log("SUBSCRIBED CONTRACT REPO", data);
+}, ({ useRepository }) => {
+  useRepository<IUserRepository>({
+    id: "user-repo",
+    install({ instance }) {
+      const { dependencies, messenger } = instance;
+      return {
+        getUsers(params) {
+          console.log("GET USERS", params);
+          messenger.dispatch({
+            type: "user.get",
+            repositoryId: "contract-repo",
+            message: 'kita'
+            
           });
-          return {
-            getContracts(params) {
-              console.log("GET CONTRACTS", params);
-            },
-          };
         },
-        onConnect: () => {
-          console.log("%cON CONNECT CONTRACT REPO", "color: green");
+      };
+    },
+  });
+  useRepository<IContractRepository>({
+    id: "contract-repo",
+    subscribe(event, repo) {
+      console.log("SUBSCRIBE", event);
+      repo.getContracts(123);
+    },
+    install({ instance }) {
+      const { dependencies, messenger } = instance;
+      return {
+        getContracts(params) {
+          console.log("GET CONTRACTS", params);
         },
-        onDisconnect: () => {
-          console.log("ON DISCONNECT CONTRACT REPO");
-        },
-        middlewares: [],
-      },
-    ];
-  },
+      };
+    },
+  });
 });
 
 let userRepository = queryRepository<IUserRepository>("user-repo");

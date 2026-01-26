@@ -1,4 +1,4 @@
-import type { IMessenger } from "./observer.types";
+import type { IMessenger, IMessengerSubscribePayload } from "./observer.types";
 
 export interface IRepositoryConfig<D = any, R = any> {
   id: string;
@@ -6,6 +6,7 @@ export interface IRepositoryConfig<D = any, R = any> {
   middlewares?: Middleware[];
   onConnect?: () => void;
   onDisconnect?: () => void;
+  subscribe?: (event: IMessengerSubscribePayload, repo: R ) => void;
 }
 
 export type repositoryType<D = any, R = any> = (obj: {

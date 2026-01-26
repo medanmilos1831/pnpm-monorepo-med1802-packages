@@ -4,5 +4,4 @@ export interface IWorkspaceConfig<D = any> {
   id: string;
   logging?: boolean;
   dependencies: D;
-  repositories: () => IRepositoryConfig<D, any>[];
 }

@@ -7,7 +7,7 @@ import {
 } from "../infrastructure";
 import type { IRepositoryInstance } from "../types";
 
-interface IWorkspaceContext<D = any> {
+export interface IWorkspaceContext<D = any> {
   store: ReturnType<typeof createStore<IRepositoryInstance<any>>>;
   logger: ReturnType<typeof createLogger>;
   observer: ReturnType<typeof createScopedObserver>;
