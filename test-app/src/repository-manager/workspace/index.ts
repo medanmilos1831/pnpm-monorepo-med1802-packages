@@ -1,3 +1,3 @@
 export * from "./context";
-export * from "./mount";
+export * from "./setup";
 export * from "./client";
