@@ -3,6 +3,7 @@ import { createLogger, createScopedObserver, createStore } from "../infrastructu
 import type { IRepositoryConfig, IRepositoryInstance, IWorkspaceConfig } from "../types";
 
 function mountWorkspace<D = any>(config: IWorkspaceConfig<D>, repos: IRepositoryConfig<D, any>[]){
+    
     const { id, logging } = config;
     const defaultConfig: Omit<IWorkspaceConfig, "dependencies"> = {
         id,
