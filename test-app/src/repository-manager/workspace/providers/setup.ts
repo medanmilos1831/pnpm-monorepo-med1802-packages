@@ -1,7 +1,18 @@
 import { createLogger, createScopedObserver, createScope, createStore, useScope, type ScopeNode } from "../../infrastructure";
 import type { IRepositoryConfig, IRepositoryInstance, IWorkspaceConfig } from "../../types";
 
-const setupScope = createScope<any>(undefined);
+
+interface IWorkspaceSetupContext<D = any> {
+    id: string,
+    dependencies: D,
+    repositories: IRepositoryConfig<D, any>[],
+    scopes: ScopeNode[],
+    logger: ReturnType<typeof createLogger>,
+    store: ReturnType<typeof createStore<IRepositoryInstance<any>>>,
+    observer: ReturnType<typeof createScopedObserver>,
+    allRepositories: () => { repository: string, connections: number }[],
+}
+const setupScope = createScope<IWorkspaceSetupContext<any> | undefined>(undefined);
 
 function setupWorkspaceProvider<D = any>(config: IWorkspaceConfig<D>, child: () => void){
     let repositories = [] as IRepositoryConfig<D, any>[];
@@ -24,7 +35,6 @@ function setupWorkspaceProvider<D = any>(config: IWorkspaceConfig<D>, child: () 
     setupScope.provider({
         id: config.id,
         dependencies: config.dependencies,
-        logging: config.logging,
         repositories,
         scopes,
         logger,
@@ -41,8 +51,8 @@ function setupWorkspaceProvider<D = any>(config: IWorkspaceConfig<D>, child: () 
     });
 }
 
-function useWorkspaceSetup(){
-    const context = useScope(setupScope)!;
+function useWorkspaceSetup<D = any>(){
+    const context = useScope<IWorkspaceSetupContext<D>>(setupScope)!;
     return context;
 }
 

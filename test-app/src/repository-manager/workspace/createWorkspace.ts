@@ -4,7 +4,7 @@ import { useWorkspaceSetup } from "./providers";
 
 
 function createWorkspace<D = any>(){
-    const { repositories, store, logger, observer, allRepositories, dependencies } = useWorkspaceSetup();
+    const { repositories, store, logger, observer, allRepositories, dependencies } = useWorkspaceSetup<D>();
     repositories.forEach((repository: IRepositoryConfig<D, any>) => {
         const { id } = repository;
         if (store.hasState(id)) return;

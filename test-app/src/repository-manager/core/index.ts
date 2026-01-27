@@ -8,7 +8,7 @@ function createRepository<D>(
   repositoryConfig: IRepositoryConfig<D, any>,
 ) {
 
-  const { dependencies, observer } = useWorkspaceSetup()
+  const { dependencies, observer } = useWorkspaceSetup<D>()
   const { install, middlewares, onConnect, onDisconnect } = repositoryConfig;
   let repository = undefined as unknown;
   let connections = 0;
