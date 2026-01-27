@@ -19,7 +19,7 @@ const dependencies = {
     },
   },
 };
-const { queryRepository } = manager.createWorkspace({
+const { queryRepository } = manager.workspaceClient({
   id: "app-workspace",
   logging: false,
   dependencies,

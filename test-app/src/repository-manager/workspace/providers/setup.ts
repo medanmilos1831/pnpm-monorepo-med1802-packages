@@ -3,7 +3,7 @@ import type { IRepositoryConfig, IRepositoryInstance, IWorkspaceConfig } from ".
 
 const setupScope = createScope<any>(undefined);
 
-function setupProvider<D = any>(config: IWorkspaceConfig<D>, child: () => void){
+function setupWorkspaceProvider<D = any>(config: IWorkspaceConfig<D>, child: () => void){
     let repositories = [] as IRepositoryConfig<D, any>[];
     let scopes = [] as ScopeNode[];
     config.onSetup({
@@ -41,9 +41,9 @@ function setupProvider<D = any>(config: IWorkspaceConfig<D>, child: () => void){
     });
 }
 
-function useSetup<D = any>(){
-    const context = useScope<any>(setupScope)!;
+function useWorkspaceSetup(){
+    const context = useScope(setupScope)!;
     return context;
 }
 
-export { setupProvider, useSetup };
+export { setupWorkspaceProvider, useWorkspaceSetup };

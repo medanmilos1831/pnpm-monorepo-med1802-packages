@@ -1,9 +1,10 @@
-import { createRepository } from "../../core";
-import type { IRepositoryConfig } from "../../types";
-import { useSetup } from "./context";
+import { createRepository } from "../core";
+import type { IRepositoryConfig } from "../types";
+import { useWorkspaceSetup } from "./providers";
 
-function createApp<D = any>(){
-    const { repositories, store, logger, observer, allRepositories, dependencies } = useSetup<D>();
+
+function createWorkspace<D = any>(){
+    const { repositories, store, logger, observer, allRepositories, dependencies } = useWorkspaceSetup();
     repositories.forEach((repository: IRepositoryConfig<D, any>) => {
         const { id } = repository;
         if (store.hasState(id)) return;
@@ -19,4 +20,4 @@ function createApp<D = any>(){
 
 }
 
-export { createApp };
+export { createWorkspace };

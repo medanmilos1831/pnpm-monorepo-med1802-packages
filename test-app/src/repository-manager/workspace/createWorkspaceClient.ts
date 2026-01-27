@@ -1,5 +1,5 @@
 import type { repositoryType } from "../types";
-import { workspace } from "../workspace";
+import { workspace } from ".";
 
 function createWorkspaceClient<I>() {
   const { store, allRepositories, logger } = workspace<I>();

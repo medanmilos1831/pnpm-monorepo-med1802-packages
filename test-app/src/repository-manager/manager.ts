@@ -1,15 +1,22 @@
 import type { IWorkspaceConfig } from "./types";
-import { createWorkspaceClient, setup, workspaceProvider } from "./workspace";
+import { createWorkspace, createWorkspaceClient, setupWorkspaceProvider, workspaceProvider } from "./workspace";
+
 
 const repositoryManager = () => {
   return {
-    createWorkspace<D>(config: IWorkspaceConfig<D>) {
-      let workspace = setup<D>(config);
+    workspaceClient<D>(config: IWorkspaceConfig<D>) {
       let client: ReturnType<typeof createWorkspaceClient<D>> = undefined!;
 
-      workspaceProvider<D>(workspace, () => {
-        client = createWorkspaceClient<D>();
+      setupWorkspaceProvider(config, () => {
+
+          let workspace = createWorkspace();
+
+          workspaceProvider<D>(workspace, () => {
+            client = createWorkspaceClient<D>();
+          });
+
       });
+
       return client;
     },
   };
