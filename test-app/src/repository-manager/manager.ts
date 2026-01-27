@@ -5,7 +5,7 @@ import { createWorkspace, createWorkspaceClient, setupWorkspaceProvider, workspa
 const repositoryManager = () => {
   return {
     workspaceClient<D>(config: IWorkspaceConfig<D>) {
-      let client: ReturnType<typeof createWorkspaceClient<D>> = undefined!;
+      let client: ReturnType<typeof createWorkspaceClient<D>>;
 
       setupWorkspaceProvider(config, () => {
 
@@ -17,7 +17,7 @@ const repositoryManager = () => {
 
       });
 
-      return client;
+      return client!;
     },
   };
 };
