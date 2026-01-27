@@ -1,13 +1,14 @@
 import type { scopedObserverType } from "../infrastructure";
 import type { IRepositoryConfig } from "../types";
+import { useSetup } from "../workspace/setup/context";
 import { createMessenger } from "./messenger";
 import { applyMiddleware } from "./middleware";
 
 function createRepository<D>(
-  dependencies: D,
   repositoryConfig: IRepositoryConfig<D, any>,
-  observer: scopedObserverType
 ) {
+
+  const { dependencies, observer } = useSetup<D>()
   const { install, middlewares, onConnect, onDisconnect } = repositoryConfig;
   let repository = undefined as unknown;
   let connections = 0;
@@ -41,7 +42,7 @@ function createRepository<D>(
           const unsubscribe = observer.subscribe({
             scope: repositoryConfig.id,
             eventName: "dispatch",
-            callback({ payload }) {
+            callback({ payload }: any) {
 
               const { type, message, source } = payload;
               repositoryConfig.subscribe!({

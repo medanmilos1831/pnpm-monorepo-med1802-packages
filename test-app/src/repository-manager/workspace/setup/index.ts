@@ -1,18 +1,16 @@
 import type { IWorkspaceConfig } from "../../types";
-import { createInventory } from "./invetory";
-import { mount } from "./mount";
+import { setupProvider } from "./context";
+import { createApp } from "./createApp";
 
 function setup<D = any>(config: IWorkspaceConfig<D>){
-    const { repositories, scopes } = mount(config.onMount); 
-    const { run } = createInventory(config, scopes);
-    const { logger, store, observer, allRepositories, dependencies } = run(repositories);
-    return {
-        allRepositories,
-        dependencies,
-        logger,
-        store,
-        observer,
-    };
+    let app = undefined as any;
+
+    setupProvider(config, () => {
+
+        app = createApp();
+
+    });
+    return app
 }
 
 export { setup };
