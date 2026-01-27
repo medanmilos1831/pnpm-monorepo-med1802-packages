@@ -6,13 +6,13 @@ const setupScope = createScope<any>(undefined);
 function setupProvider<D = any>(config: IWorkspaceConfig<D>, child: () => void){
     let repositories = [] as IRepositoryConfig<D, any>[];
     let scopes = [] as ScopeNode[];
-    config.onMount({
+    config.onSetup({
         useRepository<R>(repository: IRepositoryConfig<D, R>){
             repositories.push(repository);
         }
     });
     scopes = repositories.map((repository) => ({ scope: repository.id }));
-    const defaultConfig: Omit<IWorkspaceConfig, "dependencies" | "onMount"> = {
+    const defaultConfig: Omit<IWorkspaceConfig, "dependencies" | "onSetup"> = {
         id: config.id,
         logging: config.logging ?? false,
     };

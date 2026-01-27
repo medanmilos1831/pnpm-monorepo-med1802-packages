@@ -23,7 +23,7 @@ const { queryRepository } = manager.createWorkspace({
   id: "app-workspace",
   logging: false,
   dependencies,
-  onMount({ useRepository }){
+  onSetup({ useRepository }){
     useRepository<IUserRepository>({
       id: "user-repo",
       install({ instance }) {
