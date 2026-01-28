@@ -487,54 +487,6 @@ const dbWorkspace = manager.workspaceClient({
 // Each workspace has isolated repositories and signal broadcasters
 ```
 
-### TypeScript Best Practices
-
-Define clear interfaces for type safety:
-
-```typescript
-// Dependencies interface
-interface IDependencies {
-  httpClient: IHttpClient;
-  cache: ICache;
-  logger: ILogger;
-}
-
-// Repository interface
-interface IUserRepository {
-  getUsers(): Promise<User[]>;
-  createUser(user: User): Promise<User>;
-}
-
-// Workspace with typed dependencies
-const { queryRepository } = manager.workspaceClient<IDependencies>({
-  id: "app",
-  dependencies,
-  onSetup({ useRepository }) {
-    useRepository<IUserRepository>({
-      id: "user-repo",
-      install({ instance }): IUserRepository {
-        const { dependencies } = instance;
-        return {
-          async getUsers() {
-            // TypeScript knows dependencies type
-            return dependencies.httpClient.get("/users");
-          },
-          async createUser(user) {
-            // TypeScript validates User type
-            return dependencies.httpClient.post("/users", user);
-          },
-        };
-      },
-    });
-  },
-  logging: true,
-});
-
-// Query with typed repository
-const { repository } = queryRepository<IUserRepository>("user-repo");
-// TypeScript knows all repository methods
-```
-
 ### Lifecycle Management
 
 Repositories use reference counting for automatic lifecycle:
@@ -615,15 +567,3 @@ const { queryRepository } = manager.workspaceClient({
   logging: true, // Enables colored console output
 });
 ```
-
-## 🏗️ Design Patterns
-
-This library implements several design patterns:
-
-- **Dependency Injection** - Dependencies are injected into repositories
-- **Factory Pattern** - Repositories are created using factory functions
-- **Singleton Pattern** - Each repository is a singleton per workspace (with reference counting)
-- **Repository Pattern** - Abstracts data access logic
-- **Signal Broadcasting** - Fire-and-forget communication between repositories
-- **Workspace Pattern** - Clean API for managing dependencies and lifecycle
-- **Observer Pattern** - Repositories can broadcast and listen to signals
