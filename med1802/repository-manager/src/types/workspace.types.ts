@@ -4,5 +4,7 @@ export interface IWorkspaceConfig<D = any> {
   id: string;
   logging?: boolean;
   dependencies: D;
-  repositories: () => IRepositoryConfig<D, any>[];
+  onSetup(obj: {
+    useRepository<R>(repository: IRepositoryConfig<D, R>): void
+  }): void;
 }

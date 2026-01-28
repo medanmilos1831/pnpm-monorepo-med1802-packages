@@ -1,3 +1,3 @@
-export * from "./context";
-export * from "./mount";
-export * from "./client";
+export * from "./providers";
+export * from "./createWorkspace";
+export * from "./createWorkspaceClient";

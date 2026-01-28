@@ -44,7 +44,7 @@ const { queryRepository } = manager.workspaceClient({
       id: "contract-repo",
       onSignal(event, repo) {
         console.log("SUBSCRIBE", event);
-        // repo.getContracts(123);
+        repo.getContracts(123);
       },
       install({ instance }) {
         const { dependencies, signal } = instance;

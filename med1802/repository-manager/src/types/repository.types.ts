@@ -1,4 +1,4 @@
-import type { IMessenger } from "./observer.types";
+import type { ISignalPayload, ISignalSubscribePayload } from "./observer.types";
 
 export interface IRepositoryConfig<D = any, R = any> {
   id: string;
@@ -6,12 +6,13 @@ export interface IRepositoryConfig<D = any, R = any> {
   middlewares?: Middleware[];
   onConnect?: () => void;
   onDisconnect?: () => void;
+  onSignal?: (event: ISignalSubscribePayload, repo: R ) => void;
 }
 
 export type repositoryType<D = any, R = any> = (obj: {
   instance: {
     dependencies: D;
-    messenger: IMessenger;
+    signal<S = any>(payload: ISignalPayload<S>): void;
   };
 }) => R;
 
