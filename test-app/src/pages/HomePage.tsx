@@ -27,14 +27,14 @@ const { queryRepository } = manager.workspaceClient({
     useRepository<IUserRepository>({
       id: "user-repo",
       install({ instance }) {
-        const { dependencies, messenger } = instance;
+        const { dependencies, signal } = instance;
         return {
           getUsers(params) {
             console.log("GET USERS", params);
-            messenger.dispatch({
+            signal({
               type: "user.get",
               repositoryId: "contract-repo",
-              message: 'kita'
+              message: 123
             });
           },
         };
@@ -42,12 +42,12 @@ const { queryRepository } = manager.workspaceClient({
     });
     useRepository<IContractRepository>({
       id: "contract-repo",
-      subscribe(event, repo) {
+      onSignal(event, repo) {
         console.log("SUBSCRIBE", event);
-        repo.getContracts(123);
+        // repo.getContracts(123);
       },
       install({ instance }) {
-        const { dependencies, messenger } = instance;
+        const { dependencies, signal } = instance;
         return {
           getContracts(params) {
             console.log("GET CONTRACTS", params);

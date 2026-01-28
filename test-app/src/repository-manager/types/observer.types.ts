@@ -1,18 +1,18 @@
-export type IMessengerDispatch<P = any> = {
+export type ISignalPayload<P = any> = {
   type: string;
   repositoryId: string;
   message?: P;
 };
 
-export type IMessengerSubscribePayload<P = any> = {
+export type ISignalSubscribePayload<P = any> = {
   type: string;
   source: string;
   message: P;
 };
 
-export type IMessenger = {
-  dispatch<P = any>(payload: IMessengerDispatch<P>): void;
+export type ISignalBroadcaster = {
+  signal<P = any>(payload: ISignalPayload<P>): void;
   subscribe<P = any>(
-    callback: (payload: IMessengerSubscribePayload<P>) => void
-  ): void;
+    callback: (payload: ISignalSubscribePayload<P>) => void
+  ): (() => void);
 };

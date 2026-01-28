@@ -1,7 +1,7 @@
 import type { IRepositoryConfig } from "../types";
 import { useWorkspaceSetup } from "../workspace";
 
-import { createMessenger } from "./messenger";
+import { createSignalBroadcaster } from "./createSignalBroadcaster";
 import { applyMiddleware } from "./middleware";
 
 function createRepository<D>(
@@ -12,7 +12,12 @@ function createRepository<D>(
   const { install, middlewares, onConnect, onDisconnect } = repositoryConfig;
   let repository = undefined as unknown;
   let connections = 0;
-  let subscriptions: (() => void)[] = [];
+  let unsubscribe = () => {};
+  const { signal, subscribe } = createSignalBroadcaster({
+    observer,
+    repositoryConfig,
+  });
+
   return {
     get repository() {
       return repository;
@@ -25,11 +30,7 @@ function createRepository<D>(
         const rawRepository = install({
           instance: {
             dependencies,
-            messenger: createMessenger({
-              observer,
-              subscriptions,
-              repositoryConfig,
-            }),
+            signal,
           },
         });
         repository = middlewares
@@ -38,21 +39,10 @@ function createRepository<D>(
         if (onConnect) {
           onConnect();
         }
-        if(repositoryConfig.subscribe) {
-          const unsubscribe = observer.subscribe({
-            scope: repositoryConfig.id,
-            eventName: "dispatch",
-            callback({ payload }: any) {
-
-              const { type, message, source } = payload;
-              repositoryConfig.subscribe!({
-                type,
-                message: message ?? undefined,
-                source,
-              }, repository);
-            },
+        if(repositoryConfig.onSignal) {
+          unsubscribe = subscribe((payload) => {
+            repositoryConfig.onSignal!(payload, repository);
           });
-          subscriptions.push(unsubscribe);
         }
       }
       connections += 1;
@@ -62,8 +52,8 @@ function createRepository<D>(
       connections -= 1;
       if (connections === 0) {
         repository = undefined;
-        subscriptions.forEach((unsubscribe) => unsubscribe());
-        subscriptions = [];
+        unsubscribe();
+        unsubscribe = () => {};
         if (onDisconnect) {
           onDisconnect();
         }

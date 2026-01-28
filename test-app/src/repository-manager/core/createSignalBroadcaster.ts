@@ -1,14 +1,13 @@
 import type { scopedObserverType } from "../infrastructure";
-import type { IMessenger, IRepositoryConfig } from "../types";
+import type { ISignalBroadcaster, IRepositoryConfig } from "../types";
 
-function createMessenger (config: {
+function createSignalBroadcaster (config: {
     observer: scopedObserverType;
-    subscriptions: (() => void)[];
     repositoryConfig: IRepositoryConfig;
-}): IMessenger {
-    const { observer, subscriptions, repositoryConfig } = config;
+}): ISignalBroadcaster {
+    const { observer, repositoryConfig } = config;
     return {
-      dispatch({ repositoryId, type, message }){
+      signal({ repositoryId, type, message }){
         if (repositoryId === repositoryConfig.id) {
           console.warn("WARNING: DISPATCHING TO SELF");
           return;
@@ -24,10 +23,6 @@ function createMessenger (config: {
         });
       },
       subscribe(handler) {
-        if (subscriptions.length > 0) {
-          console.warn("WARNING: SUBSCRIBED ALREADY");
-          return;
-        }
         const unsubscribe = observer.subscribe({
           scope: repositoryConfig.id,
           eventName: "dispatch",
@@ -40,9 +35,9 @@ function createMessenger (config: {
             });
           },
         });
-        subscriptions.push(unsubscribe);
+        return unsubscribe;
       },
     };
   }
 
-export { createMessenger };
+export { createSignalBroadcaster };
