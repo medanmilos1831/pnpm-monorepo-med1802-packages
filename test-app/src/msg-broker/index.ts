@@ -6,6 +6,10 @@ const createMessageBroker = () => {
     const storage = diskStorage();
     const producer = createProducer(storage);
     const consumer = createConsumer(storage);
+
+    setTimeout(() => {
+        console.log(storage.getRecords());
+    }, 1000);
     return {
         producer,
         consumer,

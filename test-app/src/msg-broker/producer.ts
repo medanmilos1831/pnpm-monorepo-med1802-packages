@@ -1,7 +1,7 @@
 import type { IDiskStorage } from "./types";
 
 function createProducer(storage: IDiskStorage) {
-    return (params: Parameters<IDiskStorage['createRecord']>[0]) => {
+    return (params: any) => {
         storage.createRecord(params);
     }
 }
