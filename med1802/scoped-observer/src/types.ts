@@ -1,3 +1,10 @@
+type ScopeApi = {
+  scope: ScopeFn
+  beforeDispatch: (handler: BeforeDispatchHandler) => void
+}
+
+type ScopeFn = (name: string, define?: (api: ScopeApi) => void) => void
+
 type ObserverEvent = {
   scope?: string
   type: string
@@ -7,10 +14,6 @@ type ObserverEvent = {
 
 type EventHandler = (event: ObserverEvent) => void
 
-type BeforeDispatchHandler = (
-  event: ObserverEvent & { preventDefault: () => void },
-) => void
-
 type FallbackAction = 'dispatch' | 'subscribe'
 
 type FallbackHandler = (params: {
@@ -19,15 +22,14 @@ type FallbackHandler = (params: {
   action: FallbackAction
 }) => void
 
-type ScopeApi = {
+type BeforeDispatchHandler = (
+  event: ObserverEvent & { preventDefault: () => void },
+) => void
+
+type ObserverApi = {
   scope: ScopeFn
-  beforeDispatch: (handler: BeforeDispatchHandler) => void
-}
-
-type ScopeFn = (name: string, define?: (api: ScopeApi) => void) => void
-
-type ObserverApi = ScopeApi & {
   fallback: (handler: FallbackHandler) => void
+  beforeDispatch: (handler: BeforeDispatchHandler) => void
 }
 
 type DispatchParams = ObserverEvent
@@ -47,13 +49,13 @@ type Channel = {
 }
 
 export type {
-  ObserverEvent,
-  EventHandler,
-  BeforeDispatchHandler,
-  FallbackAction,
-  FallbackHandler,
   ScopeApi,
   ScopeFn,
+  ObserverEvent,
+  EventHandler,
+  FallbackAction,
+  FallbackHandler,
+  BeforeDispatchHandler,
   ObserverApi,
   DispatchParams,
   SubscribeParams,

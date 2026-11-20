@@ -1,19 +1,13 @@
 import type {
   Channel,
   DispatchParams,
-  EventHandler,
-  FallbackAction,
   FallbackHandler,
   ObserverApi,
-  ObserverEvent,
-  ScopeApi,
+  ScopeFn,
   SubscribeParams,
 } from './types'
 
 const MAX_EVENT_HISTORY = 10
-const SCOPE_SEPARATOR = '.'
-
-const defaultFallback: FallbackHandler = () => {}
 
 function createChannel(): Channel {
   return {
@@ -24,115 +18,111 @@ function createChannel(): Channel {
   }
 }
 
-function createScopeApi(channel: Channel): ScopeApi {
-  return {
-    scope(name, define) {
-      const child = createChannel()
-      channel.children[name] = child
-      define?.(createScopeApi(child))
-    },
-    beforeDispatch(handler) {
-      channel.beforeDispatch = handler
-    },
-  }
-}
-
-function findChannel(root: Channel, scope?: string) {
-  if (!scope) {
-    return root
-  }
-
-  let channel: Channel | undefined = root
-  for (const name of scope.split(SCOPE_SEPARATOR)) {
-    channel = channel.children[name]
-    if (!channel) {
-      return undefined
-    }
-  }
-
-  return channel
-}
-
-function isPrevented(channel: Channel, event: ObserverEvent) {
-  let prevented = false
-  channel.beforeDispatch({
-    ...event,
-    preventDefault() {
-      prevented = true
-    },
-  })
-  return prevented
-}
-
-function record(channel: Channel, event: ObserverEvent) {
-  channel.history.push(event)
-  if (channel.history.length > MAX_EVENT_HISTORY) {
-    channel.history.shift()
-  }
-}
-
-function emit(channel: Channel, event: ObserverEvent) {
-  channel.target.dispatchEvent(new CustomEvent(event.type, { detail: event }))
-}
-
-function replayHistory(
-  channel: Channel,
-  type: string,
-  replay: true | number,
-  handler: EventHandler,
-) {
-  const events = channel.history.filter((event) => event.type === type)
-  const count = replay === true ? events.length : replay
-  events.slice(-count).forEach(handler)
-}
-
-function listen(channel: Channel, type: string, handler: EventHandler) {
-  const listener = (event: Event) =>
-    handler((event as CustomEvent<ObserverEvent>).detail)
-  channel.target.addEventListener(type, listener)
-  return () => channel.target.removeEventListener(type, listener)
-}
-
 function createObserver(init: (api: ObserverApi) => void) {
   const root = createChannel()
-  let fallback = defaultFallback
 
-  init({
-    ...createScopeApi(root),
-    fallback(handler) {
-      fallback = handler
-    },
-  })
+  let fallbackHandler: FallbackHandler = () => {}
 
-  function resolve(action: FallbackAction, scope?: string, type?: string) {
-    const channel = findChannel(root, scope)
-    if (!channel) {
-      fallback({ scope, type, action })
+  function defineScope(parent: Channel): ScopeFn {
+    return (name, define) => {
+      const channel = createChannel()
+      parent.children[name] = channel
+      define?.({
+        scope: defineScope(channel),
+        beforeDispatch(handler) {
+          channel.beforeDispatch = handler
+        },
+      })
     }
+  }
+
+  function findChannel(scope?: string) {
+    if (!scope) {
+      return root
+    }
+
+    let channel = root
+    for (const part of scope.split('.')) {
+      const child = channel.children[part]
+      if (!child) {
+        return undefined
+      }
+      channel = child
+    }
+
     return channel
   }
 
+  init({
+    scope: defineScope(root),
+    fallback(handler) {
+      fallbackHandler = handler
+    },
+    beforeDispatch(handler) {
+      root.beforeDispatch = handler
+    },
+  })
+
   return {
     dispatch({ scope, type, payload, src }: DispatchParams) {
-      const event: ObserverEvent = { scope, type, payload, src }
-      const channel = resolve('dispatch', scope, type)
-      if (!channel || isPrevented(channel, event)) {
+      const channel = findChannel(scope)
+      if (!channel) {
+        fallbackHandler({ scope, type, action: 'dispatch' })
         return
       }
 
-      record(channel, event)
-      emit(channel, event)
+      let prevented = false
+      channel.beforeDispatch({
+        scope,
+        type,
+        payload,
+        src,
+        preventDefault() {
+          prevented = true
+        },
+      })
+      if (prevented) {
+        return
+      }
+
+      channel.history.push({ type, payload, src, scope })
+      if (channel.history.length > MAX_EVENT_HISTORY) {
+        channel.history.shift()
+      }
+
+      channel.target.dispatchEvent(
+        new CustomEvent(type, { detail: { payload, src } }),
+      )
     },
     subscribe({ scope, type, handler, replay }: SubscribeParams) {
-      const channel = resolve('subscribe', scope, type)
+      const channel = findChannel(scope)
       if (!channel) {
+        fallbackHandler({ scope, type, action: 'subscribe' })
         return () => {}
       }
 
       if (replay) {
-        replayHistory(channel, type, replay, handler)
+        const events = channel.history.filter((event) => event.type === type)
+        const count = replay === true ? events.length : replay
+        for (const event of events.slice(-count)) {
+          handler({
+            payload: event.payload,
+            src: event.src,
+            scope,
+            type,
+          })
+        }
       }
-      return listen(channel, type, handler)
+
+      const listener = (event: Event) => {
+        const { payload, src } = (event as CustomEvent).detail
+        handler({ payload, src, scope, type })
+      }
+
+      channel.target.addEventListener(type, listener)
+      return () => {
+        channel.target.removeEventListener(type, listener)
+      }
     },
   }
 }
