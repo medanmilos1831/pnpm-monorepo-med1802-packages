@@ -12,8 +12,6 @@ Define a scope tree once, then `dispatch` / `subscribe` by path — useful for c
 - Optional event history replay (`replay: true | number`)
 - Per-scope `beforeDispatch` with `preventDefault`
 - Customizable `fallback` for unknown scopes
-- `clear(scope?)` to wipe history (whole tree, or a subtree)
-- `destroy(scope?)` to detach subscribers and clear history (whole tree, or a subtree)
 - Optional `src` on events for tracing who dispatched
 - Zero dependencies — works in browser and any bundler that supports `EventTarget`
 
@@ -77,8 +75,6 @@ const unsubscribe = observer.subscribe({
   },
 })
 
-observer.clear('user')
-observer.destroy()
 unsubscribe()
 ```
 
@@ -111,7 +107,7 @@ createObserver(({ scope }) => {
 
 ### `createObserver(init)`
 
-Defines the scope tree once. Returns an `Observer` with `dispatch`, `subscribe`, and `clear`.
+Defines the scope tree once. Returns an `Observer` with `dispatch` and `subscribe`.
 
 `init` receives:
 
@@ -119,7 +115,7 @@ Defines the scope tree once. Returns an `Observer` with `dispatch`, `subscribe`,
 |---|---|
 | `scope(name, define?)` | Register a child scope; `define` can nest further scopes and set `beforeDispatch` |
 | `beforeDispatch(handler)` | Pre-dispatch hook for **this** channel (root when called from `init`) |
-| `fallback(handler)` | Called when `dispatch` / `subscribe` / `clear` target an unknown scope |
+| `fallback(handler)` | Called when `dispatch` / `subscribe` target an unknown scope |
 
 Only one `beforeDispatch` / `fallback` handler is kept per channel / observer — a later call replaces the previous one.
 
@@ -171,30 +167,6 @@ observer.subscribe({
   },
 })
 ```
-
-### `observer.clear(scope?)`
-
-Clears event history for a scope subtree, or the **whole** tree when `scope` is omitted.
-
-Does not remove subscribers or scopes — only history used by `replay`.
-
-```ts
-observer.clear('user') // user + nested scopes
-observer.clear()       // entire tree
-```
-
-### `observer.destroy(scope?)`
-
-Detaches subscribers, clears history, and resets `beforeDispatch` for a scope subtree — or the **entire** observer when `scope` is omitted.
-
-Scope structure stays fixed at init (no runtime add/remove of scopes). After a full `destroy()` (no scope), further API calls are no-ops.
-
-```ts
-observer.destroy('user.profile') // that subtree only; scopes remain
-observer.destroy()               // whole observer is dead
-```
-
-Each channel keeps its own `listeners` list so `destroy` can detach them without relying on callers to unsubscribe.
 
 ## Recipes
 
@@ -295,8 +267,7 @@ import type {
 
 - **No bubbling / capturing** — subscribe to the exact scope you care about.
 - **History cap** — 10 events per channel (all types share one buffer; replay still filters by `type`).
-- **Immutable tree** — scopes are registered only inside `createObserver(...)`; `clear` / `destroy` do not add or remove scope nodes.
-- **`clear` vs `destroy`** — `clear(scope?)` only wipes history; `destroy(scope?)` also unsubscribes. Full `destroy()` shuts the observer down.
+- **Immutable tree** — scopes are registered only inside `createObserver(...)`; no runtime add/remove.
 - **Duplicate scope names** — registering the same child name twice under one parent overwrites the previous channel.
 - **`createScopedObserver`** — exported alias of `createObserver`; uses the **v2** API, not the 1.x signature.
 
@@ -313,7 +284,6 @@ v2 is a clean break. There is no compatibility layer.
 | Always replays last payload | Opt-in via `replay` |
 | Silent / `console.warn` on missing scope | Silent by default; set `fallback` |
 | — | `beforeDispatch` + `preventDefault` |
-| — | `clear(scope?)` / `destroy(scope?)` |
 | — | `src` on events |
 
 ### Before (1.x)
