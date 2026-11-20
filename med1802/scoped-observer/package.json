@@ -1,14 +1,25 @@
 {
   "name": "@med1802/scoped-observer",
-  "version": "1.1.4",
+  "version": "2.0.0",
+  "description": "Hierarchical scoped event observer built on EventTarget",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
+  "keywords": [
+    "observer",
+    "events",
+    "scopes",
+    "eventtarget"
+  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/medanmilos1831/scoped-observer.git",
+    "url": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages.git",
     "directory": "med1802/scoped-observer"
   },
   "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/scoped-observer#readme"
