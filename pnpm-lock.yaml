@@ -22,50 +22,25 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
 
-  med1802/react-toggle-observer:
+  med1802/repository-manager:
     dependencies:
       '@med1802/scoped-observer':
-        specifier: ^1.1.4
-        version: 1.1.4
-      '@med1802/scoped-observer-message-broker':
-        specifier: ^2.1.0
-        version: 2.1.0(@med1802/scoped-observer@1.1.4)
-      use-sync-external-store:
-        specifier: ^1.6.0
-        version: 1.6.0(react@19.2.0)
-    devDependencies:
-      '@types/use-sync-external-store':
-        specifier: ^0.0.6
-        version: 0.0.6
-
-  med1802/repository-engine:
-    dependencies:
-      '@med1802/scoped-observer':
-        specifier: ^1.1.4
-        version: 1.1.4
-      '@med1802/scoped-observer-message-broker':
-        specifier: ^2.1.0
-        version: 2.1.0(@med1802/scoped-observer@1.1.4)
+        specifier: workspace:^
+        version: link:../scoped-observer
 
   med1802/scoped-observer: {}
 
   med1802/scoped-observer-message-broker:
-    dependencies:
+    devDependencies:
       '@med1802/scoped-observer':
-        specifier: ^1.1.4
-        version: 1.1.4
+        specifier: workspace:^
+        version: link:../scoped-observer
 
   test-app:
     dependencies:
-      '@med1802/react-toggle-observer':
-        specifier: ^1.0.0
-        version: 1.0.0(react@19.2.0)
-      '@med1802/scoped-observer':
-        specifier: ^1.1.4
-        version: 1.1.4
-      '@med1802/scoped-observer-message-broker':
-        specifier: ^2.1.0
-        version: 2.1.0(@med1802/scoped-observer@1.1.4)
+      '@med1802/repository-manager':
+        specifier: ^2.2.2
+        version: 2.2.2
       '@tanstack/store':
         specifier: ^0.8.0
         version: 0.8.0
@@ -426,16 +401,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.30':
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
 
-  '@med1802/react-toggle-observer@1.0.0':
-    resolution: {integrity: sha512-ZAuywevMXsXzWfLuo8Im/kzb8TUzI4oC+pP+kbIafOFKIvEF4kbCFp2Fl4U2cY46RVYeK7XjdsP13ez34R/WLw==}
-
-  '@med1802/scoped-observer-message-broker@2.1.0':
-    resolution: {integrity: sha512-iNG0uSaNbuTG3M652pEgIDgfUcA+tIYsgi5nEUgr1eF67A+B3zLIkTVN9F+dM6xYi+DUq1wupAS5lU2zIXuq4A==}
-    peerDependencies:
-      '@med1802/scoped-observer': ^1.1.4
-
-  '@med1802/scoped-observer@1.1.4':
-    resolution: {integrity: sha512-cZrQNNEHXmelCz9fffhNAfeTP64Ued4S9Re2B+VerJotRyioyxHOw5BJvr+QGYcMQQANmQNTQ2UYl/oyEyUbSw==}
+  '@med1802/repository-manager@2.2.2':
+    resolution: {integrity: sha512-/HMpSGBEtbLn8croTcYNI71F4Q80IHj+msrDXeXLHqvXDWBl5Y7f8woMTRp6krTrUSo4cOzCKFBBEcE/n2kilQ==}
 
   '@rc-component/async-validator@5.0.4':
     resolution: {integrity: sha512-qgGdcVIF604M9EqjNF0hbUTz42bz/RDtxWdWuU5EQe3hi7M8ob54B6B35rOsvX5eSvIHIzT9iH1R3n+hk3CGfg==}
@@ -634,9 +601,6 @@ packages:
 
   '@types/react@19.2.6':
     resolution: {integrity: sha512-p/jUvulfgU7oKtj6Xpk8cA2Y1xKTtICGpJYeJXz2YVO2UcvjQgeRMLDGfDeqeRW2Ta+0QNFwcc8X3GH8SxZz6w==}
-
-  '@types/use-sync-external-store@0.0.6':
-    resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
 
   '@types/use-sync-external-store@1.5.0':
     resolution: {integrity: sha512-5dyB8nLC/qogMrlCizZnYWQTA4lnb/v+It+sqNl5YnSRAPMlIqY/X0Xn+gZw8vOL+TgTTr28VEbn3uf8fUtAkw==}
@@ -1417,19 +1381,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@med1802/react-toggle-observer@1.0.0(react@19.2.0)':
-    dependencies:
-      '@med1802/scoped-observer': 1.1.4
-      '@med1802/scoped-observer-message-broker': 2.1.0(@med1802/scoped-observer@1.1.4)
-      use-sync-external-store: 1.6.0(react@19.2.0)
-    transitivePeerDependencies:
-      - react
-
-  '@med1802/scoped-observer-message-broker@2.1.0(@med1802/scoped-observer@1.1.4)':
-    dependencies:
-      '@med1802/scoped-observer': 1.1.4
-
-  '@med1802/scoped-observer@1.1.4': {}
+  '@med1802/repository-manager@2.2.2': {}
 
   '@rc-component/async-validator@5.0.4':
     dependencies:
@@ -1608,8 +1560,6 @@ snapshots:
   '@types/react@19.2.6':
     dependencies:
       csstype: 3.2.3
-
-  '@types/use-sync-external-store@0.0.6': {}
 
   '@types/use-sync-external-store@1.5.0': {}
 

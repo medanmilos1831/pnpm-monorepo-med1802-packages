@@ -1,17 +1,28 @@
 {
   "name": "@med1802/scoped-observer-message-broker",
-  "version": "2.1.0",
+  "version": "3.0.0",
+  "description": "Publish/subscribe message broker with interceptors on top of @med1802/scoped-observer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
-  "dependencies": {
-    "@med1802/scoped-observer": "^1.1.4"
-  },
   "peerDependencies": {
-    "@med1802/scoped-observer": "^1.1.4"
+    "@med1802/scoped-observer": "^2.0.0"
   },
+  "devDependencies": {
+    "@med1802/scoped-observer": "workspace:^"
+  },
+  "keywords": [
+    "observer",
+    "message-broker",
+    "interceptor",
+    "events"
+  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages.git",

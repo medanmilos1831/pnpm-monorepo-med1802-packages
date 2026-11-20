@@ -1,14 +1,22 @@
 {
   "name": "@med1802/repository-manager",
-  "version": "3.2.0",
+  "version": "4.0.0",
+  "description": "Type-safe repository manager with DI, signals, and multi-workspace support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
+  "dependencies": {
+    "@med1802/scoped-observer": "workspace:^"
+  },
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/medanmilos1831/repository-manager.git",
+    "url": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages.git",
     "directory": "med1802/repository-manager"
   },
   "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/repository-manager#readme"

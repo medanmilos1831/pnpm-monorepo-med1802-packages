@@ -2,6 +2,8 @@
 
 A lightweight, type-safe repository manager with dependency injection, event-driven architecture, lifecycle management, and multi-workspace support for TypeScript/JavaScript applications.
 
+**Current version: 4.x** — signals use `@med1802/scoped-observer@^2` (no more vendored observer). Public `repositoryManager` / workspace API is unchanged.
+
 ## ✨ Features
 
 - ✅ **Dependency Injection** - Inject dependencies into repositories

@@ -1,98 +1,113 @@
 import type {
-  scopedObserverType,
-  scopedObserverDispatchType,
-  scopedObserverSubscribeType,
-} from "@med1802/scoped-observer";
+  DispatchParams,
+  Observer,
+  SubscribeParams,
+} from '@med1802/scoped-observer'
 
 type PublishInterceptor = (params: {
-  eventName: string;
-  payload?: any;
-}) => { eventName: string; payload?: any } | null | false;
+  type: string
+  payload?: any
+}) => { type: string; payload?: any } | null | false
 
 type SubscribeInterceptor = (params: {
-  eventName: string;
-}) => { eventName: string } | null | false;
+  type: string
+}) => { type: string } | null | false
 
-const createMessageBroker = (observer: scopedObserverType) => {
-  const publishInterceptors = new Map<string, PublishInterceptor[]>();
-  const subscribeInterceptors = new Map<string, SubscribeInterceptor>();
+function interceptorKey(scope: string | undefined, type: string) {
+  return scope ? `${scope}.${type}` : type
+}
+
+function createMessageBroker(observer: Observer) {
+  const publishInterceptors = new Map<string, PublishInterceptor[]>()
+  const subscribeInterceptors = new Map<string, SubscribeInterceptor>()
 
   return {
     interceptor({
       scope,
-      eventName,
+      type,
       onPublish,
       onSubscribe,
     }: {
-      scope?: string;
-      eventName: string;
-      onPublish?: PublishInterceptor;
-      onSubscribe?: SubscribeInterceptor;
+      scope?: string
+      type: string
+      onPublish?: PublishInterceptor
+      onSubscribe?: SubscribeInterceptor
     }) {
-      const key = scope ? `${scope}:${eventName}` : eventName;
+      const key = interceptorKey(scope, type)
 
       if (onPublish) {
-        const existing = publishInterceptors.get(key) || [];
-        existing.push(onPublish);
-        publishInterceptors.set(key, existing);
+        const existing = publishInterceptors.get(key) || []
+        existing.push(onPublish)
+        publishInterceptors.set(key, existing)
       }
       if (onSubscribe) {
-        subscribeInterceptors.set(key, onSubscribe);
+        subscribeInterceptors.set(key, onSubscribe)
       }
-      return () => {
-        publishInterceptors.delete(key);
-      };
-    },
-    publish({ scope, eventName, payload }: scopedObserverDispatchType) {
-      let currentEventName = eventName;
-      let currentPayload = payload;
 
-      // Try scope-specific interceptor first, then global
-      const scopeKey = scope ? `${scope}:${currentEventName}` : undefined;
-      const interceptors = scopeKey
-        ? publishInterceptors.get(scopeKey) ||
-          publishInterceptors.get(currentEventName) ||
+      return () => {
+        publishInterceptors.delete(key)
+        subscribeInterceptors.delete(key)
+      }
+    },
+    publish({ scope, type, payload, src }: DispatchParams) {
+      let currentType = type
+      let currentPayload = payload
+
+      const scopedKey = scope ? interceptorKey(scope, currentType) : undefined
+      const interceptors = scopedKey
+        ? publishInterceptors.get(scopedKey) ||
+          publishInterceptors.get(currentType) ||
           []
-        : publishInterceptors.get(currentEventName) || [];
+        : publishInterceptors.get(currentType) || []
 
       for (const interceptor of interceptors) {
         const result = interceptor({
-          eventName: currentEventName,
+          type: currentType,
           payload: currentPayload,
-        });
+        })
 
         if (result === null || result === false) {
-          return;
+          return
         }
 
-        currentEventName = result.eventName;
-        currentPayload = result.payload;
+        currentType = result.type
+        currentPayload = result.payload
       }
 
       observer.dispatch({
         scope,
-        eventName: currentEventName,
+        type: currentType,
         payload: currentPayload,
-      });
+        src,
+      })
     },
-    subscribe({ scope, eventName, callback }: scopedObserverSubscribeType) {
-      // Try scope-specific interceptor first, then global
-      const scopeKey = scope ? `${scope}:${eventName}` : undefined;
-      const interceptor = scopeKey
-        ? subscribeInterceptors.get(scopeKey) ||
-          subscribeInterceptors.get(eventName)
-        : subscribeInterceptors.get(eventName);
+    subscribe({ scope, type, handler, replay }: SubscribeParams) {
+      const scopedKey = scope ? interceptorKey(scope, type) : undefined
+      const interceptor = scopedKey
+        ? subscribeInterceptors.get(scopedKey) ||
+          subscribeInterceptors.get(type)
+        : subscribeInterceptors.get(type)
 
+      let currentType = type
       if (interceptor) {
-        const result = interceptor({ eventName });
+        const result = interceptor({ type })
         if (result === null || result === false) {
-          return () => {};
+          return () => {}
         }
-        eventName = result.eventName;
+        currentType = result.type
       }
-      return observer.subscribe({ scope, eventName, callback });
-    },
-  };
-};
 
-export { createMessageBroker };
+      return observer.subscribe({
+        scope,
+        type: currentType,
+        handler,
+        replay,
+      })
+    },
+  }
+}
+
+type MessageBroker = ReturnType<typeof createMessageBroker>
+
+export { createMessageBroker }
+export type { MessageBroker, PublishInterceptor, SubscribeInterceptor }

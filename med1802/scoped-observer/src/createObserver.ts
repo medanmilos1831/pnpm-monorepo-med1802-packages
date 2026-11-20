@@ -1,5 +1,6 @@
 import type {
   Channel,
+  ChannelListener,
   DispatchParams,
   EventHandler,
   FallbackAction,
@@ -21,6 +22,7 @@ function createChannel(): Channel {
     history: [],
     children: {},
     beforeDispatch: () => {},
+    listeners: [],
   }
 }
 
@@ -87,10 +89,20 @@ function replayHistory(
 }
 
 function listen(channel: Channel, type: string, handler: EventHandler) {
-  const listener = (event: Event) =>
+  const listener: EventListener = (event) =>
     handler((event as CustomEvent<ObserverEvent>).detail)
+
+  const entry: ChannelListener = { type, listener }
   channel.target.addEventListener(type, listener)
-  return () => channel.target.removeEventListener(type, listener)
+  channel.listeners.push(entry)
+
+  return () => {
+    channel.target.removeEventListener(type, listener)
+    const index = channel.listeners.indexOf(entry)
+    if (index >= 0) {
+      channel.listeners.splice(index, 1)
+    }
+  }
 }
 
 function clearHistory(channel: Channel) {
@@ -98,9 +110,20 @@ function clearHistory(channel: Channel) {
   Object.values(channel.children).forEach(clearHistory)
 }
 
+function destroyChannel(channel: Channel) {
+  for (const { type, listener } of channel.listeners) {
+    channel.target.removeEventListener(type, listener)
+  }
+  channel.listeners.length = 0
+  channel.history.length = 0
+  channel.beforeDispatch = () => {}
+  Object.values(channel.children).forEach(destroyChannel)
+}
+
 function createObserver(init: (api: ObserverApi) => void) {
   const root = createChannel()
   let fallback = defaultFallback
+  let alive = true
 
   init({
     ...createScopeApi(root),
@@ -110,6 +133,10 @@ function createObserver(init: (api: ObserverApi) => void) {
   })
 
   function resolve(action: FallbackAction, scope?: string, type?: string) {
+    if (!alive) {
+      return undefined
+    }
+
     const channel = findChannel(root, scope)
     if (!channel) {
       fallback({ scope, type, action })
@@ -143,6 +170,18 @@ function createObserver(init: (api: ObserverApi) => void) {
       const channel = resolve('clear', scope)
       if (channel) {
         clearHistory(channel)
+      }
+    },
+    destroy(scope?: string) {
+      const channel = resolve('destroy', scope)
+      if (!channel) {
+        return
+      }
+
+      destroyChannel(channel)
+
+      if (!scope) {
+        alive = false
       }
     },
   }
