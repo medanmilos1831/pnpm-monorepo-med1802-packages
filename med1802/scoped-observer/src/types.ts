@@ -41,11 +41,17 @@ type SubscribeParams = {
   replay?: boolean | number
 }
 
+type ChannelListener = {
+  type: string
+  listener: EventListener
+}
+
 type Channel = {
   target: EventTarget
   history: ObserverEvent[]
   children: Record<string, Channel>
   beforeDispatch: BeforeDispatchHandler
+  listeners: ChannelListener[]
 }
 
 export type {
@@ -59,5 +65,6 @@ export type {
   ObserverApi,
   DispatchParams,
   SubscribeParams,
+  ChannelListener,
   Channel,
 }

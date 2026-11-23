@@ -11,6 +11,7 @@ Define a scope tree once, then `dispatch` / `subscribe` by path — useful for c
 - Hierarchical scopes via a nested `scope()` DSL
 - Optional event history replay (`replay: true | number`)
 - Per-scope `beforeDispatch` with `preventDefault`
+- `destroy()` to unsubscribe everyone and clear all history
 - Customizable `fallback` for unknown scopes
 - Optional `src` on events for tracing who dispatched
 - Zero dependencies — works in browser and any bundler that supports `EventTarget`
@@ -107,7 +108,7 @@ createObserver(({ scope }) => {
 
 ### `createObserver(init)`
 
-Defines the scope tree once. Returns an `Observer` with `dispatch` and `subscribe`.
+Defines the scope tree once. Returns an `Observer` with `dispatch`, `subscribe`, and `destroy`.
 
 `init` receives:
 
@@ -166,6 +167,19 @@ observer.subscribe({
     // sync UI from last known state
   },
 })
+```
+
+### `observer.destroy()`
+
+Tears down the whole observer runtime (not per-scope):
+
+1. Unsubscribes every active listener on every channel.
+2. Clears event history on every channel.
+
+The scope tree itself stays intact — later `dispatch` / `subscribe` still work on the same paths.
+
+```ts
+observer.destroy()
 ```
 
 ## Recipes

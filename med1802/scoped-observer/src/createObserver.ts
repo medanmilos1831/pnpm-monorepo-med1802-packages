@@ -15,6 +15,26 @@ function createChannel(): Channel {
     history: [],
     children: {},
     beforeDispatch: () => {},
+    listeners: [],
+  }
+}
+
+function unsubscribeAll(channel: Channel) {
+  for (const { type, listener } of channel.listeners) {
+    channel.target.removeEventListener(type, listener)
+  }
+  channel.listeners = []
+
+  for (const child of Object.values(channel.children)) {
+    unsubscribeAll(child)
+  }
+}
+
+function clearHistory(channel: Channel) {
+  channel.history.length = 0
+
+  for (const child of Object.values(channel.children)) {
+    clearHistory(child)
   }
 }
 
@@ -120,9 +140,18 @@ function createObserver(init: (api: ObserverApi) => void) {
       }
 
       channel.target.addEventListener(type, listener)
+      channel.listeners.push({ type, listener })
+
       return () => {
         channel.target.removeEventListener(type, listener)
+        channel.listeners = channel.listeners.filter(
+          (entry) => entry.listener !== listener,
+        )
       }
+    },
+    destroy() {
+      unsubscribeAll(root)
+      clearHistory(root)
     },
   }
 }
