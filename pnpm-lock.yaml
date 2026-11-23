@@ -30,6 +30,18 @@ importers:
 
   med1802/scoped-observer: {}
 
+  med1802/scoped-observer-react:
+    devDependencies:
+      '@med1802/scoped-observer':
+        specifier: workspace:^
+        version: link:../scoped-observer
+      '@types/react':
+        specifier: ^18.3.23
+        version: 18.3.23
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+
   med1802/scoped-observer-vue:
     devDependencies:
       '@med1802/scoped-observer':

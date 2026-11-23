@@ -1,0 +1,36 @@
+{
+  "name": "@med1802/scoped-observer-react",
+  "version": "1.0.0",
+  "description": "React bindings for @med1802/scoped-observer",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@med1802/scoped-observer": "^2.3.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@med1802/scoped-observer": "workspace:^",
+    "@types/react": "^18.3.23",
+    "react": "^18.3.1"
+  },
+  "keywords": [
+    "observer",
+    "events",
+    "scopes",
+    "react",
+    "scoped-observer"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages.git",
+    "directory": "med1802/scoped-observer-react"
+  },
+  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/scoped-observer-react#readme"
+}
