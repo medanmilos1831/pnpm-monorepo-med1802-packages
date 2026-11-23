@@ -15,6 +15,7 @@
   },
   "references": [
     {"path": "./med1802/scoped-observer"},
+    {"path": "./med1802/scoped-observer-vue"},
     {"path": "./med1802/repository-manager"}
   ]
 }

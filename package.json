@@ -16,6 +16,8 @@
     "scripts": {
         "build:med1802-scoped-observer": "pnpm --filter @med1802/scoped-observer run build",
         "publish:med1802-scoped-observer": "pnpm publish --filter @med1802/scoped-observer --access public",
+        "build:med1802-scoped-observer-vue": "pnpm --filter @med1802/scoped-observer-vue run build",
+        "publish:med1802-scoped-observer-vue": "pnpm publish --filter @med1802/scoped-observer-vue --access public",
         "build:med1802-repository-manager": "pnpm --filter @med1802/repository-manager run build",
         "publish:med1802-repository-manager": "pnpm publish --filter @med1802/repository-manager --access public"
     }

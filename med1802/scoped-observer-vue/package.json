@@ -1,0 +1,35 @@
+{
+  "name": "@med1802/scoped-observer-vue",
+  "version": "1.0.0",
+  "description": "Vue 3 bindings for @med1802/scoped-observer",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@med1802/scoped-observer": "^2.3.0",
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@med1802/scoped-observer": "workspace:^",
+    "vue": "^3.5.13"
+  },
+  "keywords": [
+    "observer",
+    "events",
+    "scopes",
+    "vue",
+    "scoped-observer"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages.git",
+    "directory": "med1802/scoped-observer-vue"
+  },
+  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/scoped-observer-vue#readme"
+}
