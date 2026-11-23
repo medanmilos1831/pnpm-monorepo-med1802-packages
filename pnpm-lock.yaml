@@ -30,49 +30,6 @@ importers:
 
   med1802/scoped-observer: {}
 
-  test-app:
-    dependencies:
-      '@med1802/repository-manager':
-        specifier: ^2.2.2
-        version: 2.2.2
-      '@tanstack/store':
-        specifier: ^0.8.0
-        version: 0.8.0
-      '@types/use-sync-external-store':
-        specifier: ^1.5.0
-        version: 1.5.0
-      antd:
-        specifier: ^5.29.1
-        version: 5.29.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      react:
-        specifier: ^19.2.0
-        version: 19.2.0
-      react-dom:
-        specifier: ^19.2.0
-        version: 19.2.0(react@19.2.0)
-      use-sync-external-store:
-        specifier: ^1.6.0
-        version: 1.6.0(react@19.2.0)
-    devDependencies:
-      '@types/node':
-        specifier: ^24.10.1
-        version: 24.10.1
-      '@types/react':
-        specifier: ^19.2.5
-        version: 19.2.6
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.6)
-      '@vitejs/plugin-react':
-        specifier: ^5.1.1
-        version: 5.1.1(vite@7.2.4(@types/node@24.10.1))
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vite:
-        specifier: ^7.2.4
-        version: 7.2.4(@types/node@24.10.1)
-
 packages:
 
   '@ant-design/colors@7.2.1':
