@@ -1,0 +1,33 @@
+{
+  "name": "@med1802/filter-vue",
+  "version": "1.0.0",
+  "description": "Headless Vue 3 filter state with typed Field slots",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "vue": "^3.5.13"
+  },
+  "keywords": [
+    "filter",
+    "vue",
+    "headless",
+    "forms",
+    "debounce"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages.git",
+    "directory": "med1802/filter-vue"
+  },
+  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/filter-vue#readme"
+}

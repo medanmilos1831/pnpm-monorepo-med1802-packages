@@ -22,6 +22,12 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
 
+  med1802/filter-vue:
+    devDependencies:
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.46(typescript@5.9.3)
+
   med1802/repository-manager:
     dependencies:
       '@med1802/scoped-observer':

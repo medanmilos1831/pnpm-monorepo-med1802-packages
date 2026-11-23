@@ -20,6 +20,8 @@
         "publish:med1802-scoped-observer-vue": "pnpm publish --filter @med1802/scoped-observer-vue --access public",
         "build:med1802-scoped-observer-react": "pnpm --filter @med1802/scoped-observer-react run build",
         "publish:med1802-scoped-observer-react": "pnpm publish --filter @med1802/scoped-observer-react --access public",
+        "build:med1802-filter-vue": "pnpm --filter @med1802/filter-vue run build",
+        "publish:med1802-filter-vue": "pnpm publish --filter @med1802/filter-vue --access public",
         "build:med1802-repository-manager": "pnpm --filter @med1802/repository-manager run build",
         "publish:med1802-repository-manager": "pnpm publish --filter @med1802/repository-manager --access public"
     }
