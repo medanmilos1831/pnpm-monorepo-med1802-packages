@@ -16,10 +16,11 @@ Peer: `vue` (^3).
 <script setup lang="ts">
 import { useFilter } from '@med1802/filter-vue'
 
-const { Field, useSelect, useActiveFields, reset, resetFields, setField } = useFilter({
+const { Field, useSelect, useActiveFields, reset, resetFields } = useFilter({
   defaults: {
-    q: '',
-    status: '',
+    fname: '',
+    lname: '',
+    age: null as number | null,
   },
 })
 
@@ -28,25 +29,52 @@ const activeFields = useActiveFields((fields) => fields)
 </script>
 
 <template>
-  <Field name="q" v-slot="{ field }">
-    <input
-      :value="String(field.state ?? '')"
-      @input="field.onChange(($event.target as HTMLInputElement).value)"
-    />
+  <Field name="fname" v-slot="{ field }">
+    <label>
+      First name
+      <input
+        :value="field.state"
+        @input="field.onChange(($event.target as HTMLInputElement).value)"
+      />
+    </label>
   </Field>
 
-  <Field name="status" :debounce="0" v-slot="{ field }">
-    <select
-      :value="String(field.state ?? '')"
-      @change="field.onChange(($event.target as HTMLSelectElement).value)"
-    >
-      <option value="">Any</option>
-      <option value="open">Open</option>
-    </select>
+  <Field name="lname" v-slot="{ field }">
+    <label>
+      Last name
+      <input
+        :value="field.state"
+        @input="field.onChange(($event.target as HTMLInputElement).value)"
+      />
+    </label>
+  </Field>
+
+  <Field name="age" :debounce="0" v-slot="{ field }">
+    <label>
+      Age
+      <input
+        type="number"
+        :value="field.state ?? ''"
+        @input="
+          field.onChange(
+            ($event.target as HTMLInputElement).value === ''
+              ? null
+              : Number(($event.target as HTMLInputElement).value),
+          )
+        "
+      />
+    </label>
   </Field>
 
   <button type="button" @click="reset">Reset all</button>
-  <button type="button" @click="resetFields(['q'])">Reset search</button>
+  <button type="button" @click="resetFields(['fname', 'lname'])">Reset names</button>
+
+  <ul>
+    <li v-for="item in activeFields" :key="item.name">
+      {{ item.name }}: {{ item.value }}
+      <button type="button" @click="item.reset()">Clear</button>
+    </li>
+  </ul>
 
   <pre>{{ state }}</pre>
 </template>

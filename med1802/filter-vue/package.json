@@ -1,6 +1,6 @@
 {
   "name": "@med1802/filter-vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Headless Vue 3 filter state with typed Field slots",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
