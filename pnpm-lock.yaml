@@ -30,12 +30,6 @@ importers:
 
   med1802/scoped-observer: {}
 
-  med1802/scoped-observer-message-broker:
-    devDependencies:
-      '@med1802/scoped-observer':
-        specifier: workspace:^
-        version: link:../scoped-observer
-
   test-app:
     dependencies:
       '@med1802/repository-manager':

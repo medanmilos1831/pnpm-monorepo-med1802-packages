@@ -16,8 +16,6 @@
     "scripts": {
         "build:med1802-scoped-observer": "pnpm --filter @med1802/scoped-observer run build",
         "publish:med1802-scoped-observer": "pnpm publish --filter @med1802/scoped-observer --access public",
-        "build:med1802-scoped-observer-message-broker": "pnpm --filter @med1802/scoped-observer-message-broker run build",
-        "publish:med1802-scoped-observer-message-broker": "pnpm publish --filter @med1802/scoped-observer-message-broker --access public",
         "build:med1802-repository-manager": "pnpm --filter @med1802/repository-manager run build",
         "publish:med1802-repository-manager": "pnpm publish --filter @med1802/repository-manager --access public"
     }

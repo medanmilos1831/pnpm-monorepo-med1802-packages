@@ -37,19 +37,11 @@ jobs:
       - name: Build packages
         run: |
           pnpm run build:med1802-scoped-observer
-          pnpm run build:med1802-scoped-observer-message-broker
-          pnpm run build:med1802-quantum-ui
-          pnpm run build:med1802-quantum-toggle
-          pnpm run build:med1802-quantum-scrollium
-          pnpm run build:med1802-quantum-ui-react
+          pnpm run build:med1802-repository-manager
 
       - name: Publish packages
         env:
           NPM_CONFIG_PROVENANCE: "true"
         run: |
           pnpm run publish:med1802-scoped-observer
-          pnpm run publish:med1802-scoped-observer-message-broker
-          pnpm run publish:med1802-quantum-ui
-          pnpm run publish:med1802-quantum-toggle
-          pnpm run publish:med1802-quantum-scrollium
-          pnpm run publish:med1802-quantum-ui-react
+          pnpm run publish:med1802-repository-manager
