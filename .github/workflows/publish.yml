@@ -40,7 +40,7 @@ jobs:
           pnpm run build:med1802-scoped-observer-vue
           pnpm run build:med1802-scoped-observer-react
           pnpm run build:med1802-filter-vue
-          pnpm run build:med1802-use-scroll-vue
+          pnpm run build:med1802-scroll-vue
           pnpm run build:med1802-repository-manager
 
       - name: Publish packages
@@ -51,5 +51,5 @@ jobs:
           pnpm run publish:med1802-scoped-observer-vue
           pnpm run publish:med1802-scoped-observer-react
           pnpm run publish:med1802-filter-vue
-          pnpm run publish:med1802-use-scroll-vue
+          pnpm run publish:med1802-scroll-vue
           pnpm run publish:med1802-repository-manager

@@ -57,7 +57,7 @@ importers:
         specifier: ^3.5.13
         version: 3.5.46(typescript@5.9.3)
 
-  med1802/use-scroll-vue:
+  med1802/scroll-vue:
     devDependencies:
       vue:
         specifier: ^3.5.13

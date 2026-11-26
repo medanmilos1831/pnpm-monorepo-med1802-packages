@@ -1,5 +1,5 @@
 {
-  "name": "@med1802/use-scroll-vue",
+  "name": "@med1802/scroll-vue",
   "version": "1.0.0",
   "description": "Headless Vue 3 scroll state with axis, direction, and Scroll provider",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages.git",
-    "directory": "med1802/use-scroll-vue"
+    "directory": "med1802/scroll-vue"
   },
-  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/use-scroll-vue#readme"
+  "homepage": "https://github.com/medanmilos1831/pnpm-monorepo-med1802-packages/tree/main/med1802/scroll-vue#readme"
 }

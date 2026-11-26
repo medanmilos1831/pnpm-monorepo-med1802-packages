@@ -1,4 +1,4 @@
-const STYLE_ID = 'med1802-use-scroll-vue'
+const STYLE_ID = 'med1802-scroll-vue'
 
 const CSS = `
 .scroll-root {

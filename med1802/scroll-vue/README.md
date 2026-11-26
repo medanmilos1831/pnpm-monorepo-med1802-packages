@@ -1,11 +1,11 @@
-# @med1802/use-scroll-vue
+# @med1802/scroll-vue
 
 Headless Vue 3 scroll state with axis, direction, edge detection, and a `Scroll` provider from the hook.
 
 ## Install
 
 ```bash
-npm i @med1802/use-scroll-vue
+npm i @med1802/scroll-vue
 ```
 
 Peer: `vue` (^3).
@@ -15,7 +15,7 @@ Peer: `vue` (^3).
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AXIS, useScroll } from '@med1802/use-scroll-vue'
+import { AXIS, useScroll } from '@med1802/scroll-vue'
 
 const { Scroll, scrollTo, scrollToStart, scrollToEnd, useSelect } = useScroll({
   throttle: 50,

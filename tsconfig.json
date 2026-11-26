@@ -18,7 +18,7 @@
     {"path": "./med1802/scoped-observer-vue"},
     {"path": "./med1802/scoped-observer-react"},
     {"path": "./med1802/filter-vue"},
-    {"path": "./med1802/use-scroll-vue"},
+    {"path": "./med1802/scroll-vue"},
     {"path": "./med1802/repository-manager"}
   ]
 }
